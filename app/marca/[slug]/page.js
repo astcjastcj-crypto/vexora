@@ -123,8 +123,8 @@ export default function BrandPage({ params }) {
               </div>
               <label className="terms-check"><input type="checkbox" id="vexora-terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} /><span>Acepto haber leído y comprendido las condiciones del acceso seleccionado.</span></label>
               <div className="purchase-actions">
-                <a href="https://wa.me/" target="_blank" rel="noreferrer" className={"purchase-action whatsapp" + (termsAccepted ? "" : " disabled")} aria-disabled={!termsAccepted} onClick={(e) => { if (!termsAccepted) e.preventDefault(); }}>Solicitar por WhatsApp <span>↗</span></a>
-                <a href="#" className={"purchase-action telegram" + (termsAccepted ? "" : " disabled")} aria-disabled={!termsAccepted} onClick={(e) => { if (!termsAccepted) e.preventDefault(); }}>Solicitar por Telegram <span>↗</span></a>
+                <a href="https://wa.me/51992491189?text=Hola%20VEXORA%2C%20quiero%20adquirir%20el%20acceso%20seleccionado." target="_blank" rel="noreferrer" className={"purchase-action whatsapp" + (termsAccepted ? "" : " disabled")} aria-disabled={!termsAccepted} onClick={(e) => { if (!termsAccepted) e.preventDefault(); }}>Solicitar por WhatsApp <span>↗</span></a>
+                <a href="https://t.me/Camerdj" target="_blank" rel="noreferrer" className={"purchase-action telegram" + (termsAccepted ? "" : " disabled")} aria-disabled={!termsAccepted} onClick={(e) => { if (!termsAccepted) e.preventDefault(); }}>Solicitar por Telegram <span>↗</span></a>
               </div>
               <small className="purchase-note">Al continuar, VEXORA recibirá tu solicitud para coordinar disponibilidad, pago y entrega.</small>
             </div>

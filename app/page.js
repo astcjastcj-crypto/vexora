@@ -3,11 +3,11 @@
 import { useState } from "react";
 
 const products = [
-  { name: "ChatGPT", type: "Inteligencia Artificial", mark: "GPT", price: "Desde S/19" },
-  { name: "Gemini", type: "Inteligencia Artificial", mark: "G", price: "Desde S/25" },
-  { name: "Spotify", type: "Streaming", mark: "♪", price: "Desde S/8" },
-  { name: "Canva Pro", type: "Diseño", mark: "C", price: "Desde S/3" },
-  { name: "GeForce NOW", type: "Gaming", mark: "GF", price: "Desde S/25" },
+  { name: "ChatGPT", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/openai/ffffff", price: "Desde S/19" },
+  { name: "Gemini", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/googlegemini/ffffff", price: "Desde S/25" },
+  { name: "Spotify", type: "Streaming", logo: "https://cdn.simpleicons.org/spotify/1ED760", price: "Desde S/8" },
+  { name: "Canva Pro", type: "Diseño", logo: "https://cdn.simpleicons.org/canva/00C4CC", price: "Desde S/3" },
+  { name: "GeForce NOW", type: "Gaming", logo: "https://cdn.simpleicons.org/nvidia/76B900", price: "Desde S/25" },
 ];
 
 const categories = ["Todos", "IA", "Streaming", "Gaming", "Productividad", "Diseño"];
@@ -90,7 +90,7 @@ export default function Home() {
                   onClick={() => setActive(index)}
                 >
                   <div className="card-shine" />
-                  <div className="product-mark">{product.mark}</div>
+                  <div className="product-mark"><img src={product.logo} alt={product.name + " logo"} /></div>
                   <span className="product-type">{product.type}</span>
                   <strong>{product.name}</strong>
                   <small>{product.price}</small>
@@ -148,7 +148,7 @@ export default function Home() {
         <div className="product-grid">
           {products.slice(0, 4).map((product, index) => (
             <article className="mini-product" key={product.name}>
-              <div className={"mini-mark mark-" + index}>{product.mark}</div>
+              <div className={"mini-mark mark-" + index}><img src={product.logo} alt={product.name + " logo"} /></div>
               <div>
                 <span>{product.type}</span>
                 <h3>{product.name}</h3>

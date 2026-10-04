@@ -45,6 +45,7 @@ export default function BrandPage({ params }) {
   const { slug } = params;
   const brand = brands[slug] || brands.chatgpt;
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   return (
     <main className="brand-page">
@@ -87,7 +88,7 @@ export default function BrandPage({ params }) {
                 <span className="plan-duration">{plan.duration}</span>
                 <strong>{plan.price}</strong>
                 <p>{plan.note}</p>
-                <button onClick={() => setSelectedPlan(plan)}>Elegir plan <span>↗</span></button>
+                <button onClick={() => { setSelectedPlan(plan); setTermsAccepted(false); }}>Elegir plan <span>↗</span></button>
               </article>
             ))}
           </div>
@@ -120,10 +121,10 @@ export default function BrandPage({ params }) {
                 <div><b>05</b><span><strong>Imágenes y archivos</strong>Las funciones de generación de imágenes, subida de archivos y otras herramientas pueden estar sujetas a <em>límites de uso</em> debido a que el acceso es compartido. Estos límites no representan un fallo del servicio.</span></div>
                 <div><b>06</b><span><strong>Condiciones del plan</strong>Las características, límites y condiciones corresponden al plan seleccionado. Antes de comprar, verifica que este acceso se adapte a tu forma de uso.</span></div>
               </div>
-              <label className="terms-check"><input type="checkbox" id="vexora-terms" /><span>Acepto haber leído y comprendido las condiciones del acceso seleccionado.</span></label>
+              <label className="terms-check"><input type="checkbox" id="vexora-terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} /><span>Acepto haber leído y comprendido las condiciones del acceso seleccionado.</span></label>
               <div className="purchase-actions">
-                <a href="https://wa.me/" target="_blank" rel="noreferrer" className="purchase-action whatsapp">Solicitar por WhatsApp <span>↗</span></a>
-                <a href="#" className="purchase-action telegram" onClick={(e) => e.preventDefault()}>Solicitar por Telegram <span>↗</span></a>
+                <a href="https://wa.me/" target="_blank" rel="noreferrer" className={"purchase-action whatsapp" + (termsAccepted ? "" : " disabled")} aria-disabled={!termsAccepted} onClick={(e) => { if (!termsAccepted) e.preventDefault(); }}>Solicitar por WhatsApp <span>↗</span></a>
+                <a href="#" className={"purchase-action telegram" + (termsAccepted ? "" : " disabled")} aria-disabled={!termsAccepted} onClick={(e) => { if (!termsAccepted) e.preventDefault(); }}>Solicitar por Telegram <span>↗</span></a>
               </div>
               <small className="purchase-note">Al continuar, VEXORA recibirá tu solicitud para coordinar disponibilidad, pago y entrega.</small>
             </div>

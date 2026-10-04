@@ -66,9 +66,9 @@ a { color: inherit; text-decoration: none; }
 .main-logo:active { cursor:grabbing; animation-play-state:paused; }
 .main-logo { animation:logoFloat 4.5s ease-in-out infinite; }
 .logo-3d { position:relative; width:145px; height:145px; display:block; transform-style:preserve-3d; animation:logoSpin 10s linear infinite; }
-.logo-3d .logo-face { position:absolute; inset:0; width:145px; height:145px; object-fit:contain; display:block; filter:drop-shadow(0 24px 35px rgba(0,0,0,.55)); pointer-events:none; }
+.logo-3d .logo-face { position:absolute; inset:0; width:145px; height:145px; object-fit:contain; display:block; z-index:20; filter:drop-shadow(0 24px 35px rgba(0,0,0,.55)); pointer-events:none; }
 .logo-depth { position:absolute; inset:0; width:145px; height:145px; transform-style:preserve-3d; pointer-events:none; }
-.logo-depth img { position:absolute; inset:0; width:145px; height:145px; object-fit:contain; display:block; opacity:.8; filter:brightness(.38) drop-shadow(0 8px 10px rgba(0,0,0,.55)); pointer-events:none; }
+.logo-depth img { position:absolute; inset:0; width:145px; height:145px; object-fit:contain; display:block; opacity:.72; filter:brightness(.52) drop-shadow(0 5px 7px rgba(0,0,0,.5)); pointer-events:none; }
 .logo-aura { position:absolute; width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,rgba(139,124,255,.18),transparent 65%); filter:blur(9px); pointer-events:none; }
 .side-logo { z-index:4; opacity:.34; filter:blur(.3px) brightness(.65); }
 .side-logo img { width:88px; height:88px; }

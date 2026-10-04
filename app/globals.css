@@ -275,3 +275,93 @@ a { color: inherit; text-decoration: none; }
     transition: none;
   }
 }
+
+
+.product-launch {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, rgba(126,111,255,.22), transparent 24%),
+    rgba(3,5,10,.94);
+  backdrop-filter: blur(14px);
+  animation: launchBackdrop .85s ease both;
+}
+.launch-logo-wrap {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  display: grid;
+  place-items: center;
+  animation: launchLogo .85s cubic-bezier(.12,.82,.18,1) both;
+}
+.launch-logo-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -35px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139,124,255,.34), transparent 67%);
+  filter: blur(10px);
+}
+.launch-logo-wrap img {
+  position: relative;
+  z-index: 2;
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 30px rgba(143,130,255,.45));
+}
+.launch-ring {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border: 1px solid rgba(154,143,255,.45);
+  border-radius: 50%;
+  box-shadow: 0 0 40px rgba(111,98,255,.15), inset 0 0 30px rgba(111,98,255,.08);
+}
+.launch-ring-one {
+  animation: launchRingOne .85s cubic-bezier(.2,.8,.2,1) both;
+}
+.launch-ring-two {
+  width: 390px;
+  height: 390px;
+  border-color: rgba(71,211,255,.18);
+  animation: launchRingTwo .85s cubic-bezier(.2,.8,.2,1) both;
+}
+.launch-label {
+  position: absolute;
+  top: calc(50% + 145px);
+  color: #9e97ff;
+  font: 700 9px 'Space Grotesk', sans-serif;
+  letter-spacing: .24em;
+  animation: launchLabel .55s .15s ease both;
+}
+@keyframes launchBackdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes launchLogo {
+  0% { opacity: .4; transform: scale(.55) rotateY(0deg); filter: blur(1px); }
+  45% { opacity: 1; transform: scale(1.25) rotateY(180deg); }
+  100% { opacity: 1; transform: scale(2.65) rotateY(360deg); }
+}
+@keyframes launchRingOne {
+  0% { opacity: 0; transform: scale(.2) rotate(0deg); }
+  55% { opacity: 1; }
+  100% { opacity: .05; transform: scale(1.8) rotate(130deg); }
+}
+@keyframes launchRingTwo {
+  0% { opacity: 0; transform: scale(.15) rotate(0deg); }
+  50% { opacity: .8; }
+  100% { opacity: 0; transform: scale(1.4) rotate(-90deg); }
+}
+@keyframes launchLabel {
+  from { opacity: 0; transform: translateY(8px); letter-spacing: .05em; }
+  to { opacity: 1; transform: translateY(0); letter-spacing: .24em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-launch * { animation-duration: .01ms !important; }
+}

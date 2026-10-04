@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 const brands = {
   chatgpt: {
@@ -38,9 +41,10 @@ const brands = {
   }
 };
 
-export default async function BrandPage({ params }) {
-  const { slug } = await params;
+export default function BrandPage({ params }) {
+  const { slug } = params;
   const brand = brands[slug] || brands.chatgpt;
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   return (
     <main className="brand-page">
@@ -83,7 +87,7 @@ export default async function BrandPage({ params }) {
                 <span className="plan-duration">{plan.duration}</span>
                 <strong>{plan.price}</strong>
                 <p>{plan.note}</p>
-                <button>Elegir plan <span>↗</span></button>
+                <button onClick={() => setSelectedPlan(plan)}>Elegir plan <span>↗</span></button>
               </article>
             ))}
           </div>
@@ -95,6 +99,37 @@ export default async function BrandPage({ params }) {
           </div>
         )}
       </section>
+
+      {selectedPlan && (
+        <div className="purchase-overlay" role="dialog" aria-modal="true" aria-label={"Información de " + selectedPlan.name}>
+          <div className="purchase-modal">
+            <button className="purchase-close" onClick={() => setSelectedPlan(null)} aria-label="Cerrar">×</button>
+            <div className="purchase-modal-head">
+              <div className="purchase-modal-logo"><img src={brand.logo} alt="" /></div>
+              <div><span>{brand.name} · {selectedPlan.duration}</span><h2>{selectedPlan.name}</h2><strong>{selectedPlan.price}</strong></div>
+            </div>
+            <div className="purchase-info">
+              <span className="purchase-kicker">ANTES DE CONTINUAR</span>
+              <h3>Información importante del acceso</h3>
+              <p>Este acceso se entrega con las condiciones indicadas a continuación. Léelas con atención antes de solicitar tu compra.</p>
+              <div className="purchase-rules">
+                <div><b>01</b><span><strong>Acceso y dispositivo</strong>El plan compartido está destinado a <em>1 dispositivo por cliente</em>. Recibirás el correo y la contraseña para ingresar.</span></div>
+                <div><b>02</b><span><strong>Código de acceso</strong>Al iniciar sesión, el servicio puede solicitar un código de verificación. <em>El código será proporcionado por el administrador de VEXORA</em> cuando corresponda.</span></div>
+                <div><b>03</b><span><strong>Uso responsable</strong>El acceso se entrega mediante un método de activación gestionado por VEXORA. No cambies el correo, contraseña, método de acceso ni la configuración de la cuenta.</span></div>
+                <div><b>04</b><span><strong>Proyectos y archivos</strong>Si utilizas proyectos, conversaciones o archivos importantes, mantén siempre una copia propia. En cuentas compartidas existen limitaciones de uso y disponibilidad.</span></div>
+                <div><b>05</b><span><strong>Imágenes y archivos</strong>Las funciones de generación de imágenes, subida de archivos y otras herramientas pueden estar sujetas a <em>límites de uso</em> debido a que el acceso es compartido. Estos límites no representan un fallo del servicio.</span></div>
+                <div><b>06</b><span><strong>Condiciones del plan</strong>Las características, límites y condiciones corresponden al plan seleccionado. Antes de comprar, verifica que este acceso se adapte a tu forma de uso.</span></div>
+              </div>
+              <label className="terms-check"><input type="checkbox" id="vexora-terms" /><span>Acepto haber leído y comprendido las condiciones del acceso seleccionado.</span></label>
+              <div className="purchase-actions">
+                <a href="https://wa.me/" target="_blank" rel="noreferrer" className="purchase-action whatsapp">Solicitar por WhatsApp <span>↗</span></a>
+                <a href="#" className="purchase-action telegram" onClick={(e) => e.preventDefault()}>Solicitar por Telegram <span>↗</span></a>
+              </div>
+              <small className="purchase-note">Al continuar, VEXORA recibirá tu solicitud para coordinar disponibilidad, pago y entrega.</small>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="brand-page-footer">
         <Link href="/">VEXORA — Tu acceso a lo digital.</Link>

@@ -84,8 +84,8 @@ export default function Home() {
 
               return (
                 <button
-                  className={"product-orbit-card " + (offset === 0 ? "is-center" : "")}
-                  style={{ "--offset": offset }}
+                  className={"product-orbit-card offset-" + offset + (offset === 0 ? " is-center" : "")}
+                  
                   key={product.name}
                   onClick={() => setActive(index)}
                 >

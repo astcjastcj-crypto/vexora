@@ -409,14 +409,14 @@ a { color: inherit; text-decoration: none; }
 .launch-particle-one { animation:launchParticleOne 2.1s ease both; }
 .launch-particle-two { animation:launchParticleTwo 2.2s .1s ease both; }
 .launch-particle-three { animation:launchParticleThree 2s .2s ease both; }
-@keyframes launchBackdrop { 0%{opacity:0} 12%{opacity:1} 82%{opacity:1} 100%{opacity:0} }
+@keyframes launchBackdrop { 0%{opacity:0} 12%{opacity:1} 100%{opacity:1} }
 @keyframes launchVignette { 0%,45%{opacity:.3} 78%{opacity:.85} 100%{opacity:1} }
 @keyframes launchLogo {
   0% { opacity:.45; transform:scale(.55) rotateY(0deg) rotateX(8deg); filter:blur(1px); }
   28% { opacity:1; transform:scale(.9) rotateY(75deg) rotateX(4deg); }
   58% { transform:scale(1.35) rotateY(190deg) rotateX(-3deg); }
   82% { transform:scale(2.15) rotateY(300deg) rotateX(0deg); filter:drop-shadow(0 0 55px rgba(143,130,255,.65)); }
-  100% { opacity:0; transform:scale(6.8) rotateY(360deg) rotateX(0deg); filter:blur(7px); }
+  100% { opacity:1; transform:scale(7.2) rotateY(360deg) rotateX(0deg); filter:blur(9px); }
 }
 @keyframes launchGlow { 0%{transform:scale(.5);opacity:.2} 55%{transform:scale(1.05);opacity:1} 100%{transform:scale(1.7);opacity:0} }
 @keyframes launchPulse { 0%{transform:scale(.3);opacity:0} 55%{transform:scale(1);opacity:1} 100%{transform:scale(1.9);opacity:0} }

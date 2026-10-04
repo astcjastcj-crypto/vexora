@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const products = [
   { name: "ChatGPT", type: "Inteligencia Artificial", logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/ChatGPT-Logo.svg", price: "Desde S/19" },
@@ -13,6 +14,7 @@ const products = [
 const categories = ["Todos", "IA", "Streaming", "Gaming", "Productividad", "Diseño"];
 
 export default function Home() {
+  const router = useRouter();
   const [active, setActive] = useState(0);
   const [category, setCategory] = useState("Todos");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -62,10 +64,12 @@ export default function Home() {
 
   const openProduct = (product) => {
     if (movedRef.current) return;
+    const path = "/marca/" + encodeURIComponent(product.name.toLowerCase().replace(/\\s+/g, "-"));
+    router.prefetch(path);
     setLaunching(product);
     window.setTimeout(() => {
-      window.location.href = "/marca/" + encodeURIComponent(product.name.toLowerCase().replace(/\\s+/g, "-"));
-    }, 2350);
+      router.push(path);
+    }, 2050);
   };
 
   const selectCategory = (item) => {

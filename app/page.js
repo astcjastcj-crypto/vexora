@@ -17,6 +17,12 @@ export default function Home() {
   const [category, setCategory] = useState("Todos");
   const [searchOpen, setSearchOpen] = useState(false);
   const [logoPosition, setLogoPosition] = useState({ x: 0, y: 0, rotate: 0 });
+  const filteredProducts = category === "Todos"
+    ? products
+    : products.filter((product) => {
+        const map = { IA: "Inteligencia Artificial" };
+        return product.type === (map[category] || category);
+      });
   const dragRef = useRef(null);
 
   const move = (direction) => {
@@ -48,6 +54,13 @@ export default function Home() {
   const endDrag = () => {
     dragRef.current = null;
     setLogoPosition({ x: 0, y: 0, rotate: 0 });
+  };
+
+  const selectCategory = (item) => {
+    setCategory(item);
+    window.requestAnimationFrame(() => {
+      document.getElementById("productos")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   };
 
   return (
@@ -152,7 +165,7 @@ export default function Home() {
         </div>
         <div className="category-pills">
           {categories.map((item) => (
-            <button key={item} className={category === item ? "category-pill active" : "category-pill"} onClick={() => setCategory(item)}>
+            <button key={item} className={category === item ? "category-pill active" : "category-pill"} onClick={() => selectCategory(item)}>
               <span>{item === "IA" ? "✦" : item === "Gaming" ? "⌁" : item === "Diseño" ? "◈" : "•"}</span>{item}
             </button>
           ))}
@@ -164,14 +177,21 @@ export default function Home() {
           <div><span className="section-kicker">SELECCIÓN VEXORA</span><h2>Productos populares</h2></div>
           <button className="view-all">Ver todos →</button>
         </div>
-        <div className="product-grid">
-          {products.slice(0, 4).map((product, index) => (
+        <div className="product-grid" key={category}>
+          {filteredProducts.slice(0, 4).map((product, index) => (
             <article className="mini-product" key={product.name}>
               <div className={"mini-mark mark-" + index}><img src={product.logo} alt={product.name + " logo"} /></div>
               <div><span>{product.type}</span><h3>{product.name}</h3><p>{product.price}</p></div>
               <button aria-label={"Ver " + product.name}>↗</button>
             </article>
           ))}
+          {filteredProducts.length === 0 && (
+            <div className="empty-category">
+              <span>PRÓXIMAMENTE</span>
+              <strong>Estamos preparando esta categoría.</strong>
+              <p>VEXORA irá incorporando nuevos productos aquí.</p>
+            </div>
+          )}
         </div>
       </section>
 

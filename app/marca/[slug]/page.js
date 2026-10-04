@@ -19,26 +19,92 @@ const brands = {
     name: "Gemini",
     type: "Inteligencia Artificial",
     logo: "https://cdn.simpleicons.org/googlegemini",
-    plans: []
+    plans: [
+      { name: "Gemini IA Pro", duration: "18 meses", price: "S/20", note: "Activación en tu propio Gmail · Sin garantía, garantía de activación" }
+    ]
   },
   spotify: {
     name: "Spotify",
     type: "Streaming",
     logo: "https://cdn.simpleicons.org/spotify",
-    plans: []
+    plans: [
+      { name: "Premium", duration: "3 meses", price: "S/40", note: "Correo y contraseña · No renovable" }
+    ]
   },
   "canva-pro": {
     name: "Canva Pro",
     type: "Diseño",
     logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Canva_logo.svg",
-    plans: []
+    plans: [
+      { name: "Pro", duration: "1 año", price: "S/25", note: "Invitación al equipo · Garantía completa" }
+    ]
   },
   "geforce-now": {
     name: "GeForce NOW",
     type: "Gaming",
     logo: "https://cdn.simpleicons.org/nvidia",
-    plans: []
+    plans: [
+      { name: "Performance", duration: "1 mes", price: "S/25", note: "USD 7.5 · Hasta 1440p y 60 FPS" },
+      { name: "Performance + 1 TB", duration: "1 mes", price: "S/42", note: "USD 12 · Performance + 1 TB de almacenamiento persistente" },
+      { name: "Ultimate", duration: "1 mes", price: "S/47", note: "USD 13.5 · Hasta 5K/120 FPS y hasta 360 FPS" },
+      { name: "Ultimate + 1 TB", duration: "1 mes", price: "S/65", note: "USD 18 · Ultimate + 1 TB de almacenamiento persistente" }
+    ]
   }
+};
+
+const getPurchaseRules = (brandName, plan) => {
+  if (brandName === "Gemini") {
+    return [
+      ["01", "Activación", "Recibirás un enlace para activar la oferta directamente en <em>tu propia cuenta de Gmail</em>."],
+      ["02", "Duración", "El acceso corresponde a <em>18 meses</em> de Gemini IA Pro según la oferta indicada."],
+      ["03", "Beneficios", "Incluye los beneficios disponibles de Gemini IA Pro, además de <em>5 TB de almacenamiento</em>, Nano Banana y Flow con créditos mensuales, según disponibilidad del servicio."],
+      ["04", "Garantía", "Este producto <em>no tiene garantía durante el período de servicio</em>. La garantía corresponde únicamente a la activación."],
+      ["05", "Cuenta personal", "La activación se realiza en tu propio Gmail. Verifica que estés utilizando la cuenta correcta antes de canjear el enlace."]
+    ];
+  }
+
+  if (brandName === "Spotify") {
+    return [
+      ["01", "Acceso", "Recibirás el <em>correo y la contraseña</em> correspondientes al acceso adquirido."],
+      ["02", "Duración", "El acceso tiene una duración de <em>3 meses</em>."],
+      ["03", "Renovación", "Este acceso es <em>no renovable</em>. Al finalizar el período, deberás adquirir un nuevo acceso si deseas continuar."],
+      ["04", "Uso", "No cambies el correo, contraseña ni la configuración del acceso entregado mientras esté activo."],
+      ["05", "Antes de comprar", "Verifica que las condiciones de este acceso se adapten a tu forma de uso antes de solicitar la compra."]
+    ];
+  }
+
+  if (brandName === "Canva Pro") {
+    return [
+      ["01", "Invitación", "Recibirás una <em>invitación en tu correo</em> para unirte al equipo de Canva Pro."],
+      ["02", "Activación", "Debes aceptar la invitación recibida para activar tu acceso. Utiliza el correo correcto antes de solicitar la compra."],
+      ["03", "Duración", "El acceso corresponde a <em>1 año</em> de Canva Pro."],
+      ["04", "Garantía", "Este producto cuenta con <em>garantía completa</em> durante el período indicado, según las condiciones de VEXORA."],
+      ["05", "Uso", "No abandones el equipo ni realices cambios que puedan afectar la activación o el acceso mientras el servicio esté vigente."]
+    ];
+  }
+
+  if (brandName === "GeForce NOW") {
+    const isUltimate = plan.name.includes("Ultimate");
+    const hasStorage = plan.name.includes("1 TB");
+    return [
+      ["01", "Biblioteca", "Puedes conectar bibliotecas compatibles como Steam, Epic Games, GOG, PC Game Pass y Ubisoft Connect para jugar títulos que ya posees."],
+      ["02", "Rendimiento", isUltimate ? "Ultimate ofrece servidores de mayor rendimiento, con streaming de hasta <em>5K a 120 FPS</em> y hasta <em>360 FPS</em> en escenarios compatibles." : "Performance ofrece streaming premium de hasta <em>1440p a 60 FPS</em>, según dispositivo, juego y conexión."],
+      ["03", "Tecnologías", "Los planes premium incluyen tecnologías como <em>Ray Tracing, NVIDIA DLSS y Reflex</em>, además de acceso prioritario a los servidores."],
+      ["04", "Install-to-Play", "Performance y Ultimate incluyen acceso a <em>Install-to-Play</em> para ampliar la biblioteca con miles de juegos Steam compatibles. También incluyen 100 GB de almacenamiento de sesión para esta función."],
+      ["05", "Almacenamiento", hasStorage ? "Este plan añade <em>1 TB de almacenamiento persistente</em> para conservar instalaciones y datos entre sesiones, según compatibilidad." : "El almacenamiento persistente de 1 TB no está incluido en este plan; puede existir como complemento independiente según disponibilidad."],
+      ["06", "Tiempo de juego", "Actualmente, Performance y Ultimate cuentan con <em>100 horas mensuales</em> de juego premium. Las horas no utilizadas pueden acumularse hasta el límite indicado por NVIDIA."],
+      ["07", "Requisitos", "El rendimiento real depende del dispositivo, juego, resolución, conexión y latencia. Se requiere una conexión adecuada y una cuenta del servicio."]
+    ];
+  }
+
+  return [
+    ["01", "Acceso y dispositivo", "El plan compartido está destinado a <em>1 dispositivo por cliente</em>. Recibirás el correo y la contraseña para ingresar."],
+    ["02", "Código de acceso", "Al iniciar sesión, el servicio puede solicitar un código de verificación. <em>El código será proporcionado por el administrador de VEXORA</em> cuando corresponda."],
+    ["03", "Uso responsable", "No cambies el correo, contraseña, método de acceso ni la configuración de la cuenta."],
+    ["04", "Proyectos y archivos", "Si utilizas proyectos, conversaciones o archivos importantes, mantén siempre una copia propia."],
+    ["05", "Imágenes y archivos", "Las funciones pueden estar sujetas a límites de uso según el tipo de acceso y disponibilidad del servicio."],
+    ["06", "Condiciones del plan", "Las características, límites y condiciones corresponden al plan seleccionado."]
+  ];
 };
 
 export default function BrandPage({ params }) {
@@ -114,12 +180,9 @@ export default function BrandPage({ params }) {
               <h3>Información importante del acceso</h3>
               <p>Este acceso se entrega con las condiciones indicadas a continuación. Léelas con atención antes de solicitar tu compra.</p>
               <div className="purchase-rules">
-                <div><b>01</b><span><strong>Acceso y dispositivo</strong>El plan compartido está destinado a <em>1 dispositivo por cliente</em>. Recibirás el correo y la contraseña para ingresar.</span></div>
-                <div><b>02</b><span><strong>Código de acceso</strong>Al iniciar sesión, el servicio puede solicitar un código de verificación. <em>El código será proporcionado por el administrador de VEXORA</em> cuando corresponda.</span></div>
-                <div><b>03</b><span><strong>Uso responsable</strong>El acceso se entrega mediante un método de activación gestionado por VEXORA. No cambies el correo, contraseña, método de acceso ni la configuración de la cuenta.</span></div>
-                <div><b>04</b><span><strong>Proyectos y archivos</strong>Si utilizas proyectos, conversaciones o archivos importantes, mantén siempre una copia propia. En cuentas compartidas existen limitaciones de uso y disponibilidad.</span></div>
-                <div><b>05</b><span><strong>Imágenes y archivos</strong>Las funciones de generación de imágenes, subida de archivos y otras herramientas pueden estar sujetas a <em>límites de uso</em> debido a que el acceso es compartido. Estos límites no representan un fallo del servicio.</span></div>
-                <div><b>06</b><span><strong>Condiciones del plan</strong>Las características, límites y condiciones corresponden al plan seleccionado. Antes de comprar, verifica que este acceso se adapte a tu forma de uso.</span></div>
+                {getPurchaseRules(brand.name, selectedPlan).map(([number, title, description]) => (
+                  <div key={number}><b>{number}</b><span><strong>{title}</strong><span dangerouslySetInnerHTML={{ __html: description }} /></span></div>
+                ))}
               </div>
               <label className="terms-check"><input type="checkbox" id="vexora-terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} /><span>Acepto haber leído y comprendido las condiciones del acceso seleccionado.</span></label>
               <div className="purchase-actions">

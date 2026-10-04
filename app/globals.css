@@ -284,11 +284,19 @@ a { color: inherit; text-decoration: none; }
   display: grid;
   place-items: center;
   overflow: hidden;
+  perspective: 1200px;
   background:
-    radial-gradient(circle at center, rgba(126,111,255,.22), transparent 24%),
-    rgba(3,5,10,.94);
-  backdrop-filter: blur(14px);
-  animation: launchBackdrop .85s ease both;
+    radial-gradient(circle at center, rgba(126,111,255,.25), transparent 20%),
+    radial-gradient(circle at 50% 50%, rgba(42,205,255,.08), transparent 38%),
+    rgba(3,5,10,.97);
+  backdrop-filter: blur(16px);
+  animation: launchBackdrop 2.35s cubic-bezier(.2,.7,.2,1) both;
+}
+.launch-vignette {
+  position:absolute;
+  inset:-20%;
+  background:radial-gradient(circle, transparent 24%, rgba(0,0,0,.68) 72%, #000 100%);
+  animation: launchVignette 2.35s ease both;
 }
 .launch-logo-wrap {
   position: relative;
@@ -296,76 +304,174 @@ a { color: inherit; text-decoration: none; }
   height: 190px;
   display: grid;
   place-items: center;
-  animation: launchLogo .85s cubic-bezier(.12,.82,.18,1) both;
+  transform-style: preserve-3d;
+  animation: launchLogo 1.75s cubic-bezier(.12,.82,.18,1) both;
 }
 .launch-logo-wrap::before {
-  content: "";
-  position: absolute;
-  inset: -35px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(139,124,255,.34), transparent 67%);
-  filter: blur(10px);
+  content:"";
+  position:absolute;
+  inset:-55px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(139,124,255,.42),rgba(71,211,255,.08) 38%,transparent 68%);
+  filter:blur(12px);
+  animation:launchGlow 1.75s ease both;
+}
+.launch-logo-wrap::after {
+  content:"";
+  position:absolute;
+  inset:-95px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 0 90px rgba(139,124,255,.15);
+  animation:launchPulse 1.5s .25s ease-out both;
 }
 .launch-logo-wrap img {
-  position: relative;
-  z-index: 2;
-  width: 150px;
-  height: 150px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 30px rgba(143,130,255,.45));
+  position:relative;
+  z-index:3;
+  width:150px;
+  height:150px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 25px rgba(143,130,255,.4));
+}
+.launch-logo-depth {
+  position:absolute;
+  width:150px;
+  height:150px;
+  border-radius:50%;
+  background:rgba(117,103,255,.18);
+  transform:translateZ(-14px) scale(.94);
+  filter:blur(3px);
 }
 .launch-ring {
-  position: absolute;
-  width: 250px;
-  height: 250px;
-  border: 1px solid rgba(154,143,255,.45);
-  border-radius: 50%;
-  box-shadow: 0 0 40px rgba(111,98,255,.15), inset 0 0 30px rgba(111,98,255,.08);
+  position:absolute;
+  width:260px;
+  height:260px;
+  border:1px solid rgba(154,143,255,.5);
+  border-radius:50%;
+  box-shadow:0 0 45px rgba(111,98,255,.15),inset 0 0 30px rgba(111,98,255,.08);
+  transform-style:preserve-3d;
 }
-.launch-ring-one {
-  animation: launchRingOne .85s cubic-bezier(.2,.8,.2,1) both;
-}
+.launch-ring-one { animation:launchRingOne 1.9s cubic-bezier(.2,.8,.2,1) both; }
 .launch-ring-two {
-  width: 390px;
-  height: 390px;
-  border-color: rgba(71,211,255,.18);
-  animation: launchRingTwo .85s cubic-bezier(.2,.8,.2,1) both;
+  width:390px;height:390px;
+  border-color:rgba(71,211,255,.2);
+  animation:launchRingTwo 2.05s cubic-bezier(.2,.8,.2,1) both;
+}
+.launch-ring-three {
+  width:620px;height:620px;
+  border-color:rgba(255,255,255,.07);
+  box-shadow:none;
+  animation:launchRingThree 2.2s cubic-bezier(.15,.8,.15,1) both;
+}
+.launch-energy {
+  position:absolute;
+  width:12px;
+  height:55vh;
+  background:linear-gradient(transparent,rgba(156,148,255,.8),transparent);
+  filter:blur(8px);
+  transform:rotate(42deg) scaleY(.2);
+  opacity:0;
+  animation:launchEnergy 2.05s 1.05s ease both;
 }
 .launch-label {
-  position: absolute;
-  top: calc(50% + 145px);
-  color: #9e97ff;
-  font: 700 9px 'Space Grotesk', sans-serif;
-  letter-spacing: .24em;
-  animation: launchLabel .55s .15s ease both;
+  position:absolute;
+  top:calc(50% + 150px);
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  animation:launchLabel 1.15s .35s cubic-bezier(.2,.8,.2,1) both;
 }
-@keyframes launchBackdrop {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.launch-label span {
+  color:#aaa2ff;
+  font:700 8px 'Space Grotesk',sans-serif;
+  letter-spacing:.35em;
 }
+.launch-label strong {
+  color:#fff;
+  font:600 17px 'Space Grotesk',sans-serif;
+  letter-spacing:.12em;
+}
+.launch-label small {
+  color:#737c91;
+  font:500 8px 'Space Grotesk',sans-serif;
+  letter-spacing:.18em;
+}
+.launch-particle {
+  position:absolute;
+  width:5px;height:5px;
+  border-radius:50%;
+  background:#b8b1ff;
+  box-shadow:0 0 18px #9e94ff;
+  opacity:0;
+}
+.launch-particle-one { animation:launchParticleOne 2.1s ease both; }
+.launch-particle-two { animation:launchParticleTwo 2.2s .1s ease both; }
+.launch-particle-three { animation:launchParticleThree 2s .2s ease both; }
+@keyframes launchBackdrop { 0%{opacity:0} 12%{opacity:1} 82%{opacity:1} 100%{opacity:0} }
+@keyframes launchVignette { 0%,45%{opacity:.3} 78%{opacity:.85} 100%{opacity:1} }
 @keyframes launchLogo {
-  0% { opacity: .4; transform: scale(.55) rotateY(0deg); filter: blur(1px); }
-  45% { opacity: 1; transform: scale(1.25) rotateY(180deg); }
-  100% { opacity: 1; transform: scale(2.65) rotateY(360deg); }
+  0% { opacity:.45; transform:scale(.55) rotateY(0deg) rotateX(8deg); filter:blur(1px); }
+  28% { opacity:1; transform:scale(.9) rotateY(75deg) rotateX(4deg); }
+  58% { transform:scale(1.35) rotateY(190deg) rotateX(-3deg); }
+  82% { transform:scale(2.15) rotateY(300deg) rotateX(0deg); filter:drop-shadow(0 0 55px rgba(143,130,255,.65)); }
+  100% { opacity:0; transform:scale(6.8) rotateY(360deg) rotateX(0deg); filter:blur(7px); }
 }
+@keyframes launchGlow { 0%{transform:scale(.5);opacity:.2} 55%{transform:scale(1.05);opacity:1} 100%{transform:scale(1.7);opacity:0} }
+@keyframes launchPulse { 0%{transform:scale(.3);opacity:0} 55%{transform:scale(1);opacity:1} 100%{transform:scale(1.9);opacity:0} }
 @keyframes launchRingOne {
-  0% { opacity: 0; transform: scale(.2) rotate(0deg); }
-  55% { opacity: 1; }
-  100% { opacity: .05; transform: scale(1.8) rotate(130deg); }
+  0%{opacity:0;transform:scale(.2) rotate(0deg)}
+  30%{opacity:1}
+  78%{opacity:.75}
+  100%{opacity:0;transform:scale(2.4) rotate(170deg)}
 }
 @keyframes launchRingTwo {
-  0% { opacity: 0; transform: scale(.15) rotate(0deg); }
-  50% { opacity: .8; }
-  100% { opacity: 0; transform: scale(1.4) rotate(-90deg); }
+  0%{opacity:0;transform:scale(.15) rotateX(70deg) rotateZ(0deg)}
+  35%{opacity:.8}
+  100%{opacity:0;transform:scale(1.8) rotateX(70deg) rotateZ(-145deg)}
+}
+@keyframes launchRingThree {
+  0%{opacity:0;transform:scale(.1)}
+  35%{opacity:.55}
+  100%{opacity:0;transform:scale(1.7) rotate(80deg)}
+}
+@keyframes launchEnergy {
+  0%{opacity:0;transform:rotate(42deg) scaleY(.15) translateY(80px)}
+  20%{opacity:.7}
+  60%{opacity:.4}
+  100%{opacity:0;transform:rotate(42deg) scaleY(1.8) translateY(-30px)}
 }
 @keyframes launchLabel {
-  from { opacity: 0; transform: translateY(8px); letter-spacing: .05em; }
-  to { opacity: 1; transform: translateY(0); letter-spacing: .24em; }
+  0%{opacity:0;transform:translateY(14px) scale(.94)}
+  35%{opacity:1}
+  78%{opacity:1}
+  100%{opacity:0;transform:translateY(-8px) scale(1.04)}
+}
+@keyframes launchParticleOne {
+  0%{opacity:0;transform:translate(-30vw,18vh) scale(.3)}
+  35%{opacity:1}
+  100%{opacity:0;transform:translate(8vw,-4vh) scale(1.2)}
+}
+@keyframes launchParticleTwo {
+  0%{opacity:0;transform:translate(28vw,-15vh) scale(.3)}
+  40%{opacity:1}
+  100%{opacity:0;transform:translate(-9vw,5vh) scale(1.1)}
+}
+@keyframes launchParticleThree {
+  0%{opacity:0;transform:translate(5vw,30vh) scale(.2)}
+  35%{opacity:.8}
+  100%{opacity:0;transform:translate(-5vw,-10vh) scale(1)}
+}
+@media (max-width:600px) {
+  .launch-ring-three { width:480px;height:480px; }
+  .launch-label { top:calc(50% + 135px); }
+  .launch-logo-wrap { width:165px;height:165px; }
+  .launch-logo-wrap img,.launch-logo-depth { width:130px;height:130px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .product-launch * { animation-duration: .01ms !important; }
+  .product-launch * { animation-duration:.01ms !important; }
 }
-
 
 .brand-page {
   min-height: 100vh;

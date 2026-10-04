@@ -120,8 +120,8 @@ export default function Home() {
                   <span className="logo-aura" />
                   <span className="logo-3d">
                     <span className="logo-depth" aria-hidden="true">
-                      {Array.from({ length: 8 }).map((_, layer) => (
-                        <img key={layer} src={product.logo} alt="" draggable="false" style={{ transform: "translateZ(" + (-layer * 2) + "px)" }} />
+                      {Array.from({ length: 14 }).map((_, layer) => (
+                        <img key={layer} src={product.logo} alt="" draggable="false" style={{ transform: "translateZ(" + (-layer * 1.5) + "px)" }} />
                       ))}
                     </span>
                     <img className="logo-face" src={product.logo} alt={product.name + " logo"} draggable="false" />

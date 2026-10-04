@@ -8,6 +8,14 @@ const brands = {
     name: "ChatGPT",
     type: "Inteligencia Artificial",
     logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/ChatGPT-Logo.svg",
+    intro: "Una inteligencia artificial para ayudarte a crear, aprender, resolver problemas y trabajar de forma más rápida.",
+    benefitTitle: "¿Para qué sirve?",
+    benefits: [
+      ["01", "Crear contenido", "Redacta textos, ideas, guiones, publicaciones y mucho más."],
+      ["02", "Aprender y resolver dudas", "Explica temas, responde preguntas y te ayuda a estudiar."],
+      ["03", "Programar", "Ayuda a escribir, revisar y entender código."],
+      ["04", "Analizar información", "Trabaja con textos, archivos e información para ayudarte a encontrar respuestas."]
+    ],
     plans: [
       { name: "Cuenta Compartida", duration: "1 mes", price: "S/19", note: "Acceso compartido" },
       { name: "Cuenta Completa", duration: "1 mes", price: "S/40", note: "Sin garantía" },
@@ -19,6 +27,14 @@ const brands = {
     name: "Gemini",
     type: "Inteligencia Artificial",
     logo: "https://cdn.simpleicons.org/googlegemini",
+    intro: "La inteligencia artificial de Google para crear, investigar, analizar información y trabajar desde tu propia cuenta.",
+    benefitTitle: "¿Para qué sirve?",
+    benefits: [
+      ["01", "Crear y escribir", "Genera ideas, textos, contenido y ayuda a mejorar lo que escribes."],
+      ["02", "Investigar y aprender", "Te ayuda a comprender temas, organizar información y resolver dudas."],
+      ["03", "Crear contenido visual", "Accede a herramientas de creación de imágenes y funciones de IA disponibles en tu plan."],
+      ["04", "Más espacio y herramientas", "La oferta incluye beneficios de Gemini IA Pro, almacenamiento y funciones adicionales según disponibilidad."]
+    ],
     plans: [
       { name: "Gemini IA Pro", duration: "18 meses", price: "S/20", note: "Activación en tu propio Gmail · Sin garantía, garantía de activación" }
     ]
@@ -27,6 +43,14 @@ const brands = {
     name: "Spotify",
     type: "Streaming",
     logo: "https://cdn.simpleicons.org/spotify",
+    intro: "Escucha música, podcasts y contenido de audio con una experiencia Premium y sin las limitaciones habituales del acceso gratuito.",
+    benefitTitle: "¿Para qué sirve?",
+    benefits: [
+      ["01", "Escuchar sin interrupciones", "Disfruta tu música con una experiencia sin anuncios según las funciones disponibles de Premium."],
+      ["02", "Tu música donde quieras", "Accede a tus canciones, álbumes, playlists y podcasts desde dispositivos compatibles."],
+      ["03", "Descargas para escuchar offline", "Guarda contenido para disfrutarlo sin conexión, según las funciones disponibles de Premium."],
+      ["04", "Mayor control", "Disfruta una experiencia de reproducción más completa y con más opciones que el acceso gratuito."]
+    ],
     plans: [
       { name: "Premium", duration: "3 meses", price: "S/40", note: "Correo y contraseña · No renovable" }
     ]
@@ -35,6 +59,14 @@ const brands = {
     name: "Canva Pro",
     type: "Diseño",
     logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Canva_logo.svg",
+    intro: "Una plataforma de diseño para crear contenido profesional de forma sencilla, incluso si no eres diseñador.",
+    benefitTitle: "¿Para qué sirve?",
+    benefits: [
+      ["01", "Diseñar contenido", "Crea publicaciones, historias, flyers, presentaciones y piezas para redes sociales."],
+      ["02", "Editar imágenes", "Utiliza herramientas de edición y recursos visuales para mejorar tus diseños."],
+      ["03", "Crear contenido para marcas", "Trabaja con plantillas, estilos y recursos para mantener una identidad visual."],
+      ["04", "Trabajar más rápido", "Aprovecha las funciones Pro y recursos premium disponibles en Canva."]
+    ],
     plans: [
       { name: "Pro", duration: "1 año", price: "S/25", note: "Invitación al equipo · Garantía completa" }
     ]
@@ -43,6 +75,14 @@ const brands = {
     name: "GeForce NOW",
     type: "Gaming",
     logo: "https://cdn.simpleicons.org/nvidia",
+    intro: "Juega en la nube sin necesitar una PC gamer potente. El juego se ejecuta en servidores de NVIDIA y se transmite a tu dispositivo.",
+    benefitTitle: "¿Para qué sirve?",
+    benefits: [
+      ["01", "Jugar juegos AAA en la nube", "Disfruta juegos exigentes sin tener que contar con una tarjeta gráfica de alta gama."],
+      ["02", "No necesitas un equipo potente", "Puedes jugar desde un PC, laptop, Mac o dispositivo móvil compatible sin que el juego dependa de la potencia del equipo."],
+      ["03", "Conecta tus bibliotecas", "Accede a juegos compatibles que ya posees en Steam, Epic Games, GOG, PC Game Pass y Ubisoft Connect."],
+      ["04", "La conexión es clave", "Necesitas una buena conexión a Internet y baja latencia para obtener una experiencia fluida."]
+    ],
     plans: [
       { name: "Performance", duration: "1 mes", price: "S/25", note: "USD 7.5 · Hasta 1440p y 60 FPS" },
       { name: "Performance + 1 TB", duration: "1 mes", price: "S/42", note: "USD 12 · Performance + 1 TB de almacenamiento persistente" },
@@ -133,7 +173,26 @@ export default function BrandPage({ params }) {
         <div className="brand-hero-copy">
           <span>{brand.type}</span>
           <h1>{brand.name}</h1>
-          <p>Elige el acceso que mejor se adapte a ti.</p>
+          <p>{brand.intro}</p>
+        </div>
+      </section>
+
+      <section className="benefits-section">
+        <div className="benefits-heading">
+          <span>CONOCE EL SERVICIO</span>
+          <h2>{brand.benefitTitle}</h2>
+          <p>Antes de elegir un plan, conoce qué puedes hacer con {brand.name} y qué tipo de acceso puede encajar mejor contigo.</p>
+        </div>
+
+        <div className="benefits-grid">
+          {brand.benefits.map(([number, title, description]) => (
+            <article className="benefit-card" key={number}>
+              <span className="benefit-number">{number}</span>
+              <div className="benefit-icon">✦</div>
+              <h3>{title}</h3>
+              <p>{description}</p>
+            </article>
+          ))}
         </div>
       </section>
 

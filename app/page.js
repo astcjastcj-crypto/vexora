@@ -24,6 +24,8 @@ export default function Home() {
         return product.type === (map[category] || category);
       });
   const dragRef = useRef(null);
+  const movedRef = useRef(false);
+  const [launching, setLaunching] = useState(null);
 
   const move = (direction) => {
     setActive((current) => (current + direction + products.length) % products.length);
@@ -32,6 +34,7 @@ export default function Home() {
 
   const startDrag = (event) => {
     event.currentTarget.setPointerCapture(event.pointerId);
+    movedRef.current = false;
     dragRef.current = {
       startX: event.clientX,
       startY: event.clientY,
@@ -45,6 +48,7 @@ export default function Home() {
     if (!dragRef.current) return;
     const dx = event.clientX - dragRef.current.startX;
     const dy = event.clientY - dragRef.current.startY;
+    if (Math.abs(dx) > 6 || Math.abs(dy) > 6) movedRef.current = true;
     const x = Math.max(-150, Math.min(150, dragRef.current.originX + dx));
     const y = Math.max(-120, Math.min(120, dragRef.current.originY + dy));
     const rotate = dragRef.current.originRotate + dx * 0.55;
@@ -54,6 +58,14 @@ export default function Home() {
   const endDrag = () => {
     dragRef.current = null;
     setLogoPosition({ x: 0, y: 0, rotate: 0 });
+  };
+
+  const openProduct = (product) => {
+    if (movedRef.current) return;
+    setLaunching(product);
+    window.setTimeout(() => {
+      window.location.href = "/marca/" + encodeURIComponent(product.name.toLowerCase().replace(/\\s+/g, "-"));
+    }, 850);
   };
 
   const selectCategory = (item) => {
@@ -67,6 +79,17 @@ export default function Home() {
     <main className="vexora-shell">
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
+
+      {launching && (
+        <div className="product-launch" aria-hidden="true">
+          <div className="launch-ring launch-ring-one" />
+          <div className="launch-ring launch-ring-two" />
+          <div className="launch-logo-wrap">
+            <img src={launching.logo} alt="" />
+          </div>
+          <div className="launch-label">CARGANDO {launching.name.toUpperCase()}</div>
+        </div>
+      )}
 
       <header className="topbar">
         <a className="brand" href="#"><span className="brand-orb" /><span>VEXORA</span></a>
@@ -127,7 +150,8 @@ export default function Home() {
                   onPointerUp={endDrag}
                   onPointerCancel={endDrag}
                   onDoubleClick={() => setLogoPosition({ x: 0, y: 0, rotate: 0 })}
-                  aria-label={"Mover logo de " + product.name}
+                  onClick={() => openProduct(product)}
+                  aria-label={"Abrir " + product.name}
                   style={{ transform: "translate3d(" + logoPosition.x + "px, " + logoPosition.y + "px, 100px) rotateY(" + logoPosition.rotate + "deg) rotateZ(" + (logoPosition.rotate * 0.08) + "deg)" }}
                 >
                   <span className="logo-aura" />

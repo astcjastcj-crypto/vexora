@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 
 const products = [
   { name: "ChatGPT", type: "Inteligencia Artificial", logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/ChatGPT-Logo.svg", price: "Desde S/19" },
-  { name: "Gemini", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/googlegemini", price: "Desde S/25" },
-  { name: "Spotify", type: "Streaming", logo: "https://cdn.simpleicons.org/spotify", price: "Desde S/8" },
-  { name: "Canva Pro", type: "Diseño", logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Canva_logo.svg", price: "Desde S/3" },
+  { name: "Gemini", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/googlegemini", price: "Desde S/20" },
+  { name: "Spotify", type: "Streaming", logo: "https://cdn.simpleicons.org/spotify", price: "Desde S/40" },
+  { name: "Canva Pro", type: "Diseño", logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Canva_logo.svg", price: "Desde S/25" },
   { name: "GeForce NOW", type: "Gaming", logo: "https://cdn.simpleicons.org/nvidia", price: "Desde S/25" },
 ];
 
@@ -64,7 +64,8 @@ export default function Home() {
 
   const openProduct = (product) => {
     if (movedRef.current) return;
-    const path = "/marca/" + encodeURIComponent(product.name.toLowerCase().replace(/\\s+/g, "-"));
+    const slug = product.name.toLowerCase().replace(/\s+/g, "-");
+    const path = "/marca/" + encodeURIComponent(slug);
     router.prefetch(path);
     setLaunching(product);
     window.setTimeout(() => {
@@ -85,7 +86,7 @@ export default function Home() {
       <div className="ambient ambient-two" />
 
       {launching && (
-        <div className={"product-launch brand-launch-" + launching.name.toLowerCase().replace(/\\s+/g, "-")} aria-hidden="true">
+        <div className={"product-launch brand-launch-" + launching.name.toLowerCase().replace(/\s+/g, "-")} aria-hidden="true">
           <div className="launch-vignette" />
           <div className="launch-particle launch-particle-one" />
           <div className="launch-particle launch-particle-two" />

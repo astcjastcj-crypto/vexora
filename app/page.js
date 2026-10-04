@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const products = [
-  { name: "ChatGPT", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/openai/ffffff", price: "Desde S/19" },
-  { name: "Gemini", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/googlegemini/ffffff", price: "Desde S/25" },
-  { name: "Spotify", type: "Streaming", logo: "https://cdn.simpleicons.org/spotify/1ED760", price: "Desde S/8" },
-  { name: "Canva Pro", type: "Diseño", logo: "https://cdn.simpleicons.org/canva/00C4CC", price: "Desde S/3" },
-  { name: "GeForce NOW", type: "Gaming", logo: "https://cdn.simpleicons.org/nvidia/76B900", price: "Desde S/25" },
+  { name: "ChatGPT", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/openai", price: "Desde S/19" },
+  { name: "Gemini", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/googlegemini", price: "Desde S/25" },
+  { name: "Spotify", type: "Streaming", logo: "https://cdn.simpleicons.org/spotify", price: "Desde S/8" },
+  { name: "Canva Pro", type: "Diseño", logo: "https://cdn.simpleicons.org/canva", price: "Desde S/3" },
+  { name: "GeForce NOW", type: "Gaming", logo: "https://cdn.simpleicons.org/nvidia", price: "Desde S/25" },
 ];
 
 const categories = ["Todos", "IA", "Streaming", "Gaming", "Productividad", "Diseño"];
@@ -16,9 +16,41 @@ export default function Home() {
   const [active, setActive] = useState(0);
   const [category, setCategory] = useState("Todos");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [logoPosition, setLogoPosition] = useState({ x: 0, y: 0, rotate: 0 });
+  const dragRef = useRef(null);
 
-  const move = (direction) =>
+  const move = (direction) => {
     setActive((current) => (current + direction + products.length) % products.length);
+    setLogoPosition({ x: 0, y: 0, rotate: 0 });
+  };
+
+  const startDrag = (event) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: logoPosition.x,
+      originY: logoPosition.y,
+      originRotate: logoPosition.rotate,
+    };
+  };
+
+  const dragLogo = (event) => {
+    if (!dragRef.current) return;
+
+    const dx = event.clientX - dragRef.current.startX;
+    const dy = event.clientY - dragRef.current.startY;
+    const x = Math.max(-150, Math.min(150, dragRef.current.originX + dx));
+    const y = Math.max(-120, Math.min(120, dragRef.current.originY + dy));
+    const rotate = dragRef.current.originRotate + dx * 0.55;
+
+    setLogoPosition({ x, y, rotate });
+  };
+
+  const endDrag = () => {
+    dragRef.current = null;
+  };
 
   return (
     <main className="vexora-shell">
@@ -73,33 +105,59 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="showcase" aria-label="Productos destacados">
+        <div className="showcase logo-showcase" aria-label="Productos destacados">
           <div className="showcase-glow" />
-          <button className="carousel-arrow left" onClick={() => move(-1)}>‹</button>
-          <div className="carousel">
+
+          <button className="carousel-arrow left" onClick={() => move(-1)} aria-label="Logo anterior">‹</button>
+
+          <div className="logo-stage">
             {products.map((product, index) => {
               let offset = index - active;
               if (offset > 2) offset -= products.length;
               if (offset < -2) offset += products.length;
 
+              if (offset !== 0) {
+                return (
+                  <button
+                    className={"floating-logo side-logo side-" + offset}
+                    key={product.name}
+                    onClick={() => move(offset)}
+                    aria-label={"Ver " + product.name}
+                  >
+                    <img src={product.logo} alt={product.name + " logo"} draggable="false" />
+                  </button>
+                );
+              }
+
               return (
                 <button
-                  className={"product-orbit-card offset-" + offset + (offset === 0 ? " is-center" : "")}
-                  
+                  className="floating-logo main-logo"
                   key={product.name}
-                  onClick={() => setActive(index)}
+                  onPointerDown={startDrag}
+                  onPointerMove={dragLogo}
+                  onPointerUp={endDrag}
+                  onPointerCancel={endDrag}
+                  onDoubleClick={() => setLogoPosition({ x: 0, y: 0, rotate: 0 })}
+                  aria-label={"Mover logo de " + product.name}
+                  style={{
+                    transform: "translate3d(" + logoPosition.x + "px, " + logoPosition.y + "px, 100px) rotateY(" + logoPosition.rotate + "deg) rotateZ(" + (logoPosition.rotate * 0.08) + "deg)",
+                  }}
                 >
-                  <div className="card-shine" />
-                  <div className="product-mark"><img src={product.logo} alt={product.name + " logo"} /></div>
-                  <span className="product-type">{product.type}</span>
-                  <strong>{product.name}</strong>
-                  <small>{product.price}</small>
-                  {offset === 0 && <span className="featured-pill">DESTACADO</span>}
+                  <span className="logo-aura" />
+                  <img src={product.logo} alt={product.name + " logo"} draggable="false" />
                 </button>
               );
             })}
           </div>
-          <button className="carousel-arrow right" onClick={() => move(1)}>›</button>
+
+          <button className="carousel-arrow right" onClick={() => move(1)} aria-label="Siguiente logo">›</button>
+
+          <div className="logo-caption">
+            <span>{products[active].type}</span>
+            <strong>{products[active].name}</strong>
+            <small>{products[active].price}</small>
+          </div>
+
           <div className="carousel-dots">
             {products.map((product, index) => (
               <button

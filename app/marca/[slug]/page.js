@@ -17,9 +17,9 @@ const brands = {
       ["04", "Analizar información", "Trabaja con textos, archivos e información para ayudarte a encontrar respuestas."]
     ],
     plans: [
-      { name: "Cuenta Compartida", duration: "1 mes", price: "S/19", note: "Acceso compartido" },
-      { name: "Cuenta Completa", duration: "1 mes", price: "S/40", note: "Sin garantía" },
-      { name: "Cuenta Completa", duration: "1 mes", price: "S/65", note: "Con garantía todo el mes" },
+      { name: "Cuenta Compartida", duration: "1 mes", price: "S/19", note: "Acceso compartido · 1 dispositivo" },
+      { name: "Cuenta Completa", duration: "1 mes", price: "S/40", note: "Correo + contraseña + 2FA · Sin garantía" },
+      { name: "Cuenta Completa", duration: "1 mes", price: "S/65", note: "Correo + contraseña + 2FA · Garantía todo el mes" },
       { name: "GPT Pro", duration: "1 mes", price: "S/80", note: "Cuenta compartida" }
     ]
   },
@@ -93,6 +93,35 @@ const brands = {
 };
 
 const getPurchaseRules = (brandName, plan) => {
+  if (brandName === "ChatGPT") {
+    const isComplete = plan.name === "Cuenta Completa";
+    const hasWarranty = isComplete && plan.price === "S/65";
+    if (isComplete) {
+      return [
+        ["01", "Qué recibes", "Se entrega <em>correo electrónico + contraseña + acceso 2FA</em> para iniciar sesión en la cuenta."],
+        ["02", "Google Authenticator", "Para utilizar el 2FA necesitarás instalar la aplicación <em>Google Authenticator</em> en tu dispositivo y utilizar el código temporal cuando sea solicitado."],
+        ["03", "Configuración 2FA", "Debes completar correctamente la configuración del autenticador para poder acceder a la cuenta. Guarda de forma segura la información necesaria para el acceso."],
+        ["04", "Uso personal", "La Cuenta Completa está destinada al uso personal. No compartas el correo, contraseña ni los datos de seguridad con terceros."],
+        ["05", "Garantía", hasWarranty ? "Este plan incluye <em>garantía durante todo el mes</em>, de acuerdo con las condiciones de VEXORA." : "Este plan es <em>sin garantía</em>. Revisa las condiciones antes de solicitar la compra."],
+        ["06", "Recomendación", "Antes de comprar, asegúrate de poder instalar y utilizar Google Authenticator en el dispositivo que usarás para iniciar sesión."]
+      ];
+    }
+    if (plan.name === "Cuenta Compartida") {
+      return [
+        ["01", "Acceso", "Recibirás los datos necesarios para ingresar al acceso compartido. Está destinado a <em>1 dispositivo por cliente</em>."],
+        ["02", "Código de acceso", "Cuando el servicio solicite un código de verificación, <em>el código será proporcionado por el administrador de VEXORA</em> cuando corresponda."],
+        ["03", "Uso compartido", "Al tratarse de un acceso compartido, evita cambiar el correo, contraseña, configuración o métodos de seguridad de la cuenta."],
+        ["04", "Privacidad", "No recomendamos guardar información extremadamente privada o sensible en una cuenta compartida."],
+        ["05", "Funciones", "Las funciones y límites disponibles pueden depender del acceso compartido y de las condiciones del servicio."]
+      ];
+    }
+    return [
+      ["01", "Acceso", "El plan seleccionado se entrega con las condiciones indicadas en su descripción."],
+      ["02", "Uso responsable", "No cambies los datos de acceso ni la configuración de seguridad de la cuenta."],
+      ["03", "Condiciones", "Las características, límites y condiciones corresponden al plan seleccionado."]
+    ];
+  }
+
   if (brandName === "Gemini") {
     return [
       ["01", "Activación", "Recibirás un enlace para activar la oferta directamente en <em>tu propia cuenta de Gmail</em>."],

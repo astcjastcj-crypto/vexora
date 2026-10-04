@@ -1,5 +1,7 @@
+import "./globals.css";
+
 export const metadata = {
-  title: "VEXORA",
+  title: "VEXORA — Tu acceso a lo digital",
   description: "VEXORA: Tu acceso a lo digital.",
 };
 

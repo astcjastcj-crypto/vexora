@@ -8,7 +8,8 @@ const brands = {
     plans: [
       { name: "Cuenta Compartida", duration: "1 mes", price: "S/19", note: "Acceso compartido" },
       { name: "Cuenta Completa", duration: "1 mes", price: "S/40", note: "Sin garantía" },
-      { name: "Cuenta Completa", duration: "1 mes", price: "S/61", note: "Con garantía todo el mes" }
+      { name: "Cuenta Completa", duration: "1 mes", price: "S/65", note: "Con garantía todo el mes" },
+      { name: "GPT Pro", duration: "1 mes", price: "S/80", note: "Cuenta compartida" }
     ]
   },
   gemini: {
@@ -75,8 +76,8 @@ export default async function BrandPage({ params }) {
         {brand.plans.length ? (
           <div className="plans-grid">
             {brand.plans.map((plan, index) => (
-              <article className={"plan-card " + (index === 1 ? "featured" : "")} key={plan.name + plan.price}>
-                {index === 1 && <div className="plan-badge">MÁS ELEGIDO</div>}
+              <article className={"plan-card " + (index === 2 ? "featured" : "")} key={plan.name + plan.price}>
+                {index === 2 && <div className="plan-badge">MÁS ELEGIDO</div>}
                 <div className="plan-number">0{index + 1}</div>
                 <h3>{plan.name}</h3>
                 <span className="plan-duration">{plan.duration}</span>

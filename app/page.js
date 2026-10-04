@@ -65,7 +65,7 @@ export default function Home() {
     setLaunching(product);
     window.setTimeout(() => {
       window.location.href = "/marca/" + encodeURIComponent(product.name.toLowerCase().replace(/\\s+/g, "-"));
-    }, 850);
+    }, 2350);
   };
 
   const selectCategory = (item) => {
@@ -81,13 +81,20 @@ export default function Home() {
       <div className="ambient ambient-two" />
 
       {launching && (
-        <div className="product-launch" aria-hidden="true">
+        <div className={"product-launch brand-launch-" + launching.name.toLowerCase().replace(/\\s+/g, "-")} aria-hidden="true">
+          <div className="launch-vignette" />
+          <div className="launch-particle launch-particle-one" />
+          <div className="launch-particle launch-particle-two" />
+          <div className="launch-particle launch-particle-three" />
           <div className="launch-ring launch-ring-one" />
           <div className="launch-ring launch-ring-two" />
+          <div className="launch-ring launch-ring-three" />
+          <div className="launch-energy" />
           <div className="launch-logo-wrap">
+            <span className="launch-logo-depth" />
             <img src={launching.logo} alt="" />
           </div>
-          <div className="launch-label">CARGANDO {launching.name.toUpperCase()}</div>
+          <div className="launch-label"><span>VEXORA</span><strong>{launching.name.toUpperCase()}</strong><small>PREPARANDO TU ACCESO</small></div>
         </div>
       )}
 

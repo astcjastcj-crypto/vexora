@@ -1382,3 +1382,32 @@ a { color: inherit; text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   .entry-gate *, .entry-gate::before { animation:none !important; }
 }
+
+
+.profile-top-button { position:relative;overflow:hidden;isolation:isolate;animation:profileButtonIn .7s cubic-bezier(.16,.8,.2,1) both; }
+.profile-top-button::before { content:"";position:absolute;inset:-60%;background:conic-gradient(from 0deg,transparent 0deg,rgba(164,154,255,.18) 70deg,transparent 125deg);animation:profileSweep 5s linear infinite;z-index:-1; }
+.profile-top-avatar { animation:profileAvatarFloat 3.8s ease-in-out infinite; }
+.profile-top-button-active .profile-top-avatar { animation:profileAvatarPulse 2.4s ease-in-out infinite; }
+.profile-top-copy strong { transition:letter-spacing .3s ease,transform .3s ease; }
+.profile-top-button:hover .profile-top-copy strong { letter-spacing:.01em;transform:translateX(2px); }
+.profile-top-button > b { transition:transform .35s ease,color .35s ease; }
+.profile-top-button:hover > b { transform:translateY(2px);color:#aaa0ff; }
+.profile-overlay { animation:profileOverlayIn .45s ease both; }
+.profile-modal { transform-origin:center;animation:profileModalIn .65s cubic-bezier(.16,.8,.2,1) both; }
+.profile-modal::before { content:"";position:absolute;inset:1px;border-radius:27px;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.08),transparent 25%,transparent 70%,rgba(139,124,255,.09));opacity:.8; }
+.profile-orb { animation:profileOrbFloat 4s ease-in-out infinite,profileOrbGlow 3s ease-in-out infinite; }
+.profile-account-card { animation:profileCardIn .7s .12s cubic-bezier(.16,.8,.2,1) both; }
+.profile-modal .profile-login-button { transition:transform .3s ease,background .3s ease,border-color .3s ease,box-shadow .3s ease; }
+.profile-modal .profile-login-button:hover { box-shadow:0 12px 35px rgba(111,98,255,.18); }
+@keyframes profileButtonIn { from{opacity:0;transform:translateY(-8px) scale(.97)} to{opacity:1;transform:none} }
+@keyframes profileSweep { to{transform:rotate(360deg)} }
+@keyframes profileAvatarFloat { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-2px) rotate(2deg)} }
+@keyframes profileAvatarPulse { 0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 0 rgba(139,124,255,0)} 50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 24px rgba(139,124,255,.25)} }
+@keyframes profileOverlayIn { from{opacity:0} to{opacity:1} }
+@keyframes profileModalIn { from{opacity:0;transform:translateY(22px) scale(.94) rotateX(7deg);filter:blur(7px)} to{opacity:1;transform:none;filter:none} }
+@keyframes profileOrbFloat { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-7px) rotate(2deg)} }
+@keyframes profileOrbGlow { 0%,100%{box-shadow:0 0 45px rgba(111,98,255,.15)} 50%{box-shadow:0 0 65px rgba(111,98,255,.3)} }
+@keyframes profileCardIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+@media (prefers-reduced-motion: reduce) {
+  .profile-top-button,.profile-top-button::before,.profile-top-avatar,.profile-top-button-active .profile-top-avatar,.profile-overlay,.profile-modal,.profile-orb,.profile-account-card { animation:none!important; }
+}

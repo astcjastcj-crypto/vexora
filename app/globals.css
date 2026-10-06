@@ -42,6 +42,19 @@ a { color: inherit; text-decoration: none; }
 .profile-modal .profile-login-button { cursor:pointer; }
 .profile-modal .profile-login-button:hover { transform:translateY(-1px);background:rgba(139,124,255,.17);border-color:rgba(139,124,255,.38); }
 .profile-edit-form { margin-top:20px; }
+.profile-avatar-editor { display:flex;align-items:center;gap:14px;padding:13px;border:1px solid rgba(255,255,255,.08);border-radius:17px;background:rgba(255,255,255,.025); }
+.profile-avatar-preview,.profile-account-avatar { width:58px;height:58px;flex:0 0 58px;border-radius:18px;overflow:hidden;display:grid;place-items:center;border:1px solid rgba(164,154,255,.28);background:linear-gradient(145deg,rgba(139,124,255,.28),rgba(139,124,255,.06));color:#d2ceff;font:600 21px 'Space Grotesk'; }
+.profile-avatar-preview img,.profile-account-avatar img,.profile-top-avatar img { width:100%;height:100%;object-fit:cover;display:block; }
+.profile-avatar-copy { min-width:0;display:grid;gap:5px;text-align:left; }
+.profile-avatar-copy strong { color:#eef0f6;font-size:11px;font-weight:600; }
+.profile-avatar-copy small { color:#687286;font-size:8px;line-height:1.4; }
+.profile-avatar-button { display:inline-flex!important;width:max-content!important;position:relative;align-items:center;justify-content:center;min-height:32px;padding:0 11px;border:1px solid rgba(139,124,255,.2);border-radius:10px;background:rgba(139,124,255,.1);color:#aaa2ff!important;font-size:9px!important;cursor:pointer!important; }
+.profile-avatar-button input { position:absolute;width:1px!important;height:1px!important;opacity:0;pointer-events:none; }
+.profile-avatar-selected { color:#aaa2ff!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px; }
+.profile-account-card { display:flex;align-items:center;gap:13px; }
+.profile-account-copy { min-width:0;flex:1; }
+.profile-account-copy strong,.profile-account-copy small { display:block; }
+.profile-account-avatar { width:48px;height:48px;flex-basis:48px;border-radius:15px;font-size:17px; }
 .profile-edit-form input[readonly] { color:#8b93a6;cursor:default; }
 .profile-edit-actions { display:grid;gap:9px;margin-top:3px; }
 .profile-secondary-button { width:100%;min-height:44px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.035);color:#aab1c1;cursor:pointer;font-weight:600;transition:transform .3s ease,background .3s ease,border-color .3s ease,color .3s ease; }

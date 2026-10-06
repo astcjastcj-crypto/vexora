@@ -53,6 +53,29 @@ a { color: inherit; text-decoration: none; }
 .profile-avatar-selected { color:#aaa2ff!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px; }
 .profile-account-card { display:flex;align-items:center;gap:13px; }
 .profile-account-copy { min-width:0;flex:1; }
+.profile-orders { margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07); }
+.profile-orders-head { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px; }
+.profile-orders-head > div { display:grid;gap:3px;text-align:left; }
+.profile-orders-head strong { color:#eef0f6;font-size:13px;font-weight:650; }
+.profile-orders-count { min-width:26px;height:24px;padding:0 8px;border-radius:999px;display:grid;place-items:center;background:rgba(139,124,255,.1);border:1px solid rgba(139,124,255,.18);color:#aaa2ff;font-size:9px;font-weight:700; }
+.profile-orders-list { display:grid;gap:8px;max-height:190px;overflow:auto;padding-right:2px; }
+.profile-order-item { display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border:1px solid rgba(255,255,255,.07);border-radius:14px;background:rgba(255,255,255,.025); }
+.profile-order-main { min-width:0;display:grid;gap:4px;text-align:left; }
+.profile-order-main strong { color:#eef0f6;font-size:10px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.profile-order-main span { color:#6f788b;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.profile-order-meta { display:grid;justify-items:end;gap:3px;flex:0 0 auto; }
+.profile-order-meta b { color:#aaa2ff;font-size:8px;letter-spacing:.04em; }
+.profile-order-meta strong { color:#fff;font-size:10px; }
+.profile-order-status { font-size:7px;text-transform:uppercase;letter-spacing:.06em;padding:3px 6px;border-radius:999px;background:rgba(255,255,255,.06);color:#aab1c1; }
+.profile-order-status.status-pending { color:#f0c878;background:rgba(240,200,120,.08); }
+.profile-order-status.status-confirmed { color:#8fc8ff;background:rgba(100,170,255,.08); }
+.profile-order-status.status-delivered { color:#8fe7c4;background:rgba(80,210,160,.08); }
+.profile-order-status.status-cancelled { color:#ff9a9a;background:rgba(255,100,100,.08); }
+.profile-orders-empty { padding:15px 12px;border:1px dashed rgba(255,255,255,.09);border-radius:14px;color:#7d8699;font-size:9px;line-height:1.5;text-align:center; }
+.profile-orders-empty > span { display:block;margin-bottom:5px;color:#aaa2ff;font-size:18px; }
+.profile-orders-empty p { margin:0;color:#b8bfce;font-size:9px; }
+.profile-orders-empty small { display:block;margin-top:4px;color:#697286;font-size:8px; }
+
 .profile-account-copy strong,.profile-account-copy small { display:block; }
 .profile-account-avatar { width:48px;height:48px;flex-basis:48px;border-radius:15px;font-size:17px; }
 .profile-edit-form input[readonly] { color:#8b93a6;cursor:default; }

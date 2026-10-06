@@ -35,6 +35,7 @@ export default function Home() {
   const [profileAvatarFile, setProfileAvatarFile] = useState(null);
   const [userOrders, setUserOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [entryOpen, setEntryOpen] = useState(true);
   const [authTransition, setAuthTransition] = useState(false);
   const [mobileSection, setMobileSection] = useState("inicio");
@@ -862,20 +863,15 @@ export default function Home() {
 
                     <div className="profile-orders">
                       <div className="profile-orders-head">
-                        <div>
-                          <span className="profile-account-label">HISTORIAL</span>
-                          <strong>Mis pedidos</strong>
-                        </div>
-                        <span className="profile-orders-count">{userOrders.length}</span>
+                        <strong>Mis pedidos</strong>
+                        <span>{userOrders.length} {userOrders.length === 1 ? "pedido" : "pedidos"}</span>
                       </div>
 
                       {ordersLoading ? (
-                        <div className="profile-orders-empty">Cargando tus pedidos...</div>
+                        <div className="profile-orders-empty">Cargando...</div>
                       ) : userOrders.length === 0 ? (
                         <div className="profile-orders-empty">
-                          <span>◌</span>
-                          <p>Aún no tienes pedidos registrados.</p>
-                          <small>Cuando solicites una compra, aparecerá aquí automáticamente.</small>
+                          <p>Aún no tienes pedidos.</p>
                         </div>
                       ) : (
                         <div className="profile-orders-list">
@@ -884,19 +880,33 @@ export default function Home() {
                             const shortId = "VEX-" + order.id.slice(0, 8).toUpperCase();
                             const statusLabel = order.status === "pending" ? "Pendiente" : order.status === "confirmed" ? "Confirmado" : order.status === "delivered" ? "Entregado" : order.status === "cancelled" ? "Cancelado" : order.status;
                             return (
-                              <div className="profile-order-item" key={order.id}>
+                              <button type="button" className="profile-order-item" key={order.id} onClick={() => setSelectedOrder(order)}>
                                 <div className="profile-order-main">
-                                  <strong>{item?.product_name || "Pedido VEXORA"}</strong>
-                                  <span>{item?.plan_name || "Acceso digital"} · {item?.duration || "—"}</span>
+                                  <strong>{item?.product_name || "Pedido VEXORA"} — {item?.plan_name || "Acceso digital"}</strong>
+                                  <span>{shortId}</span>
                                 </div>
                                 <div className="profile-order-meta">
-                                  <b>{shortId}</b>
                                   <strong>S/{Number(order.total || 0).toFixed(2)}</strong>
                                   <span className={"profile-order-status status-" + order.status}>{statusLabel}</span>
                                 </div>
-                              </div>
+                              </button>
                             );
                           })}
+                        </div>
+                      )}
+
+                      {selectedOrder && (
+                        <div className="profile-order-detail">
+                          <button type="button" className="profile-order-detail-close" onClick={() => setSelectedOrder(null)} aria-label="Cerrar detalle">×</button>
+                          <span className="profile-account-label">DETALLE DEL PEDIDO</span>
+                          <strong>{selectedOrder.order_items?.[0]?.product_name || "Pedido VEXORA"}</strong>
+                          <div className="profile-order-detail-grid">
+                            <span>Plan</span><b>{selectedOrder.order_items?.[0]?.plan_name || "—"}</b>
+                            <span>Duración</span><b>{selectedOrder.order_items?.[0]?.duration || "—"}</b>
+                            <span>Precio</span><b>S/{Number(selectedOrder.total || 0).toFixed(2)}</b>
+                            <span>Estado</span><b>{selectedOrder.status === "pending" ? "Pendiente" : selectedOrder.status === "confirmed" ? "Confirmado" : selectedOrder.status === "delivered" ? "Entregado" : selectedOrder.status === "cancelled" ? "Cancelado" : selectedOrder.status}</b>
+                            <span>Pedido</span><b>VEX-{selectedOrder.id.slice(0, 8).toUpperCase()}</b>
+                          </div>
                         </div>
                       )}
                     </div>

@@ -33,6 +33,8 @@ export default function Home() {
   const [profileBusy, setProfileBusy] = useState(false);
   const [profileMessage, setProfileMessage] = useState("");
   const [profileAvatarFile, setProfileAvatarFile] = useState(null);
+  const [userOrders, setUserOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
   const [entryOpen, setEntryOpen] = useState(true);
   const [authTransition, setAuthTransition] = useState(false);
   const [mobileSection, setMobileSection] = useState("inicio");
@@ -122,6 +124,7 @@ export default function Home() {
       setProfileEditing(false);
       setProfileName("");
       setProfileMessage("");
+      setUserOrders([]);
       return;
     }
 
@@ -132,6 +135,28 @@ export default function Home() {
     );
     setProfileMessage("");
     setProfileAvatarFile(null);
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    let mounted = true;
+    const loadOrders = async () => {
+      setOrdersLoading(true);
+      const { data, error } = await supabase
+        .from("orders")
+        .select("id, status, total, currency, created_at, order_items(id, product_name, plan_name, duration, price)")
+        .eq("user_id", currentUser.id)
+        .order("created_at", { ascending: false });
+
+      if (mounted) {
+        setUserOrders(error ? [] : (data || []));
+        setOrdersLoading(false);
+      }
+    };
+
+    loadOrders();
+    return () => { mounted = false; };
   }, [currentUser]);
 
   useEffect(() => {
@@ -834,6 +859,47 @@ export default function Home() {
                     >
                       Editar perfil
                     </button>
+
+                    <div className="profile-orders">
+                      <div className="profile-orders-head">
+                        <div>
+                          <span className="profile-account-label">HISTORIAL</span>
+                          <strong>Mis pedidos</strong>
+                        </div>
+                        <span className="profile-orders-count">{userOrders.length}</span>
+                      </div>
+
+                      {ordersLoading ? (
+                        <div className="profile-orders-empty">Cargando tus pedidos...</div>
+                      ) : userOrders.length === 0 ? (
+                        <div className="profile-orders-empty">
+                          <span>◌</span>
+                          <p>Aún no tienes pedidos registrados.</p>
+                          <small>Cuando solicites una compra, aparecerá aquí automáticamente.</small>
+                        </div>
+                      ) : (
+                        <div className="profile-orders-list">
+                          {userOrders.map((order) => {
+                            const item = order.order_items?.[0];
+                            const shortId = "VEX-" + order.id.slice(0, 8).toUpperCase();
+                            const statusLabel = order.status === "pending" ? "Pendiente" : order.status === "confirmed" ? "Confirmado" : order.status === "delivered" ? "Entregado" : order.status === "cancelled" ? "Cancelado" : order.status;
+                            return (
+                              <div className="profile-order-item" key={order.id}>
+                                <div className="profile-order-main">
+                                  <strong>{item?.product_name || "Pedido VEXORA"}</strong>
+                                  <span>{item?.plan_name || "Acceso digital"} · {item?.duration || "—"}</span>
+                                </div>
+                                <div className="profile-order-meta">
+                                  <b>{shortId}</b>
+                                  <strong>S/{Number(order.total || 0).toFixed(2)}</strong>
+                                  <span className={"profile-order-status status-" + order.status}>{statusLabel}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
 
                     <button
                       type="button"

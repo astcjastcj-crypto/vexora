@@ -19,6 +19,8 @@ export default function Home() {
   const [category, setCategory] = useState("Todos");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [mobileSection, setMobileSection] = useState("inicio");
   const [logoPosition, setLogoPosition] = useState({ x: 0, y: 0, rotate: 0 });
   const filteredProducts = category === "Todos"
     ? products
@@ -32,6 +34,20 @@ export default function Home() {
   const searchResults = searchQuery.trim()
     ? products.filter((product) => (product.name + " " + product.type).toLowerCase().includes(searchQuery.trim().toLowerCase()))
     : products;
+
+  useEffect(() => {
+    const sections = ["inicio", "categorias", "productos", "nosotros"];
+    const observers = sections.map((id) => {
+      const element = document.getElementById(id);
+      if (!element) return null;
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) setMobileSection(id);
+      }, { rootMargin: "-25% 0px -55% 0px", threshold: 0 });
+      observer.observe(element);
+      return observer;
+    });
+    return () => observers.forEach((observer) => observer?.disconnect());
+  }, []);
 
   useEffect(() => {
     if (!searchOpen) return;
@@ -339,12 +355,27 @@ export default function Home() {
         <span className="section-kicker">VEXORA</span><h2>Tu acceso a lo digital.</h2><p>Simple. Moderno. Digital.</p>
       </section>
 
-      <nav className="mobile-nav">
-        <a className="mobile-active" href="#inicio"><span>⌂</span>Inicio</a>
-        <button onClick={() => setSearchOpen(true)}><span>⌕</span>Buscar</button>
-        <a href="#categorias"><span>◈</span>Categorías</a>
-        <a href="#productos"><span>▣</span>Productos</a>
-        <a href="#nosotros"><span>◯</span>Perfil</a>
+      {profileOpen && (
+        <div className="profile-overlay" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setProfileOpen(false);
+        }}>
+          <div className="profile-modal" role="dialog" aria-modal="true" aria-label="Perfil VEXORA">
+            <button type="button" className="profile-close" onClick={() => setProfileOpen(false)} aria-label="Cerrar perfil">×</button>
+            <div className="profile-orb">V</div>
+            <span className="section-kicker">ESPACIO VEXORA</span>
+            <h2>Tu perfil.</h2>
+            <p>Pronto podrás iniciar sesión para guardar tus accesos, pedidos y preferencias.</p>
+            <button type="button" className="profile-login-button" disabled>Iniciar sesión <span>Próximamente</span></button>
+          </div>
+        </div>
+      )}
+
+      <nav className="mobile-nav" aria-label="Navegación móvil">
+        <a className={mobileSection === "inicio" ? "mobile-active" : ""} href="#inicio"><span>⌂</span>Inicio</a>
+        <button className={searchOpen ? "mobile-active" : ""} onClick={() => setSearchOpen(true)}><span>⌕</span>Buscar</button>
+        <a className={mobileSection === "categorias" ? "mobile-active" : ""} href="#categorias"><span>◈</span>Categorías</a>
+        <a className={mobileSection === "productos" ? "mobile-active" : ""} href="#productos"><span>▣</span>Productos</a>
+        <button className={profileOpen || mobileSection === "nosotros" ? "mobile-active" : ""} onClick={() => setProfileOpen(true)}><span>◯</span>Perfil</button>
       </nav>
     </main>
   );

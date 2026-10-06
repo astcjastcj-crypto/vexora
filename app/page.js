@@ -28,6 +28,10 @@ export default function Home() {
   const [authBusy, setAuthBusy] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+  const [profileEditing, setProfileEditing] = useState(false);
+  const [profileName, setProfileName] = useState("");
+  const [profileBusy, setProfileBusy] = useState(false);
+  const [profileMessage, setProfileMessage] = useState("");
   const [entryOpen, setEntryOpen] = useState(true);
   const [authTransition, setAuthTransition] = useState(false);
   const [mobileSection, setMobileSection] = useState("inicio");
@@ -111,6 +115,22 @@ export default function Home() {
       listener.subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!currentUser) {
+      setProfileEditing(false);
+      setProfileName("");
+      setProfileMessage("");
+      return;
+    }
+
+    setProfileName(
+      currentUser.profile?.full_name ||
+      currentUser.user_metadata?.full_name ||
+      ""
+    );
+    setProfileMessage("");
+  }, [currentUser]);
 
   useEffect(() => {
     const sections = ["inicio", "categorias", "productos", "nosotros"];
@@ -233,6 +253,51 @@ export default function Home() {
       setAuthMessage(error?.message || "No pudimos completar la operación. Inténtalo de nuevo.");
     } finally {
       setAuthBusy(false);
+    }
+  };
+
+  const saveProfile = async (event) => {
+    event.preventDefault();
+    if (!currentUser || profileBusy) return;
+
+    const trimmedName = profileName.trim();
+    if (!trimmedName) {
+      setProfileMessage("Escribe tu nombre antes de guardar.");
+      return;
+    }
+
+    setProfileBusy(true);
+    setProfileMessage("");
+
+    try {
+      const { data: updatedUser, error: authError } = await supabase.auth.updateUser({
+        data: { full_name: trimmedName },
+      });
+
+      if (authError) throw authError;
+
+      const { data: updatedProfile, error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          full_name: trimmedName,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", currentUser.id)
+        .select("id, full_name, avatar_url, role")
+        .single();
+
+      if (profileError) throw profileError;
+
+      setCurrentUser({
+        ...(updatedUser?.user || currentUser),
+        profile: updatedProfile,
+      });
+      setProfileEditing(false);
+      setProfileMessage("Perfil actualizado correctamente.");
+    } catch (error) {
+      setProfileMessage(error?.message || "No pudimos actualizar tu perfil.");
+    } finally {
+      setProfileBusy(false);
     }
   };
 
@@ -410,10 +475,10 @@ export default function Home() {
         <div className="topbar-actions">
           <button className="icon-button" onClick={() => setSearchOpen(!searchOpen)} aria-label="Buscar"><span>⌕</span></button>
           <button className={currentUser ? "profile-top-button profile-top-button-active" : "profile-top-button"} onClick={() => setProfileOpen(true)} aria-label="Abrir perfil">
-            <span className="profile-top-avatar">{currentUser?.user_metadata?.full_name?.trim()?.charAt(0)?.toUpperCase() || "V"}</span>
+            <span className="profile-top-avatar">{(currentUser?.profile?.full_name || currentUser?.user_metadata?.full_name || "").trim()?.charAt(0)?.toUpperCase() || "V"}</span>
             <span className="profile-top-copy">
               <small>{currentUser ? "CUENTA ACTIVA" : "ESPACIO VEXORA"}</small>
-              <strong>{currentUser ? (currentUser.user_metadata?.full_name || "Mi cuenta") : "Perfil"}</strong>
+              <strong>{currentUser ? (currentUser.profile?.full_name || currentUser.user_metadata?.full_name || "Mi cuenta") : "Perfil"}</strong>
             </span>
             <b>⌄</b>
           </button>
@@ -643,28 +708,95 @@ export default function Home() {
 
             {currentUser ? (
               <>
-                <h2>Tu espacio.</h2>
-                <p>Tu cuenta VEXORA está activa. Desde aquí podrás consultar tus pedidos y organizar tus accesos.</p>
-                <div className="profile-account-card">
-                  <span className="profile-account-label">CUENTA ACTIVA</span>
-                  <strong>{currentUser.user_metadata?.full_name || "Usuario VEXORA"}</strong>
-                  <small>{currentUser.email}</small>
-                </div>
-                <button
-                  type="button"
-                  className="profile-login-button"
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    setCurrentUser(null);
-                    setProfileOpen(false);
-                    setAuthMode("login");
-                    setAuthEmail("");
-                    setAuthPassword("");
-                    setAuthMessage("");
-                  }}
-                >
-                  Cerrar sesión
-                </button>
+                <h2>{profileEditing ? "Editar perfil." : "Tu espacio."}</h2>
+                <p>{profileEditing
+                  ? "Actualiza tu nombre. El correo de acceso permanece vinculado a tu cuenta."
+                  : "Tu cuenta VEXORA está activa. Desde aquí podrás consultar tus pedidos y organizar tus accesos."}</p>
+
+                {profileEditing ? (
+                  <form className="auth-form profile-edit-form" onSubmit={saveProfile}>
+                    <label>
+                      <span>Nombre</span>
+                      <input
+                        type="text"
+                        value={profileName}
+                        onChange={(event) => setProfileName(event.target.value)}
+                        placeholder="Tu nombre"
+                        autoComplete="name"
+                        autoFocus
+                        disabled={profileBusy}
+                      />
+                    </label>
+                    <label>
+                      <span>Correo electrónico</span>
+                      <input
+                        type="email"
+                        value={currentUser.email || ""}
+                        readOnly
+                        aria-readonly="true"
+                      />
+                    </label>
+                    {profileMessage && <small className="profile-edit-message" role="status">{profileMessage}</small>}
+                    <div className="profile-edit-actions">
+                      <button
+                        type="submit"
+                        className="profile-login-button"
+                        disabled={profileBusy}
+                      >
+                        {profileBusy ? "Guardando..." : "Guardar cambios"}
+                      </button>
+                      <button
+                        type="button"
+                        className="profile-secondary-button"
+                        onClick={() => {
+                          setProfileEditing(false);
+                          setProfileMessage("");
+                          setProfileName(currentUser.profile?.full_name || currentUser.user_metadata?.full_name || "");
+                        }}
+                        disabled={profileBusy}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div className="profile-account-card">
+                      <span className="profile-account-label">CUENTA ACTIVA</span>
+                      <strong>{currentUser.profile?.full_name || currentUser.user_metadata?.full_name || "Usuario VEXORA"}</strong>
+                      <small>{currentUser.email}</small>
+                    </div>
+
+                    {profileMessage && <small className="profile-edit-message success" role="status">{profileMessage}</small>}
+
+                    <button
+                      type="button"
+                      className="profile-login-button"
+                      onClick={() => {
+                        setProfileMessage("");
+                        setProfileEditing(true);
+                      }}
+                    >
+                      Editar perfil
+                    </button>
+
+                    <button
+                      type="button"
+                      className="profile-secondary-button profile-logout-button"
+                      onClick={async () => {
+                        await supabase.auth.signOut();
+                        setCurrentUser(null);
+                        setProfileOpen(false);
+                        setAuthMode("login");
+                        setAuthEmail("");
+                        setAuthPassword("");
+                        setAuthMessage("");
+                      }}
+                    >
+                      Cerrar sesión
+                    </button>
+                  </>
+                )}
               </>
             ) : (
               <>

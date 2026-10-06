@@ -129,3 +129,76 @@
   .admin-topbar{padding:12px 15px}.admin-live{display:none}.admin-user div{display:none}.admin-layout{display:block}.admin-sidebar{display:none}.admin-content{padding:14px 13px 90px}.admin-mobile-nav{position:sticky;top:0;z-index:20;display:flex;gap:6px;margin-bottom:20px;padding:5px;overflow-x:auto;border:1px solid rgba(255,255,255,.07);border-radius:15px;background:rgba(8,12,20,.84);backdrop-filter:blur(18px);-webkit-overflow-scrolling:touch}.admin-mobile-nav button{min-width:82px;height:38px;display:flex;align-items:center;justify-content:center;gap:5px;border:0;border-radius:10px;background:transparent;color:#697386;font-size:7px;white-space:nowrap;cursor:pointer}.admin-mobile-nav button span{font-size:13px}.admin-mobile-nav button.active{color:#fff;background:rgba(139,124,255,.12);box-shadow:inset 0 0 0 1px rgba(139,124,255,.12)}.admin-page-head{align-items:flex-start;flex-direction:column;margin-bottom:18px}.admin-page-head h1{font-size:28px}.admin-page-head p{max-width:320px;line-height:1.6}.admin-refresh{width:100%}.admin-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.admin-stat{padding:14px;border-radius:15px}.admin-stat strong{font-size:21px}.admin-panel{border-radius:17px}.admin-panel-head{min-height:70px;padding:14px}.admin-customer-grid,.admin-catalog-grid{grid-template-columns:1fr}.admin-order-card{flex-direction:column;gap:12px}.admin-order-side{width:100%;display:flex;justify-content:space-between;align-items:center}.admin-order-side select{width:125px}.admin-cinematic-panel{min-height:280px}.admin-gate{margin:8vh auto 30px;padding:28px 20px}.admin-gate h1{font-size:25px}}
 @media(max-width:420px){.admin-brand strong{font-size:11px}.admin-brand small{font-size:6px}.admin-brand-orb{width:36px;height:36px}.admin-topbar{min-height:65px}.admin-stat{padding:12px}.admin-stat strong{font-size:18px}.admin-stat span{font-size:6px}.admin-stat small{font-size:6px}.admin-page-head h1{font-size:25px}}
 @media(prefers-reduced-motion:reduce){.admin-shell *{animation:none!important;transition:none!important}}
+
+/* VEXORA CONTROL CENTER — cinematic motion layer */
+.admin-shell::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% -10%,rgba(139,124,255,.12),transparent 38%),linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:auto,44px 44px,44px 44px;mask-image:linear-gradient(to bottom,black,transparent 82%);opacity:.5}
+.admin-shell::after{content:"";position:absolute;left:0;right:0;top:0;height:1px;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(139,124,255,.65),rgba(48,196,231,.45),transparent);box-shadow:0 0 24px rgba(139,124,255,.45);animation:adminScan 7s linear infinite}
+.admin-ambient{animation:adminAmbient 9s ease-in-out infinite}
+.admin-ambient-b{animation-delay:-4s}
+.admin-topbar{box-shadow:0 10px 40px rgba(0,0,0,.18)}
+.admin-brand-orb{animation:adminBrandPulse 4s ease-in-out infinite}
+.admin-nav-item{overflow:hidden}
+.admin-nav-item::before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent,rgba(139,124,255,.12),transparent);transform:translateX(-120%);transition:transform .55s ease}
+.admin-nav-item:hover::before,.admin-nav-item.active::before{transform:translateX(120%)}
+.admin-nav-item.active{box-shadow:inset 0 0 28px rgba(139,124,255,.035),0 0 24px rgba(139,124,255,.035)}
+.admin-page-head{animation:adminHeadIn .65s cubic-bezier(.16,.8,.2,1) both}
+.admin-refresh{transition:transform .3s ease,border-color .3s ease,background .3s ease,box-shadow .3s ease}
+.admin-refresh:hover{transform:translateY(-2px);border-color:rgba(139,124,255,.25);background:rgba(139,124,255,.07);box-shadow:0 10px 28px rgba(0,0,0,.2)}
+.admin-refresh:active{transform:translateY(0) scale(.97)}
+.admin-stat:nth-child(1){animation-delay:.05s}.admin-stat:nth-child(2){animation-delay:.12s}.admin-stat:nth-child(3){animation-delay:.19s}.admin-stat:nth-child(4){animation-delay:.26s}
+.admin-stat{transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .35s ease,box-shadow .35s ease}
+.admin-stat:hover{transform:translateY(-5px) scale(1.012);border-color:rgba(139,124,255,.18);box-shadow:0 26px 70px rgba(0,0,0,.24),0 0 34px rgba(139,124,255,.055)}
+.admin-stat::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 25%,rgba(255,255,255,.035) 50%,transparent 75%);transform:translateX(-120%);transition:transform .8s ease}
+.admin-stat:hover::before{transform:translateX(120%)}
+.admin-panel{animation:adminPanelIn .7s cubic-bezier(.16,.8,.2,1) both}
+.admin-grid-two>.admin-panel:nth-child(2){animation-delay:.12s}
+.admin-table tbody tr{animation:adminRowIn .45s cubic-bezier(.16,.8,.2,1) both}
+.admin-table tbody tr:nth-child(1){animation-delay:.06s}.admin-table tbody tr:nth-child(2){animation-delay:.11s}.admin-table tbody tr:nth-child(3){animation-delay:.16s}.admin-table tbody tr:nth-child(4){animation-delay:.21s}.admin-table tbody tr:nth-child(5){animation-delay:.26s}.admin-table tbody tr:nth-child(6){animation-delay:.31s}
+.admin-table tbody tr{transition:background .25s ease}
+.admin-table tbody tr:hover{background:rgba(139,124,255,.035)}
+.admin-status{transition:transform .25s ease,box-shadow .25s ease}
+.admin-status:hover{transform:scale(1.04);box-shadow:0 0 16px rgba(139,124,255,.08)}
+.admin-cinematic-panel{isolation:isolate}
+.admin-cinematic-panel::before{content:"";position:absolute;width:180px;height:180px;left:-80px;bottom:-100px;border-radius:50%;background:rgba(48,196,231,.08);filter:blur(45px);animation:adminPulseGlow 5s ease-in-out infinite}
+.admin-panel-glow{animation:adminGlowDrift 7s ease-in-out infinite}
+.admin-orbit-art{animation:adminFloat 4s ease-in-out infinite,adminArtPulse 5s ease-in-out infinite}
+.admin-orbit-art::before{animation:adminRingSpin 13s linear infinite}
+.admin-orbit-art::after{animation:adminRingSpinReverse 17s linear infinite}
+.admin-orbit-art span{animation:adminCorePulse 3s ease-in-out infinite}
+.admin-orbit-art i:nth-of-type(1){animation:adminOrbit 5s linear infinite}
+.admin-orbit-art i:nth-of-type(2){animation:adminOrbit 5s linear infinite -1.65s}
+.admin-orbit-art i:nth-of-type(3){animation:adminOrbit 5s linear infinite -3.3s}
+.admin-orders-list .admin-order-card:nth-child(1){animation-delay:.05s}.admin-orders-list .admin-order-card:nth-child(2){animation-delay:.1s}.admin-orders-list .admin-order-card:nth-child(3){animation-delay:.15s}.admin-orders-list .admin-order-card:nth-child(4){animation-delay:.2s}.admin-orders-list .admin-order-card:nth-child(5){animation-delay:.25s}
+.admin-order-card{animation:adminRowIn .5s cubic-bezier(.16,.8,.2,1) both}
+.admin-order-card:hover{transform:translateY(-3px) translateX(2px);box-shadow:0 15px 35px rgba(0,0,0,.14)}
+.admin-order-side select{transition:border-color .25s ease,box-shadow .25s ease,transform .25s ease}
+.admin-order-side select:focus{border-color:rgba(139,124,255,.35);box-shadow:0 0 0 3px rgba(139,124,255,.06);transform:translateY(-1px)}
+.admin-customer-card,.admin-catalog-card{animation:adminRowIn .5s cubic-bezier(.16,.8,.2,1) both;transition:transform .3s ease,border-color .3s ease,background .3s ease,box-shadow .3s ease}
+.admin-customer-card:nth-child(1),.admin-catalog-card:nth-child(1){animation-delay:.05s}.admin-customer-card:nth-child(2),.admin-catalog-card:nth-child(2){animation-delay:.1s}.admin-customer-card:nth-child(3),.admin-catalog-card:nth-child(3){animation-delay:.15s}.admin-customer-card:nth-child(4),.admin-catalog-card:nth-child(4){animation-delay:.2s}.admin-customer-card:nth-child(5),.admin-catalog-card:nth-child(5){animation-delay:.25s}
+.admin-customer-card:hover,.admin-catalog-card:hover{transform:translateY(-3px);border-color:rgba(139,124,255,.18);background:rgba(139,124,255,.035);box-shadow:0 16px 35px rgba(0,0,0,.14)}
+.admin-customer-avatar,.admin-catalog-orb{transition:transform .35s ease,box-shadow .35s ease}
+.admin-customer-card:hover .admin-customer-avatar,.admin-catalog-card:hover .admin-catalog-orb{transform:rotate(-4deg) scale(1.06);box-shadow:0 0 24px rgba(139,124,255,.1)}
+.admin-catalog-card button{transition:color .25s ease,transform .25s ease}
+.admin-catalog-card button:hover{color:#c2bcff;transform:translateX(3px)}
+.admin-info-callout{animation:adminCalloutIn .6s .3s cubic-bezier(.16,.8,.2,1) both}
+.admin-gate{animation:adminGateIn .8s cubic-bezier(.16,.8,.2,1) both}
+.admin-gate-orb{position:relative;overflow:hidden}
+.admin-gate-orb::after{content:"";position:absolute;inset:8px;border:1px solid rgba(255,255,255,.08);border-radius:18px;animation:adminRingSpin 8s linear infinite}
+.admin-primary,.admin-secondary{transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease}
+.admin-primary:hover,.admin-secondary:hover{transform:translateY(-3px);box-shadow:0 14px 35px rgba(0,0,0,.2)}
+.admin-primary:hover{border-color:rgba(155,145,255,.5);box-shadow:0 0 28px rgba(113,99,255,.12),0 14px 35px rgba(0,0,0,.2)}
+@keyframes adminScan{0%{transform:translateY(-10px);opacity:0}12%{opacity:.8}50%{opacity:.35}88%{opacity:.8}100%{transform:translateY(100vh);opacity:0}}
+@keyframes adminAmbient{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(24px,-20px,0) scale(1.08)}}
+@keyframes adminBrandPulse{0%,100%{transform:scale(1);box-shadow:0 0 30px rgba(110,97,255,.12)}50%{transform:scale(1.045);box-shadow:0 0 42px rgba(110,97,255,.24)}}
+@keyframes adminHeadIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes adminPanelIn{from{opacity:0;transform:translateY(14px) scale(.992)}to{opacity:1;transform:none}}
+@keyframes adminRowIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes adminPulseGlow{0%,100%{opacity:.45;transform:scale(.9)}50%{opacity:1;transform:scale(1.12)}}
+@keyframes adminGlowDrift{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-28px,18px,0) scale(1.12)}}
+@keyframes adminRingSpin{from{transform:rotateX(70deg) rotateZ(0)}to{transform:rotateX(70deg) rotateZ(360deg)}}
+@keyframes adminRingSpinReverse{from{transform:rotateY(70deg) rotateZ(0)}to{transform:rotateY(70deg) rotateZ(-360deg)}}
+@keyframes adminArtPulse{0%,100%{box-shadow:0 0 55px rgba(111,98,255,.1)}50%{box-shadow:0 0 85px rgba(111,98,255,.2)}}
+@keyframes adminCorePulse{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.08);opacity:1}}
+@keyframes adminCalloutIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.admin-shell::after,.admin-shell *{animation:none!important;transition:none!important}}
+@media(max-width:760px){.admin-shell::before{background-size:auto,32px 32px,32px 32px;opacity:.32}.admin-stat:hover,.admin-order-card:hover,.admin-customer-card:hover,.admin-catalog-card:hover{transform:none}}

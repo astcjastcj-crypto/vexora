@@ -275,19 +275,30 @@ export default function Home() {
       let avatarUrl = currentUser.profile?.avatar_url || null;
 
       if (profileAvatarFile) {
-        const extension = profileAvatarFile.name.split(".").pop()?.toLowerCase() || "jpg";
-        const filePath = currentUser.id + "/avatar-" + Date.now() + "." + extension;
-        const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, profileAvatarFile, {
-          upsert: true,
-          contentType: profileAvatarFile.type || "image/jpeg",
+        avatarUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const image = new Image();
+            image.onload = () => {
+              const maxSize = 500;
+              const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+              const canvas = document.createElement("canvas");
+              canvas.width = Math.max(1, Math.round(image.width * scale));
+              canvas.height = Math.max(1, Math.round(image.height * scale));
+              const context = canvas.getContext("2d");
+              context.drawImage(image, 0, 0, canvas.width, canvas.height);
+              resolve(canvas.toDataURL("image/jpeg", 0.82));
+            };
+            image.onerror = () => reject(new Error("No pudimos procesar la imagen."));
+            image.src = reader.result;
+          };
+          reader.onerror = () => reject(new Error("No pudimos leer la imagen."));
+          reader.readAsDataURL(profileAvatarFile);
         });
-        if (uploadError) throw uploadError;
-        const { data: publicData } = supabase.storage.from("avatars").getPublicUrl(filePath);
-        avatarUrl = publicData?.publicUrl || avatarUrl;
       }
 
       const { data: updatedUser, error: authError } = await supabase.auth.updateUser({
-        data: { full_name: trimmedName, avatar_url: avatarUrl },
+        data: { full_name: trimmedName },
       });
 
       if (authError) throw authError;

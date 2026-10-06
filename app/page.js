@@ -39,6 +39,7 @@ export default function Home() {
   const [entryOpen, setEntryOpen] = useState(true);
   const [authTransition, setAuthTransition] = useState(false);
   const [mobileSection, setMobileSection] = useState("inicio");
+  const isAdmin = currentUser?.profile?.role === "admin";
   const [logoPosition, setLogoPosition] = useState({ x: 0, y: 0, rotate: 0 });
   const filteredProducts = category === "Todos"
     ? products
@@ -860,6 +861,21 @@ export default function Home() {
                     >
                       Editar perfil
                     </button>
+
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        className="profile-admin-button"
+                        onClick={() => {
+                          setProfileOpen(false);
+                          router.push("/admin");
+                        }}
+                      >
+                        <span>◈</span>
+                        <span>Panel de administración</span>
+                        <b>↗</b>
+                      </button>
+                    )}
 
                     <div className="profile-orders">
                       <div className="profile-orders-head">

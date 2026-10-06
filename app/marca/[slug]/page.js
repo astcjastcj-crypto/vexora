@@ -8,7 +8,7 @@ const brands = {
   chatgpt: {
     name: "ChatGPT",
     type: "Inteligencia Artificial",
-    logo: "https://cdn.simpleicons.org/openai",
+    logo: "/logos/openai.svg",
     intro: "Una inteligencia artificial para ayudarte a crear, aprender, resolver problemas y trabajar de forma más rápida.",
     benefitTitle: "¿Para qué sirve?",
     benefits: [
@@ -59,7 +59,7 @@ const brands = {
   "canva-pro": {
     name: "Canva Pro",
     type: "Diseño",
-    logo: "https://cdn.simpleicons.org/canva",
+    logo: "/logos/canva.svg",
     intro: "Una plataforma de diseño para crear contenido profesional de forma sencilla, incluso si no eres diseñador.",
     benefitTitle: "¿Para qué sirve?",
     benefits: [

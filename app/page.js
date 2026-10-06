@@ -196,29 +196,74 @@ export default function Home() {
 
       <section className="category-section" id="categorias">
         <div className="section-heading">
-          <div><span className="section-kicker">EXPLORA</span><h2>Encuentra lo que necesitas.</h2></div>
-          <p>Una colección digital pensada para simplificar tu día.</p>
+          <div><span className="section-kicker">EXPLORA POR CATEGORÍA</span><h2>Encuentra lo que necesitas.</h2></div>
+          <p>Descubre qué puedes hacer con VEXORA y entra directamente a las herramientas que buscas.</p>
         </div>
+
+        <div className="category-showcase">
+          {categories.filter((item) => item !== "Todos").map((item, index) => {
+            const info = {
+              IA: { icon: "✦", title: "Inteligencia Artificial", text: "Crea, estudia, programa y potencia tus ideas con herramientas de IA.", accent: "IA" },
+              Streaming: { icon: "◉", title: "Streaming", text: "Música y entretenimiento para disfrutar tus contenidos favoritos.", accent: "STREAMING" },
+              Gaming: { icon: "⌁", title: "Gaming", text: "Juega en la nube y disfruta experiencias que van más allá de tu hardware.", accent: "GAMING" },
+              Productividad: { icon: "◇", title: "Productividad", text: "Herramientas para organizar, trabajar y llevar tus proyectos al siguiente nivel.", accent: "PRODUCTIVIDAD" },
+              Diseño: { icon: "◈", title: "Diseño", text: "Crea contenido visual, diseños y proyectos con herramientas premium.", accent: "DISEÑO" }
+            }[item];
+
+            return (
+              <button
+                key={item}
+                className={category === item ? "category-card active" : "category-card"}
+                onClick={() => selectCategory(item)}
+                style={{ "--category-delay": (index * 70) + "ms" }}
+              >
+                <span className="category-card-orbit" aria-hidden="true" />
+                <span className="category-card-icon">{info.icon}</span>
+                <span className="category-card-kicker">{info.accent}</span>
+                <strong>{info.title}</strong>
+                <span className="category-card-text">{info.text}</span>
+                <span className="category-card-arrow">Explorar <b>↗</b></span>
+              </button>
+            );
+          })}
+        </div>
+
         <div className="category-pills">
-          {categories.map((item) => (
-            <button key={item} className={category === item ? "category-pill active" : "category-pill"} onClick={() => selectCategory(item)}>
-              <span>{item === "IA" ? "✦" : item === "Gaming" ? "⌁" : item === "Diseño" ? "◈" : "•"}</span>{item}
-            </button>
-          ))}
+          <button className={category === "Todos" ? "category-pill active" : "category-pill"} onClick={() => selectCategory("Todos")}>
+            <span>✦</span>Todos
+          </button>
         </div>
       </section>
 
       <section className="products-section" id="productos">
-        <div className="section-heading compact">
-          <div><span className="section-kicker">SELECCIÓN VEXORA</span><h2>Productos populares</h2></div>
-          <button className="view-all">Ver todos →</button>
+        <div className="category-result-head">
+          <div>
+            <span className="section-kicker">{category === "Todos" ? "TODOS LOS ACCESOS" : "CATEGORÍA SELECCIONADA"}</span>
+            <h2>{category === "Todos" ? "Explora VEXORA" : (category === "IA" ? "Inteligencia Artificial" : category)}</h2>
+            <p>{category === "Todos" ? "Selecciona una herramienta y descubre sus planes disponibles." : "Selecciona un servicio para conocer sus planes y condiciones."}</p>
+          </div>
+          <span className="result-count">{filteredProducts.length} {filteredProducts.length === 1 ? "opción" : "opciones"}</span>
         </div>
-        <div className="product-grid" key={category}>
-          {filteredProducts.slice(0, 4).map((product, index) => (
-            <article className="mini-product" key={product.name}>
+
+        <div className="product-grid category-product-grid" key={category}>
+          {filteredProducts.slice(0, 6).map((product, index) => (
+            <article
+              className="mini-product"
+              key={product.name}
+              onClick={() => openProduct(product)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  openProduct(product);
+                }
+              }}
+              style={{ "--product-delay": (index * 70) + "ms" }}
+            >
               <div className={"mini-mark mark-" + index}><img src={product.logo} alt={product.name + " logo"} /></div>
               <div><span>{product.type}</span><h3>{product.name}</h3><p>{product.price}</p></div>
-              <button aria-label={"Ver " + product.name}>↗</button>
+              <button onClick={(event) => { event.stopPropagation(); openProduct(product); }} aria-label={"Ver planes de " + product.name}>↗</button>
             </article>
           ))}
           {filteredProducts.length === 0 && (

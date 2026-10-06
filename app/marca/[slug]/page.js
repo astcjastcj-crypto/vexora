@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "../../../utils/supabase/client";
 
 const brands = {
   chatgpt: {
@@ -181,6 +182,61 @@ export default function BrandPage({ params }) {
   const brand = brands[slug] || brands.chatgpt;
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [orderBusy, setOrderBusy] = useState(false);
+  const [orderMessage, setOrderMessage] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) setCurrentUser(data.session?.user || null);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) setCurrentUser(session?.user || null);
+    });
+    return () => { mounted = false; listener.subscription.unsubscribe(); };
+  }, []);
+
+  useEffect(() => {
+    setTermsAccepted(false);
+    setOrderMessage("");
+  }, [selectedPlan]);
+
+  const createOrderAndContinue = async (channel) => {
+    if (!selectedPlan || !termsAccepted || orderBusy) return;
+    if (!currentUser) {
+      setOrderMessage("Inicia sesión en VEXORA antes de solicitar una compra.");
+      return;
+    }
+    setOrderBusy(true);
+    setOrderMessage("");
+    try {
+      const price = Number(String(selectedPlan.price).replace("S/", "").replace(",", ".").trim());
+      if (!Number.isFinite(price)) throw new Error("No pudimos identificar el precio del plan.");
+      const { data: order, error: orderError } = await supabase.from("orders").insert({
+        user_id: currentUser.id,
+        status: "pending",
+        total: price,
+        currency: "PEN",
+        notes: "Solicitud creada desde VEXORA.",
+      }).select("id").single();
+      if (orderError) throw orderError;
+      const { error: itemError } = await supabase.from("order_items").insert({
+        order_id: order.id,
+        product_name: brand.name,
+        plan_name: selectedPlan.name,
+        duration: selectedPlan.duration,
+        price,
+      });
+      if (itemError) throw itemError;
+      const message = "Hola VEXORA, quiero adquirir " + brand.name + " — " + selectedPlan.name + " — " + selectedPlan.price + " — " + selectedPlan.duration + ". Mi pedido es " + order.id + ".";
+      const destination = channel === "telegram" ? "https://t.me/Camerdj?text=" + encodeURIComponent(message) : "https://wa.me/51992491189?text=" + encodeURIComponent(message);
+      window.open(destination, "_blank", "noopener,noreferrer");
+      setOrderMessage("Pedido creado correctamente. Ahora puedes continuar con VEXORA.");
+    } catch (error) {
+      setOrderMessage(error?.message || "No pudimos crear el pedido. Inténtalo de nuevo.");
+    } finally { setOrderBusy(false); }
+  };
 
   return (
     <main className="brand-page">
@@ -273,11 +329,13 @@ export default function BrandPage({ params }) {
                 ))}
               </div>
               <label className="terms-check"><input type="checkbox" id="vexora-terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} /><span>Acepto haber leído y comprendido las condiciones del acceso seleccionado.</span></label>
+              {!currentUser && <div className="purchase-auth-note">🔐 Debes iniciar sesión en VEXORA para registrar tu pedido.</div>}
+              {orderMessage && <div className="purchase-order-message" role="status">{orderMessage}</div>}
               <div className="purchase-actions">
-                <a href={"https://wa.me/51992491189?text=" + encodeURIComponent("Hola VEXORA, quiero adquirir " + brand.name + " — " + selectedPlan.name + " — " + selectedPlan.price + " — " + selectedPlan.duration + ".")} target="_blank" rel="noreferrer" className={"purchase-action whatsapp" + (termsAccepted ? "" : " disabled")} aria-disabled={!termsAccepted} onClick={(e) => { if (!termsAccepted) e.preventDefault(); }}>Solicitar por WhatsApp <span>↗</span></a>
-                <a href={"https://t.me/Camerdj?text=" + encodeURIComponent("Hola VEXORA, quiero adquirir " + brand.name + " — " + selectedPlan.name + " — " + selectedPlan.price + " — " + selectedPlan.duration + ".")} target="_blank" rel="noreferrer" className={"purchase-action telegram" + (termsAccepted ? "" : " disabled")} aria-disabled={!termsAccepted} onClick={(e) => { if (!termsAccepted) e.preventDefault(); }}>Solicitar por Telegram <span>↗</span></a>
+                <button type="button" className={"purchase-action whatsapp" + (termsAccepted && currentUser && !orderBusy ? "" : " disabled")} disabled={!termsAccepted || !currentUser || orderBusy} onClick={() => createOrderAndContinue("whatsapp")}>{orderBusy ? "Creando pedido..." : "Solicitar por WhatsApp"} <span>↗</span></button>
+                <button type="button" className={"purchase-action telegram" + (termsAccepted && currentUser && !orderBusy ? "" : " disabled")} disabled={!termsAccepted || !currentUser || orderBusy} onClick={() => createOrderAndContinue("telegram")}>{orderBusy ? "Creando pedido..." : "Solicitar por Telegram"} <span>↗</span></button>
               </div>
-              <small className="purchase-note">Al continuar, VEXORA recibirá tu solicitud para coordinar disponibilidad, pago y entrega.</small>
+              <small className="purchase-note">Al continuar, VEXORA registrará tu pedido como pendiente y luego abrirá el canal elegido para coordinar disponibilidad, pago y entrega.</small>
             </div>
           </div>
         </div>

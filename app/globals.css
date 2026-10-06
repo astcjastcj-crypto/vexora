@@ -170,6 +170,9 @@ a { color: inherit; text-decoration: none; }
 .logo-depth { position:absolute; inset:0; width:145px; height:145px; transform-style:preserve-3d; pointer-events:none; }
 .logo-depth img { position:absolute; inset:0; width:145px; height:145px; object-fit:contain; display:block; opacity:.86; filter:brightness(.42) saturate(.92) drop-shadow(0 6px 8px rgba(0,0,0,.58)); pointer-events:none; }
 .logo-aura { position:absolute; width:190px; height:190px; border-radius:50%; background:radial-gradient(circle,rgba(139,124,255,.18),transparent 65%); filter:blur(10px); pointer-events:none; }
+img[src="/logos/openai.svg"], img[src="/logos/canva.svg"] {
+  filter: invert(1) drop-shadow(0 14px 24px rgba(0,0,0,.5));
+}
 .logo-brand-canva-pro .logo-face { filter:invert(1) drop-shadow(0 24px 35px rgba(0,0,0,.62)); }
 .logo-brand-canva-pro .logo-depth img { filter:invert(1) brightness(.48) drop-shadow(0 6px 8px rgba(0,0,0,.68)); }
 .logo-brand-chatgpt .logo-face { filter:invert(1) brightness(1.28) drop-shadow(0 24px 35px rgba(0,0,0,.62)); }

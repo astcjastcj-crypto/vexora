@@ -32,6 +32,7 @@ export default function Home() {
   const [profileName, setProfileName] = useState("");
   const [profileBusy, setProfileBusy] = useState(false);
   const [profileMessage, setProfileMessage] = useState("");
+  const [profileAvatarFile, setProfileAvatarFile] = useState(null);
   const [entryOpen, setEntryOpen] = useState(true);
   const [authTransition, setAuthTransition] = useState(false);
   const [mobileSection, setMobileSection] = useState("inicio");
@@ -130,6 +131,7 @@ export default function Home() {
       ""
     );
     setProfileMessage("");
+    setProfileAvatarFile(null);
   }, [currentUser]);
 
   useEffect(() => {
@@ -270,8 +272,22 @@ export default function Home() {
     setProfileMessage("");
 
     try {
+      let avatarUrl = currentUser.profile?.avatar_url || null;
+
+      if (profileAvatarFile) {
+        const extension = profileAvatarFile.name.split(".").pop()?.toLowerCase() || "jpg";
+        const filePath = currentUser.id + "/avatar-" + Date.now() + "." + extension;
+        const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, profileAvatarFile, {
+          upsert: true,
+          contentType: profileAvatarFile.type || "image/jpeg",
+        });
+        if (uploadError) throw uploadError;
+        const { data: publicData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+        avatarUrl = publicData?.publicUrl || avatarUrl;
+      }
+
       const { data: updatedUser, error: authError } = await supabase.auth.updateUser({
-        data: { full_name: trimmedName },
+        data: { full_name: trimmedName, avatar_url: avatarUrl },
       });
 
       if (authError) throw authError;
@@ -280,6 +296,7 @@ export default function Home() {
         .from("profiles")
         .update({
           full_name: trimmedName,
+          avatar_url: avatarUrl,
           updated_at: new Date().toISOString(),
         })
         .eq("id", currentUser.id)
@@ -292,6 +309,7 @@ export default function Home() {
         ...(updatedUser?.user || currentUser),
         profile: updatedProfile,
       });
+      setProfileAvatarFile(null);
       setProfileEditing(false);
       setProfileMessage("Perfil actualizado correctamente.");
     } catch (error) {
@@ -475,7 +493,7 @@ export default function Home() {
         <div className="topbar-actions">
           <button className="icon-button" onClick={() => setSearchOpen(!searchOpen)} aria-label="Buscar"><span>⌕</span></button>
           <button className={currentUser ? "profile-top-button profile-top-button-active" : "profile-top-button"} onClick={() => setProfileOpen(true)} aria-label="Abrir perfil">
-            <span className="profile-top-avatar">{(currentUser?.profile?.full_name || currentUser?.user_metadata?.full_name || "").trim()?.charAt(0)?.toUpperCase() || "V"}</span>
+            <span className="profile-top-avatar">{currentUser?.profile?.avatar_url ? <img src={currentUser.profile.avatar_url} alt="" /> : ((currentUser?.profile?.full_name || currentUser?.user_metadata?.full_name || "").trim()?.charAt(0)?.toUpperCase() || "V")}</span>
             <span className="profile-top-copy">
               <small>{currentUser ? "CUENTA ACTIVA" : "ESPACIO VEXORA"}</small>
               <strong>{currentUser ? (currentUser.profile?.full_name || currentUser.user_metadata?.full_name || "Mi cuenta") : "Perfil"}</strong>
@@ -715,6 +733,26 @@ export default function Home() {
 
                 {profileEditing ? (
                   <form className="auth-form profile-edit-form" onSubmit={saveProfile}>
+                    <div className="profile-avatar-editor">
+                      <div className="profile-avatar-preview">
+                        {currentUser.profile?.avatar_url ? <img src={currentUser.profile.avatar_url} alt="Avatar de tu perfil" /> : <span>{(currentUser.profile?.full_name || currentUser.user_metadata?.full_name || "V").trim()?.charAt(0)?.toUpperCase() || "V"}</span>}
+                      </div>
+                      <div className="profile-avatar-copy">
+                        <strong>Foto de perfil</strong>
+                        <small>JPG, PNG o WEBP · máximo 2 MB</small>
+                        <label className="profile-avatar-button">
+                          <span>Elegir imagen</span>
+                          <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => {
+                            const selectedFile = event.target.files?.[0] || null;
+                            if (!selectedFile) return;
+                            if (selectedFile.size > 2 * 1024 * 1024) { setProfileMessage("La imagen no puede superar los 2 MB."); event.target.value = ""; return; }
+                            setProfileAvatarFile(selectedFile);
+                            setProfileMessage("");
+                          }} disabled={profileBusy} />
+                        </label>
+                        {profileAvatarFile && <small className="profile-avatar-selected">{profileAvatarFile.name}</small>}
+                      </div>
+                    </div>
                     <label>
                       <span>Nombre</span>
                       <input
@@ -751,6 +789,7 @@ export default function Home() {
                         onClick={() => {
                           setProfileEditing(false);
                           setProfileMessage("");
+                          setProfileAvatarFile(null);
                           setProfileName(currentUser.profile?.full_name || currentUser.user_metadata?.full_name || "");
                         }}
                         disabled={profileBusy}
@@ -763,8 +802,13 @@ export default function Home() {
                   <>
                     <div className="profile-account-card">
                       <span className="profile-account-label">CUENTA ACTIVA</span>
-                      <strong>{currentUser.profile?.full_name || currentUser.user_metadata?.full_name || "Usuario VEXORA"}</strong>
-                      <small>{currentUser.email}</small>
+                      <div className="profile-account-avatar">
+                        {currentUser.profile?.avatar_url ? <img src={currentUser.profile.avatar_url} alt="Avatar de tu perfil" /> : <span>{(currentUser.profile?.full_name || currentUser.user_metadata?.full_name || "V").trim()?.charAt(0)?.toUpperCase() || "V"}</span>}
+                      </div>
+                      <div className="profile-account-copy">
+                        <strong>{currentUser.profile?.full_name || currentUser.user_metadata?.full_name || "Usuario VEXORA"}</strong>
+                        <small>{currentUser.email}</small>
+                      </div>
                     </div>
 
                     {profileMessage && <small className="profile-edit-message success" role="status">{profileMessage}</small>}

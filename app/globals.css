@@ -1476,3 +1476,45 @@ img[src="/logos/openai.svg"] {
 @media (prefers-reduced-motion: reduce) {
   .profile-top-button,.profile-top-button::before,.profile-top-avatar,.profile-top-button-active .profile-top-avatar,.profile-overlay,.profile-modal,.profile-orb,.profile-account-card { animation:none!important; }
 }
+
+
+/* ADMIN ACCESS FROM PROFILE */
+.profile-admin-button {
+  width:100%;
+  min-height:50px;
+  margin-top:10px;
+  padding:0 15px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid rgba(139,124,255,.24);
+  border-radius:14px;
+  background:linear-gradient(105deg,rgba(139,124,255,.13),rgba(48,196,231,.055));
+  color:#dcd9ff;
+  cursor:pointer;
+  font:600 10px 'Space Grotesk',sans-serif;
+  text-align:left;
+  transition:transform .3s ease,border-color .3s ease,background .3s ease,box-shadow .3s ease;
+}
+.profile-admin-button > span:first-child {
+  width:28px;
+  height:28px;
+  flex:0 0 28px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(155,145,255,.22);
+  border-radius:9px;
+  background:rgba(139,124,255,.1);
+  color:#aaa1ff;
+  font-size:13px;
+}
+.profile-admin-button > span:nth-child(2) { flex:1; }
+.profile-admin-button > b { color:#aaa1ff;font-size:14px;transition:transform .3s ease; }
+.profile-admin-button:hover { transform:translateY(-2px);border-color:rgba(155,145,255,.48);background:linear-gradient(105deg,rgba(139,124,255,.19),rgba(48,196,231,.08));box-shadow:0 14px 35px rgba(90,78,230,.12); }
+.profile-admin-button:hover > b { transform:translate(2px,-2px); }
+@media (max-width:600px) {
+  .profile-admin-button { min-height:48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .profile-admin-button,.profile-admin-button > b { transition:none !important; }
+}

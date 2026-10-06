@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../utils/supabase/client";
 
-const products = [
+const fallbackProducts = [
   { name: "ChatGPT", type: "Inteligencia Artificial", logo: "/logos/openai.svg", price: "Desde S/19" },
   { name: "Gemini", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/googlegemini", price: "Desde S/20" },
   { name: "Spotify", type: "Streaming", logo: "https://cdn.simpleicons.org/spotify", price: "Desde S/40" },
@@ -16,6 +16,7 @@ const categories = ["Todos", "IA", "Streaming", "Gaming", "Productividad", "Dise
 
 export default function Home() {
   const router = useRouter();
+  const [products, setProducts] = useState(fallbackProducts);
   const [active, setActive] = useState(0);
   const [category, setCategory] = useState("Todos");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -53,6 +54,54 @@ export default function Home() {
   const searchResults = searchQuery.trim()
     ? products.filter((product) => (product.name + " " + product.type).toLowerCase().includes(searchQuery.trim().toLowerCase()))
     : products;
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadPublicCatalog = async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, name, category, logo_url, price_from, active")
+        .eq("active", true)
+        .order("created_at", { ascending: true });
+
+      if (!mounted || error || !data) return;
+
+      setProducts((current) => {
+        const catalogByName = new Map(
+          data.map((item) => [item.name.trim().toLowerCase(), item])
+        );
+        const merged = current.map((product) => {
+          const item = catalogByName.get(product.name.trim().toLowerCase());
+          if (!item) return product;
+          return {
+            ...product,
+            type: item.category || product.type,
+            logo: item.logo_url || product.logo,
+            price: Number(item.price_from || 0) > 0 ? "Desde S/" + Number(item.price_from).toFixed(0) : product.price,
+          };
+        });
+
+        const existingNames = new Set(merged.map((product) => product.name.trim().toLowerCase()));
+        data.forEach((item) => {
+          const name = item.name?.trim();
+          if (!name || existingNames.has(name.toLowerCase())) return;
+          merged.push({
+            name,
+            type: item.category || "Otros",
+            logo: item.logo_url || "",
+            price: Number(item.price_from || 0) > 0 ? "Desde S/" + Number(item.price_from).toFixed(0) : "Consultar precio",
+          });
+        });
+
+        return merged;
+      });
+    };
+
+    loadPublicCatalog();
+
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     let mounted = true;

@@ -23,6 +23,8 @@ export default function Home() {
   const [authMode, setAuthMode] = useState("login");
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const [entryOpen, setEntryOpen] = useState(true);
+  const [authTransition, setAuthTransition] = useState(false);
   const [mobileSection, setMobileSection] = useState("inicio");
   const [logoPosition, setLogoPosition] = useState({ x: 0, y: 0, rotate: 0 });
   const filteredProducts = category === "Todos"
@@ -37,6 +39,12 @@ export default function Home() {
   const searchResults = searchQuery.trim()
     ? products.filter((product) => (product.name + " " + product.type).toLowerCase().includes(searchQuery.trim().toLowerCase()))
     : products;
+
+  useEffect(() => {
+    try {
+      if (window.sessionStorage.getItem("vexora-entry-seen") === "1") setEntryOpen(false);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     const sections = ["inicio", "categorias", "productos", "nosotros"];
@@ -60,6 +68,22 @@ export default function Home() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [searchOpen]);
+
+  const enterVexora = () => {
+    try { window.sessionStorage.setItem("vexora-entry-seen", "1"); } catch {}
+    setEntryOpen(false);
+  };
+
+  const submitEntryAuth = (event) => {
+    event.preventDefault();
+    if (!authEmail.trim() || !authPassword.trim()) return;
+    setAuthTransition(true);
+    window.setTimeout(() => {
+      try { window.sessionStorage.setItem("vexora-entry-seen", "1"); } catch {}
+      setEntryOpen(false);
+      setAuthTransition(false);
+    }, 2300);
+  };
 
   const move = (direction) => {
     setActive((current) => (current + direction + products.length) % products.length);
@@ -116,6 +140,94 @@ export default function Home() {
     <main className="vexora-shell">
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
+
+      {entryOpen && (
+        <div className={authTransition ? "entry-gate is-transitioning" : "entry-gate"} role="dialog" aria-modal="true" aria-label="Bienvenido a VEXORA">
+          <div className="entry-noise" aria-hidden="true" />
+          <div className="entry-stars" aria-hidden="true">
+            {products.map((product, index) => (
+              <span key={product.name} className={"entry-brand entry-brand-" + index}>
+                <span className="entry-brand-orbit" />
+                <img src={product.logo} alt="" />
+              </span>
+            ))}
+          </div>
+
+          <div className="entry-visual">
+            <div className="entry-visual-grid" />
+            <div className="entry-orbit entry-orbit-a" />
+            <div className="entry-orbit entry-orbit-b" />
+            <div className="entry-orbit entry-orbit-c" />
+            <div className="entry-core">
+              <span className="entry-core-depth">V</span>
+              <span className="entry-core-face">V</span>
+            </div>
+            <span className="entry-scan-line" />
+            <div className="entry-visual-copy">
+              <span>VEXORA</span>
+              <strong>Tu acceso a lo digital.</strong>
+              <small>IA · STREAMING · GAMING · PRODUCTIVIDAD</small>
+            </div>
+          </div>
+
+          <div className="entry-panel">
+            <div className="entry-panel-top">
+              <span className="entry-kicker">ESPACIO VEXORA</span>
+              <span className="entry-status"><i /> ONLINE</span>
+            </div>
+            <div className="entry-heading">
+              <span className="entry-mini-orb">V</span>
+              <h1>{authMode === "login" ? "Bienvenido." : "Crea tu cuenta."}</h1>
+              <p>{authMode === "login"
+                ? "Entra a tu espacio y lleva tus accesos, pedidos y compras contigo."
+                : "Crea tu espacio VEXORA y mantén todo lo digital en un solo lugar."}</p>
+            </div>
+
+            <form className="entry-auth-form" onSubmit={submitEntryAuth}>
+              {authMode === "register" && (
+                <label>
+                  <span>Nombre</span>
+                  <input type="text" placeholder="Tu nombre" autoComplete="name" />
+                </label>
+              )}
+              <label>
+                <span>Correo electrónico</span>
+                <input type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} placeholder="tu@email.com" autoComplete="email" required />
+              </label>
+              <label>
+                <span>Contraseña</span>
+                <input type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} placeholder="••••••••" autoComplete={authMode === "login" ? "current-password" : "new-password"} required />
+              </label>
+              <button type="submit" className="entry-submit">
+                <span>{authMode === "login" ? "Iniciar sesión" : "Crear cuenta"}</span>
+                <b>↗</b>
+              </button>
+            </form>
+
+            <button type="button" className="entry-switch" onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}>
+              {authMode === "login" ? "¿No tienes cuenta? Crear cuenta" : "¿Ya tienes cuenta? Iniciar sesión"}
+            </button>
+
+            <div className="entry-divider"><span>O</span></div>
+
+            <button type="button" className="entry-guest" onClick={enterVexora}>
+              <span>Continuar como visitante</span><b>→</b>
+            </button>
+            <small className="entry-note">Podrás crear tu cuenta o iniciar sesión desde Perfil en cualquier momento.</small>
+          </div>
+
+          {authTransition && (
+            <div className="entry-transition" aria-live="polite">
+              <div className="transition-ring transition-ring-a" />
+              <div className="transition-ring transition-ring-b" />
+              <div className="transition-core">V</div>
+              <span>VEXORA</span>
+              <strong>ENTRANDO A TU ESPACIO</strong>
+              <small>PREPARANDO TU EXPERIENCIA DIGITAL</small>
+            </div>
+          )}
+        </div>
+      )}
 
       {launching && (
         <div className={"product-launch brand-launch-" + launching.name.toLowerCase().replace(/\s+/g, "-")} aria-hidden="true">

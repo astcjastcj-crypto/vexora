@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../utils/supabase/client";
 
 const products = [
-  { name: "ChatGPT", type: "Inteligencia Artificial", logo: "https://cdn.jsdelivr.net/npm/simple-icons@16.34.0/icons/openai.svg", price: "Desde S/19" },
+  { name: "ChatGPT", type: "Inteligencia Artificial", logo: "/logos/openai.svg", price: "Desde S/19" },
   { name: "Gemini", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/googlegemini", price: "Desde S/20" },
   { name: "Spotify", type: "Streaming", logo: "https://cdn.simpleicons.org/spotify", price: "Desde S/40" },
-  { name: "Canva Pro", type: "Diseño", logo: "https://cdn.jsdelivr.net/npm/simple-icons@16.34.0/icons/canva.svg", price: "Desde S/25" },
+  { name: "Canva Pro", type: "Diseño", logo: "/logos/canva.svg", price: "Desde S/25" },
   { name: "GeForce NOW", type: "Gaming", logo: "https://cdn.simpleicons.org/nvidia", price: "Desde S/25" },
 ];
 

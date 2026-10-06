@@ -5,11 +5,32 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../utils/supabase/client";
 
 const fallbackProducts = [
-  { name: "ChatGPT", type: "Inteligencia Artificial", logo: "/logos/openai.svg", price: "Desde S/19" },
-  { name: "Gemini", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/googlegemini", price: "Desde S/20" },
-  { name: "Spotify", type: "Streaming", logo: "https://cdn.simpleicons.org/spotify", price: "Desde S/40" },
-  { name: "Canva Pro", type: "Diseño", logo: "/logos/canva.svg", price: "Desde S/25" },
+  { name: "ChatGPT", type: "Inteligencia Artificial", logo: "/logos/openai.svg", price: "Desde S/18" },
+  { name: "Gemini", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/googlegemini", price: "Desde S/25" },
+  { name: "Netflix", type: "Streaming", logo: "https://cdn.simpleicons.org/netflix", price: "Desde S/14" },
+  { name: "Canva Pro", type: "Diseño", logo: "/logos/canva.svg", price: "Desde S/7" },
+  { name: "Disney+", type: "Streaming", logo: "https://cdn.simpleicons.org/disneyplus", price: "Desde S/12" },
+  { name: "NordVPN", type: "Productividad", logo: "https://cdn.simpleicons.org/nordvpn", price: "Desde S/10" },
   { name: "GeForce NOW", type: "Gaming", logo: "https://cdn.simpleicons.org/nvidia", price: "Desde S/25" },
+  { name: "Microsoft 365", type: "Productividad", logo: "https://cdn.simpleicons.org/microsoft365", price: "Desde S/15" },
+  { name: "CapCut Pro", type: "Diseño", logo: "https://cdn.simpleicons.org/capcut", price: "Desde S/25" },
+  { name: "YouTube Premium", type: "Streaming", logo: "https://cdn.simpleicons.org/youtube", price: "Desde S/11" },
+  { name: "Spotify Premium", type: "Streaming", logo: "https://cdn.simpleicons.org/spotify", price: "Desde S/10" },
+  { name: "IPTV", type: "Streaming", logo: "https://cdn.simpleicons.org/iptv", price: "Desde S/25" },
+  { name: "Crunchyroll", type: "Streaming", logo: "https://cdn.simpleicons.org/crunchyroll", price: "Desde S/7" },
+  { name: "Hosting Cloud", type: "Productividad", logo: "https://cdn.simpleicons.org/cloudflare", price: "Desde S/30" },
+  { name: "Pavos Fortnite", type: "Gaming", logo: "https://cdn.simpleicons.org/epicgames", price: "Desde S/57" },
+  { name: "Boosteroid", type: "Gaming", logo: "https://cdn.simpleicons.org/boosteroid", price: "Desde S/35" },
+  { name: "GTA V Key", type: "Gaming", logo: "https://cdn.simpleicons.org/rockstargames", price: "Desde S/55" },
+  { name: "AutoCAD", type: "Diseño", logo: "https://cdn.simpleicons.org/autodesk", price: "Desde S/30" },
+  { name: "HMA VPN", type: "Productividad", logo: "https://cdn.simpleicons.org/hma", price: "Desde S/12" },
+  { name: "Notion Plus", type: "Productividad", logo: "https://cdn.simpleicons.org/notion", price: "Desde S/53" },
+  { name: "Max", type: "Streaming", logo: "https://cdn.simpleicons.org/hbomax", price: "Consultar precio" },
+  { name: "Prime Video", type: "Streaming", logo: "https://cdn.simpleicons.org/primevideo", price: "Consultar precio" },
+  { name: "Duolingo", type: "Productividad", logo: "https://cdn.simpleicons.org/duolingo", price: "Consultar precio" },
+  { name: "Adobe Express", type: "Diseño", logo: "https://cdn.simpleicons.org/adobe", price: "Consultar precio" },
+  { name: "iCloud", type: "Productividad", logo: "https://cdn.simpleicons.org/icloud", price: "Consultar precio" },
+  { name: "Amazon", type: "Productividad", logo: "https://cdn.simpleicons.org/amazon", price: "Consultar precio" },
 ];
 
 const categories = ["Todos", "IA", "Streaming", "Gaming", "Productividad", "Diseño"];

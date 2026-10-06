@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "../utils/supabase/client";
 
 const products = [
   { name: "ChatGPT", type: "Inteligencia Artificial", logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/ChatGPT-Logo.svg", price: "Desde S/19" },
@@ -23,6 +24,9 @@ export default function Home() {
   const [authMode, setAuthMode] = useState("login");
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const [authName, setAuthName] = useState("");
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authMessage, setAuthMessage] = useState("");
   const [entryOpen, setEntryOpen] = useState(true);
   const [authTransition, setAuthTransition] = useState(false);
   const [mobileSection, setMobileSection] = useState("inicio");
@@ -41,9 +45,22 @@ export default function Home() {
     : products;
 
   useEffect(() => {
+    let mounted = true;
+    const restoreSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (mounted && data.session) setEntryOpen(false);
+    };
+    restoreSession();
     try {
       if (window.sessionStorage.getItem("vexora-entry-seen") === "1") setEntryOpen(false);
     } catch {}
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted && session) setEntryOpen(false);
+    });
+    return () => {
+      mounted = false;
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -74,15 +91,98 @@ export default function Home() {
     setEntryOpen(false);
   };
 
-  const submitEntryAuth = (event) => {
+  const submitEntryAuth = async (event) => {
     event.preventDefault();
-    if (!authEmail.trim() || !authPassword.trim()) return;
-    setAuthTransition(true);
-    window.setTimeout(() => {
-      try { window.sessionStorage.setItem("vexora-entry-seen", "1"); } catch {}
-      setEntryOpen(false);
-      setAuthTransition(false);
-    }, 2300);
+    if (authBusy) return;
+    setAuthMessage("");
+    if (!authEmail.trim() || !authPassword.trim()) {
+      setAuthMessage("Completa tu correo y contraseña.");
+      return;
+    }
+    setAuthBusy(true);
+    try {
+      if (authMode === "login") {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: authEmail.trim(),
+          password: authPassword,
+        });
+        if (error) throw error;
+        setAuthTransition(true);
+        window.setTimeout(() => {
+          try { window.sessionStorage.setItem("vexora-entry-seen", "1"); } catch {}
+          setEntryOpen(false);
+          setAuthTransition(false);
+          setAuthBusy(false);
+        }, 2300);
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email: authEmail.trim(),
+        password: authPassword,
+        options: {
+          data: { full_name: authName.trim() || null },
+        },
+      });
+      if (error) throw error;
+
+      if (!data.session) {
+        setAuthMessage("Cuenta creada. Revisa tu correo para confirmar la cuenta y luego inicia sesión.");
+        setAuthBusy(false);
+        setAuthMode("login");
+        return;
+      }
+
+      setAuthTransition(true);
+      window.setTimeout(() => {
+        try { window.sessionStorage.setItem("vexora-entry-seen", "1"); } catch {}
+        setEntryOpen(false);
+        setAuthTransition(false);
+        setAuthBusy(false);
+      }, 2300);
+    } catch (error) {
+      setAuthMessage(error?.message || "No pudimos completar la operación. Inténtalo de nuevo.");
+      setAuthBusy(false);
+    }
+  };
+
+  const submitProfileAuth = async (event) => {
+    event.preventDefault();
+    if (authBusy) return;
+    setAuthMessage("");
+    if (!authEmail.trim() || !authPassword.trim()) {
+      setAuthMessage("Completa tu correo y contraseña.");
+      return;
+    }
+    setAuthBusy(true);
+    try {
+      if (authMode === "login") {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: authEmail.trim(),
+          password: authPassword,
+        });
+        if (error) throw error;
+        setProfileOpen(false);
+        setAuthMessage("");
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email: authEmail.trim(),
+          password: authPassword,
+          options: { data: { full_name: authName.trim() || null } },
+        });
+        if (error) throw error;
+        if (!data.session) {
+          setAuthMessage("Cuenta creada. Revisa tu correo para confirmar la cuenta.");
+          setAuthMode("login");
+        } else {
+          setProfileOpen(false);
+        }
+      }
+    } catch (error) {
+      setAuthMessage(error?.message || "No pudimos completar la operación. Inténtalo de nuevo.");
+    } finally {
+      setAuthBusy(false);
+    }
   };
 
   const move = (direction) => {
@@ -187,7 +287,7 @@ export default function Home() {
               {authMode === "register" && (
                 <label>
                   <span>Nombre</span>
-                  <input type="text" placeholder="Tu nombre" autoComplete="name" />
+                  <input type="text" value={authName} onChange={(event) => setAuthName(event.target.value)} placeholder="Tu nombre" autoComplete="name" />
                 </label>
               )}
               <label>
@@ -198,8 +298,9 @@ export default function Home() {
                 <span>Contraseña</span>
                 <input type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} placeholder="••••••••" autoComplete={authMode === "login" ? "current-password" : "new-password"} required />
               </label>
-              <button type="submit" className="entry-submit">
-                <span>{authMode === "login" ? "Iniciar sesión" : "Crear cuenta"}</span>
+              {authMessage && <div className="entry-auth-message" role="alert">{authMessage}</div>}
+              <button type="submit" className="entry-submit" disabled={authBusy}>
+                <span>{authBusy ? "Procesando..." : (authMode === "login" ? "Iniciar sesión" : "Crear cuenta")}</span>
                 <b>↗</b>
               </button>
             </form>
@@ -213,7 +314,7 @@ export default function Home() {
             <button type="button" className="entry-guest" onClick={enterVexora}>
               <span>Continuar como visitante</span><b>→</b>
             </button>
-            <small className="entry-note">Podrás crear tu cuenta o iniciar sesión desde Perfil en cualquier momento.</small>
+            <small className="entry-note">Tu cuenta se guarda de forma segura con Supabase Auth. Podrás administrar tu espacio desde Perfil.</small>
           </div>
 
           {authTransition && (
@@ -480,18 +581,18 @@ export default function Home() {
             <span className="section-kicker">ESPACIO VEXORA</span>
             <h2>{authMode === "login" ? "Bienvenido." : "Crea tu cuenta."}</h2>
             <p>{authMode === "login" ? "Accede a tu espacio para consultar tus pedidos y organizar tus accesos." : "Crea tu espacio VEXORA para tener tus compras y accesos en un solo lugar."}</p>
-            <form className="auth-form" onSubmit={(event) => event.preventDefault()}>
+            <form className="auth-form" onSubmit={submitProfileAuth}>
               {authMode === "register" && (
-                <label><span>Nombre</span><input type="text" placeholder="Tu nombre" /></label>
+                <label><span>Nombre</span><input type="text" value={authName} onChange={(event) => setAuthName(event.target.value)} placeholder="Tu nombre" autoComplete="name" /></label>
               )}
               <label><span>Correo electrónico</span><input type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} placeholder="tu@email.com" required /></label>
               <label><span>Contraseña</span><input type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} placeholder="••••••••" required /></label>
-              <button type="submit" className="profile-login-button">{authMode === "login" ? "Iniciar sesión" : "Crear cuenta"}</button>
+              <button type="submit" className="profile-login-button" disabled={authBusy}>{authBusy ? "Procesando..." : (authMode === "login" ? "Iniciar sesión" : "Crear cuenta")}</button>
             </form>
             <button type="button" className="auth-switch" onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}>
               {authMode === "login" ? "¿No tienes cuenta? Crear cuenta" : "¿Ya tienes cuenta? Iniciar sesión"}
             </button>
-            <small className="auth-demo-note">La cuenta se conectará al sistema de clientes de VEXORA en el siguiente paso.</small>
+            <small className="auth-demo-note">{authMessage || "Tu cuenta se gestiona de forma segura con Supabase Auth."}</small>
           </div>
         </div>
       )}

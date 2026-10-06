@@ -202,3 +202,37 @@
 @keyframes adminCalloutIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.admin-shell::after,.admin-shell *{animation:none!important;transition:none!important}}
 @media(max-width:760px){.admin-shell::before{background-size:auto,32px 32px,32px 32px;opacity:.32}.admin-stat:hover,.admin-order-card:hover,.admin-customer-card:hover,.admin-catalog-card:hover{transform:none}}
+
+.admin-catalog-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.admin-catalog-add{border:1px solid rgba(139,124,255,.22);padding:10px 14px}
+.admin-catalog-card{position:relative}
+.admin-catalog-orb{overflow:hidden;display:grid;place-items:center}
+.admin-catalog-orb img{width:58%;height:58%;object-fit:contain;display:block}
+.admin-catalog-card-actions{display:flex;gap:6px;align-items:center;margin-left:auto}
+.admin-catalog-card-actions button{border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.025);color:#8e97aa;padding:8px 10px;cursor:pointer}
+.admin-catalog-card-actions button:first-child{color:#c0baff;border-color:rgba(139,124,255,.16)}
+.admin-catalog-form{margin-top:18px;padding:20px;border:1px solid rgba(139,124,255,.16);border-radius:18px;background:rgba(255,255,255,.025);animation:adminPanelIn .55s cubic-bezier(.16,.8,.2,1) both}
+.admin-catalog-form-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.admin-catalog-form-head span{font-size:8px;letter-spacing:.14em;color:#777f92}
+.admin-catalog-form-head h3{margin:5px 0 0;font-size:18px;color:#f1f3f8}
+.admin-catalog-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.admin-catalog-form-grid label{display:grid;gap:7px;color:#8b94a7;font-size:10px}
+.admin-catalog-form-grid label>span{font-size:9px;text-transform:uppercase;letter-spacing:.08em}
+.admin-catalog-form-grid input,.admin-catalog-form-grid select,.admin-catalog-form-grid textarea{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:rgba(0,0,0,.2);color:#edf0f7;padding:11px 12px;outline:none;font:inherit}
+.admin-catalog-form-grid textarea{resize:vertical;min-height:82px}
+.admin-catalog-form-grid input:focus,.admin-catalog-form-grid select:focus,.admin-catalog-form-grid textarea:focus{border-color:rgba(139,124,255,.38);box-shadow:0 0 0 3px rgba(139,124,255,.06)}
+.admin-catalog-full{grid-column:1/-1}
+.admin-catalog-form-grid small{font-size:8px;color:#646d80}
+.admin-switch-row{display:flex!important;grid-template-columns:none!important;align-items:center;gap:9px!important}
+.admin-switch-row input{width:17px}
+.admin-logo-preview{width:86px;height:86px;margin-top:14px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(255,255,255,.025);display:grid;place-items:center;overflow:hidden}
+.admin-logo-preview img{max-width:70%;max-height:70%;object-fit:contain}
+.admin-catalog-form-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}
+.admin-catalog-form-actions button{padding:11px 15px;border-radius:12px}
+@media(max-width:760px){
+ .admin-catalog-actions{width:100%;justify-content:space-between}
+ .admin-catalog-form-grid{grid-template-columns:1fr}
+ .admin-catalog-full{grid-column:auto}
+ .admin-catalog-card-actions{grid-column:1/-1;margin-left:0}
+ .admin-catalog-card-actions button{flex:1}
+}

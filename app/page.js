@@ -147,7 +147,7 @@ export default function Home() {
 
               if (offset !== 0) {
                 return (
-                  <button className={"floating-logo side-logo side-" + offset} key={product.name} onClick={() => move(offset)} aria-label={"Ver " + product.name}>
+                  <button className={"floating-logo side-logo side-" + offset + " logo-brand-" + product.name.toLowerCase().replace(/\s+/g, "-")} key={product.name} onClick={() => move(offset)} aria-label={"Ver " + product.name}>
                     <img src={product.logo} alt={product.name + " logo"} draggable="false" />
                   </button>
                 );
@@ -155,7 +155,7 @@ export default function Home() {
 
               return (
                 <button
-                  className="floating-logo main-logo"
+                  className={"floating-logo main-logo logo-brand-" + product.name.toLowerCase().replace(/\s+/g, "-")}
                   key={product.name}
                   onPointerDown={startDrag}
                   onPointerMove={dragLogo}
@@ -169,7 +169,7 @@ export default function Home() {
                   <span className="logo-aura" />
                   <span className="logo-3d">
                     <span className="logo-depth" aria-hidden="true">
-                      {Array.from({ length: 14 }).map((_, layer) => (
+                      {Array.from({ length: 18 }).map((_, layer) => (
                         <img key={layer} src={product.logo} alt="" draggable="false" style={{ transform: "translateZ(" + (-layer * 1.5) + "px)" }} />
                       ))}
                     </span>

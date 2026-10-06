@@ -20,6 +20,9 @@ export default function Home() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
   const [mobileSection, setMobileSection] = useState("inicio");
   const [logoPosition, setLogoPosition] = useState({ x: 0, y: 0, rotate: 0 });
   const filteredProducts = category === "Todos"
@@ -363,9 +366,20 @@ export default function Home() {
             <button type="button" className="profile-close" onClick={() => setProfileOpen(false)} aria-label="Cerrar perfil">×</button>
             <div className="profile-orb">V</div>
             <span className="section-kicker">ESPACIO VEXORA</span>
-            <h2>Tu perfil.</h2>
-            <p>Pronto podrás iniciar sesión para guardar tus accesos, pedidos y preferencias.</p>
-            <button type="button" className="profile-login-button" disabled>Iniciar sesión <span>Próximamente</span></button>
+            <h2>{authMode === "login" ? "Bienvenido." : "Crea tu cuenta."}</h2>
+            <p>{authMode === "login" ? "Accede a tu espacio para consultar tus pedidos y organizar tus accesos." : "Crea tu espacio VEXORA para tener tus compras y accesos en un solo lugar."}</p>
+            <form className="auth-form" onSubmit={(event) => event.preventDefault()}>
+              {authMode === "register" && (
+                <label><span>Nombre</span><input type="text" placeholder="Tu nombre" /></label>
+              )}
+              <label><span>Correo electrónico</span><input type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} placeholder="tu@email.com" required /></label>
+              <label><span>Contraseña</span><input type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} placeholder="••••••••" required /></label>
+              <button type="submit" className="profile-login-button">{authMode === "login" ? "Iniciar sesión" : "Crear cuenta"}</button>
+            </form>
+            <button type="button" className="auth-switch" onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}>
+              {authMode === "login" ? "¿No tienes cuenta? Crear cuenta" : "¿Ya tienes cuenta? Iniciar sesión"}
+            </button>
+            <small className="auth-demo-note">La cuenta se conectará al sistema de clientes de VEXORA en el siguiente paso.</small>
           </div>
         </div>
       )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const products = [
@@ -18,6 +18,7 @@ export default function Home() {
   const [active, setActive] = useState(0);
   const [category, setCategory] = useState("Todos");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [logoPosition, setLogoPosition] = useState({ x: 0, y: 0, rotate: 0 });
   const filteredProducts = category === "Todos"
     ? products
@@ -28,6 +29,18 @@ export default function Home() {
   const dragRef = useRef(null);
   const movedRef = useRef(false);
   const [launching, setLaunching] = useState(null);
+  const searchResults = searchQuery.trim()
+    ? products.filter((product) => (product.name + " " + product.type).toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    : products;
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setSearchOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [searchOpen]);
 
   const move = (direction) => {
     setActive((current) => (current + direction + products.length) % products.length);
@@ -115,9 +128,55 @@ export default function Home() {
       </header>
 
       {searchOpen && (
-        <div className="search-panel">
-          <span>⌕</span><input autoFocus placeholder="Buscar productos..." />
-          <button onClick={() => setSearchOpen(false)}>Cerrar</button>
+        <div className="search-overlay" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setSearchOpen(false);
+        }}>
+          <div className="search-modal" role="dialog" aria-modal="true" aria-label="Buscar en VEXORA">
+            <div className="search-modal-top">
+              <div className="search-input-wrap">
+                <span>⌕</span>
+                <input
+                  autoFocus
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Busca una herramienta o categoría..."
+                  aria-label="Buscar productos"
+                />
+                {searchQuery && <button type="button" className="search-clear" onClick={() => setSearchQuery("")} aria-label="Limpiar búsqueda">×</button>}
+              </div>
+              <button type="button" className="search-close" onClick={() => setSearchOpen(false)}>Cerrar <kbd>ESC</kbd></button>
+            </div>
+            <div className="search-results-head">
+              <span>{searchQuery ? "RESULTADOS" : "ACCESOS DISPONIBLES"}</span>
+              <small>{searchResults.length} {searchResults.length === 1 ? "resultado" : "resultados"}</small>
+            </div>
+            <div className="search-results">
+              {searchResults.map((product, index) => (
+                <button
+                  type="button"
+                  className="search-result"
+                  key={product.name}
+                  onClick={() => {
+                    setSearchOpen(false);
+                    setSearchQuery("");
+                    openProduct(product);
+                  }}
+                  style={{ "--search-delay": (index * 55) + "ms" }}
+                >
+                  <span className="search-result-logo"><img src={product.logo} alt="" /></span>
+                  <span className="search-result-copy"><small>{product.type}</small><strong>{product.name}</strong><em>{product.price}</em></span>
+                  <b>↗</b>
+                </button>
+              ))}
+              {searchResults.length === 0 && (
+                <div className="search-empty">
+                  <span>⌁</span>
+                  <strong>No encontramos ese acceso.</strong>
+                  <p>Prueba con ChatGPT, Gemini, Spotify, Canva o GeForce NOW.</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

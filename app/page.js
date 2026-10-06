@@ -48,17 +48,48 @@ export default function Home() {
   useEffect(() => {
     let mounted = true;
 
-    const applySession = (session) => {
-      if (!mounted) return;
-      setCurrentUser(session?.user || null);
-      if (session) {
-        setEntryOpen(false);
-        if (window.location.hash.includes("access_token") || window.location.hash.includes("type=signup")) {
-          window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-          window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
-        }
-      }
-    };
+   const applySession = async (session) => {
+  if (!mounted) return;
+
+  if (!session?.user) {
+    setCurrentUser(null);
+    return;
+  }
+
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("id, full_name, avatar_url, role")
+    .eq("id", session.user.id)
+    .maybeSingle();
+
+  if (!mounted) return;
+
+  setCurrentUser({
+    ...session.user,
+    profile: profile || null,
+  });
+
+  if (error) {
+    console.error("Error cargando perfil:", error);
+  }
+
+  setEntryOpen(false);
+
+  if (
+    window.location.hash.includes("access_token") ||
+    window.location.hash.includes("type=signup")
+  ) {
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname + window.location.search
+    );
+
+    window.requestAnimationFrame(() =>
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    );
+  }
+};
 
     const restoreSession = async () => {
       const { data } = await supabase.auth.getSession();

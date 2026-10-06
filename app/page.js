@@ -27,6 +27,7 @@ export default function Home() {
   const [authName, setAuthName] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
   const [entryOpen, setEntryOpen] = useState(true);
   const [authTransition, setAuthTransition] = useState(false);
   const [mobileSection, setMobileSection] = useState("inicio");
@@ -46,17 +47,34 @@ export default function Home() {
 
   useEffect(() => {
     let mounted = true;
+
+    const applySession = (session) => {
+      if (!mounted) return;
+      setCurrentUser(session?.user || null);
+      if (session) {
+        setEntryOpen(false);
+        if (window.location.hash.includes("access_token") || window.location.hash.includes("type=signup")) {
+          window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+          window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+        }
+      }
+    };
+
     const restoreSession = async () => {
       const { data } = await supabase.auth.getSession();
-      if (mounted && data.session) setEntryOpen(false);
+      applySession(data.session);
     };
+
     restoreSession();
+
     try {
       if (window.sessionStorage.getItem("vexora-entry-seen") === "1") setEntryOpen(false);
     } catch {}
+
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted && session) setEntryOpen(false);
+      applySession(session);
     });
+
     return () => {
       mounted = false;
       listener.subscription.unsubscribe();
@@ -164,6 +182,8 @@ export default function Home() {
         if (error) throw error;
         setProfileOpen(false);
         setAuthMessage("");
+        setAuthEmail("");
+        setAuthPassword("");
       } else {
         const { data, error } = await supabase.auth.signUp({
           email: authEmail.trim(),
@@ -579,20 +599,50 @@ export default function Home() {
             <button type="button" className="profile-close" onClick={() => setProfileOpen(false)} aria-label="Cerrar perfil">×</button>
             <div className="profile-orb">V</div>
             <span className="section-kicker">ESPACIO VEXORA</span>
-            <h2>{authMode === "login" ? "Bienvenido." : "Crea tu cuenta."}</h2>
-            <p>{authMode === "login" ? "Accede a tu espacio para consultar tus pedidos y organizar tus accesos." : "Crea tu espacio VEXORA para tener tus compras y accesos en un solo lugar."}</p>
-            <form className="auth-form" onSubmit={submitProfileAuth}>
-              {authMode === "register" && (
-                <label><span>Nombre</span><input type="text" value={authName} onChange={(event) => setAuthName(event.target.value)} placeholder="Tu nombre" autoComplete="name" /></label>
-              )}
-              <label><span>Correo electrónico</span><input type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} placeholder="tu@email.com" required /></label>
-              <label><span>Contraseña</span><input type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} placeholder="••••••••" required /></label>
-              <button type="submit" className="profile-login-button" disabled={authBusy}>{authBusy ? "Procesando..." : (authMode === "login" ? "Iniciar sesión" : "Crear cuenta")}</button>
-            </form>
-            <button type="button" className="auth-switch" onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}>
-              {authMode === "login" ? "¿No tienes cuenta? Crear cuenta" : "¿Ya tienes cuenta? Iniciar sesión"}
-            </button>
-            <small className="auth-demo-note">{authMessage || "Tu cuenta se gestiona de forma segura con Supabase Auth."}</small>
+
+            {currentUser ? (
+              <>
+                <h2>Tu espacio.</h2>
+                <p>Tu cuenta VEXORA está activa. Desde aquí podrás consultar tus pedidos y organizar tus accesos.</p>
+                <div className="profile-account-card">
+                  <span className="profile-account-label">CUENTA ACTIVA</span>
+                  <strong>{currentUser.user_metadata?.full_name || "Usuario VEXORA"}</strong>
+                  <small>{currentUser.email}</small>
+                </div>
+                <button
+                  type="button"
+                  className="profile-login-button"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    setCurrentUser(null);
+                    setProfileOpen(false);
+                    setAuthMode("login");
+                    setAuthEmail("");
+                    setAuthPassword("");
+                    setAuthMessage("");
+                  }}
+                >
+                  Cerrar sesión
+                </button>
+              </>
+            ) : (
+              <>
+                <h2>{authMode === "login" ? "Bienvenido." : "Crea tu cuenta."}</h2>
+                <p>{authMode === "login" ? "Accede a tu espacio para consultar tus pedidos y organizar tus accesos." : "Crea tu espacio VEXORA para tener tus compras y accesos en un solo lugar."}</p>
+                <form className="auth-form" onSubmit={submitProfileAuth}>
+                  {authMode === "register" && (
+                    <label><span>Nombre</span><input type="text" value={authName} onChange={(event) => setAuthName(event.target.value)} placeholder="Tu nombre" autoComplete="name" /></label>
+                  )}
+                  <label><span>Correo electrónico</span><input type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} placeholder="tu@email.com" required /></label>
+                  <label><span>Contraseña</span><input type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} placeholder="••••••••" required /></label>
+                  <button type="submit" className="profile-login-button" disabled={authBusy}>{authBusy ? "Procesando..." : (authMode === "login" ? "Iniciar sesión" : "Crear cuenta")}</button>
+                </form>
+                <button type="button" className="auth-switch" onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}>
+                  {authMode === "login" ? "¿No tienes cuenta? Crear cuenta" : "¿Ya tienes cuenta? Iniciar sesión"}
+                </button>
+                <small className="auth-demo-note">{authMessage || "Tu cuenta se guarda de forma segura con Supabase Auth."}</small>
+              </>
+            )}
           </div>
         </div>
       )}

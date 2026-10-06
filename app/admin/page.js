@@ -37,6 +37,27 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [statusBusy, setStatusBusy] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [catalogSaving, setCatalogSaving] = useState(false);
+  const [catalogFormOpen, setCatalogFormOpen] = useState(false);
+  const [catalogEditing, setCatalogEditing] = useState(null);
+  const [catalogForm, setCatalogForm] = useState({ name: "", category: "Inteligencia Artificial", description: "", price: "", active: true, logoFile: null, logoUrl: "" });
+
+  const loadCatalog = async () => {
+    setCatalogLoading(true);
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, name, category, description, logo_url, price_from, active, created_at, updated_at")
+      .order("created_at", { ascending: false });
+    if (error) {
+      setMessage("No pudimos cargar el catálogo. Ejecuta primero el SQL de catálogo en Supabase.");
+      setProducts([]);
+    } else {
+      setProducts(data || []);
+    }
+    setCatalogLoading(false);
+  };
 
   const loadAdmin = async (userId) => {
     setLoading(true);
@@ -81,6 +102,7 @@ export default function AdminPage() {
     }
 
     setOrders(ordersResult.data || []);
+    await loadCatalog();
     setCustomers(customersResult.data || []);
     setAccesses(accessesResult.data || []);
     setLoading(false);
@@ -148,6 +170,76 @@ export default function AdminPage() {
     }
 
     setStatusBusy(null);
+  };
+
+  const resetCatalogForm = () => {
+    setCatalogEditing(null);
+    setCatalogForm({ name: "", category: "Inteligencia Artificial", description: "", price: "", active: true, logoFile: null, logoUrl: "" });
+    setCatalogFormOpen(false);
+  };
+
+  const openCatalogCreate = () => {
+    setCatalogEditing(null);
+    setCatalogForm({ name: "", category: "Inteligencia Artificial", description: "", price: "", active: true, logoFile: null, logoUrl: "" });
+    setCatalogFormOpen(true);
+  };
+
+  const openCatalogEdit = (product) => {
+    setCatalogEditing(product);
+    setCatalogForm({ name: product.name || "", category: product.category || "Inteligencia Artificial", description: product.description || "", price: product.price_from ? String(product.price_from) : "", active: product.active !== false, logoFile: null, logoUrl: product.logo_url || "" });
+    setCatalogFormOpen(true);
+  };
+
+  const saveCatalogProduct = async (event) => {
+    event.preventDefault();
+    if (catalogSaving || !catalogForm.name.trim()) return;
+    setCatalogSaving(true);
+    setMessage("");
+    try {
+      let logoUrl = catalogForm.logoUrl || "";
+      if (catalogForm.logoFile) {
+        const safeName = catalogForm.logoFile.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-");
+        const path = Date.now() + "-" + safeName;
+        const { error: uploadError } = await supabase.storage.from("product-logos").upload(path, catalogForm.logoFile, { upsert: true, contentType: catalogForm.logoFile.type || "image/png" });
+        if (uploadError) throw uploadError;
+        const { data: publicData } = supabase.storage.from("product-logos").getPublicUrl(path);
+        logoUrl = publicData.publicUrl;
+      }
+      const payload = {
+        name: catalogForm.name.trim(),
+        category: catalogForm.category,
+        description: catalogForm.description.trim(),
+        logo_url: logoUrl,
+        price_from: Number(catalogForm.price) || 0,
+        active: Boolean(catalogForm.active),
+        updated_at: new Date().toISOString(),
+      };
+      if (catalogEditing) {
+        const { error } = await supabase.from("products").update(payload).eq("id", catalogEditing.id);
+        if (error) throw error;
+        setMessage("Producto actualizado correctamente.");
+      } else {
+        const { error } = await supabase.from("products").insert(payload);
+        if (error) throw error;
+        setMessage("Producto creado correctamente.");
+      }
+      resetCatalogForm();
+      await loadCatalog();
+    } catch (error) {
+      setMessage(error?.message || "No pudimos guardar el producto.");
+    } finally {
+      setCatalogSaving(false);
+    }
+  };
+
+  const deleteCatalogProduct = async (product) => {
+    if (!window.confirm("¿Eliminar " + product.name + " del catálogo?")) return;
+    const { error } = await supabase.from("products").delete().eq("id", product.id);
+    if (error) setMessage(error.message || "No pudimos eliminar el producto.");
+    else {
+      setMessage("Producto eliminado.");
+      await loadCatalog();
+    }
   };
 
   const signOut = async () => {
@@ -344,17 +436,43 @@ export default function AdminPage() {
 
               {tab === "catalog" && (
                 <section className="admin-panel">
-                  <div className="admin-panel-head"><div><span>CATÁLOGO</span><h2>Servicios publicados</h2></div><strong className="admin-count">{catalog.length} marcas</strong></div>
-                  <div className="admin-catalog-grid">
-                    {catalog.map(([name, type, price]) => (
-                      <article className="admin-catalog-card" key={name}>
-                        <div className="admin-catalog-orb">{name.charAt(0)}</div>
-                        <div><span>{type}</span><strong>{name}</strong><small>{price}</small></div>
-                        <button type="button" onClick={() => setMessage("La edición avanzada de planes y precios será el siguiente módulo del catálogo.")}>Gestionar ↗</button>
-                      </article>
-                    ))}
+                  <div className="admin-panel-head">
+                    <div><span>CATÁLOGO</span><h2>Servicios publicados</h2></div>
+                    <div className="admin-catalog-actions"><strong className="admin-count">{products.length} productos</strong><button type="button" className="admin-primary admin-catalog-add" onClick={openCatalogCreate}>＋ Nuevo producto</button></div>
                   </div>
-                  <div className="admin-info-callout"><span>PRÓXIMO MÓDULO</span><strong>Planes, precios y disponibilidad</strong><p>La estructura visual ya está preparada para convertir este catálogo en un CRUD conectado a Supabase sin cambiar la experiencia.</p></div>
+                  {catalogLoading ? (
+                    <div className="admin-loading"><span className="admin-spinner" /> Cargando catálogo...</div>
+                  ) : (
+                    <div className="admin-catalog-grid">
+                      {products.map((product) => (
+                        <article className="admin-catalog-card" key={product.id}>
+                          <div className="admin-catalog-orb">{product.logo_url ? <img src={product.logo_url} alt="" /> : product.name.charAt(0)}</div>
+                          <div><span>{product.category}</span><strong>{product.name}</strong><small>{product.price_from ? "Desde S/" + Number(product.price_from).toFixed(2) : "Precio por definir"}</small></div>
+                          <div className="admin-catalog-card-actions">
+                            <button type="button" onClick={() => openCatalogEdit(product)}>Editar</button>
+                            <button type="button" onClick={() => deleteCatalogProduct(product)}>Eliminar</button>
+                          </div>
+                        </article>
+                      ))}
+                      {!products.length && <div className="admin-empty-block">No hay productos todavía. Crea el primero con “Nuevo producto”.</div>}
+                    </div>
+                  )}
+                  {catalogFormOpen && (
+                    <form className="admin-catalog-form" onSubmit={saveCatalogProduct}>
+                      <div className="admin-catalog-form-head"><div><span>{catalogEditing ? "EDITAR PRODUCTO" : "NUEVO PRODUCTO"}</span><h3>{catalogEditing ? catalogEditing.name : "Agregar al catálogo"}</h3></div><button type="button" className="admin-icon-button" onClick={resetCatalogForm}>×</button></div>
+                      <div className="admin-catalog-form-grid">
+                        <label><span>Nombre</span><input required value={catalogForm.name} onChange={(e) => setCatalogForm({ ...catalogForm, name: e.target.value })} placeholder="Disney+" /></label>
+                        <label><span>Categoría</span><select value={catalogForm.category} onChange={(e) => setCatalogForm({ ...catalogForm, category: e.target.value })}><option>Inteligencia Artificial</option><option>Streaming</option><option>Gaming</option><option>Productividad</option><option>Diseño</option><option>Software</option><option>Otros</option></select></label>
+                        <label><span>Precio desde (S/)</span><input type="number" min="0" step="0.01" value={catalogForm.price} onChange={(e) => setCatalogForm({ ...catalogForm, price: e.target.value })} placeholder="25" /></label>
+                        <label className="admin-catalog-full"><span>Descripción</span><textarea value={catalogForm.description} onChange={(e) => setCatalogForm({ ...catalogForm, description: e.target.value })} placeholder="Describe brevemente el servicio." rows="3" /></label>
+                        <label className="admin-catalog-full"><span>Logo del producto</span><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(e) => setCatalogForm({ ...catalogForm, logoFile: e.target.files?.[0] || null })} /><small>PNG, JPG, WEBP o SVG · recomendado: fondo transparente.</small></label>
+                        <label className="admin-switch-row"><input type="checkbox" checked={catalogForm.active} onChange={(e) => setCatalogForm({ ...catalogForm, active: e.target.checked })} /><span>Producto visible en VEXORA</span></label>
+                      </div>
+                      {catalogForm.logoFile && <div className="admin-logo-preview"><img src={URL.createObjectURL(catalogForm.logoFile)} alt="Vista previa del logo" /></div>}
+                      <div className="admin-catalog-form-actions"><button type="button" className="admin-secondary" onClick={resetCatalogForm}>Cancelar</button><button type="submit" className="admin-primary" disabled={catalogSaving}>{catalogSaving ? "Guardando..." : "Guardar producto"}</button></div>
+                    </form>
+                  )}
+                  <div className="admin-info-callout"><span>CATÁLOGO DINÁMICO</span><strong>Ahora puedes agregar nuevos servicios sin tocar el código.</strong><p>Sube el logo, define categoría, descripción y precio. Los datos quedan guardados en Supabase para que después podamos conectarlos automáticamente a la tienda.</p></div>
                 </section>
               )}
 

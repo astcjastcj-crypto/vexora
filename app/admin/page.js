@@ -19,14 +19,6 @@ const tabs = [
   ["accesses", "Accesos", "⌁"],
 ];
 
-const catalog = [
-  ["ChatGPT", "Inteligencia Artificial", "Desde S/19"],
-  ["Gemini", "Inteligencia Artificial", "Desde S/20"],
-  ["Spotify", "Streaming", "Desde S/40"],
-  ["Canva Pro", "Diseño", "Desde S/25"],
-  ["GeForce NOW", "Gaming", "Desde S/25"],
-];
-
 export default function AdminPage() {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -43,6 +35,12 @@ export default function AdminPage() {
   const [catalogFormOpen, setCatalogFormOpen] = useState(false);
   const [catalogEditing, setCatalogEditing] = useState(null);
   const [catalogForm, setCatalogForm] = useState({ name: "", category: "Inteligencia Artificial", description: "", price: "", active: true, logoFile: null, logoUrl: "" });
+  const [plans, setPlans] = useState([]);
+  const [plansLoading, setPlansLoading] = useState(false);
+  const [planSaving, setPlanSaving] = useState(false);
+  const [plansProduct, setPlansProduct] = useState(null);
+  const [planEditing, setPlanEditing] = useState(null);
+  const [planForm, setPlanForm] = useState({ name: "", duration: "1 mes", price: "", description: "", active: true, sort_order: 0 });
 
   const loadCatalog = async () => {
     setCatalogLoading(true);
@@ -57,6 +55,104 @@ export default function AdminPage() {
       setProducts(data || []);
     }
     setCatalogLoading(false);
+  };
+
+  const loadPlans = async (productId) => {
+    if (!productId) return;
+    setPlansLoading(true);
+    const { data, error } = await supabase
+      .from("product_plans")
+      .select("id, product_id, name, duration, price, description, active, sort_order, created_at, updated_at")
+      .eq("product_id", productId)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (error) {
+      setMessage("No pudimos cargar los planes. Verifica que ejecutaste el SQL de planes en Supabase.");
+      setPlans([]);
+    } else {
+      setPlans(data || []);
+    }
+    setPlansLoading(false);
+  };
+
+  const openPlansManager = async (product) => {
+    setPlansProduct(product);
+    setPlanEditing(null);
+    setPlanForm({ name: "", duration: "1 mes", price: "", description: "", active: true, sort_order: 0 });
+    await loadPlans(product.id);
+  };
+
+  const closePlansManager = () => {
+    setPlansProduct(null);
+    setPlanEditing(null);
+    setPlans([]);
+  };
+
+  const startPlanCreate = () => {
+    setPlanEditing(null);
+    setPlanForm({ name: "", duration: "1 mes", price: "", description: "", active: true, sort_order: plans.length });
+  };
+
+  const startPlanEdit = (plan) => {
+    setPlanEditing(plan);
+    setPlanForm({
+      name: plan.name || "",
+      duration: plan.duration || "1 mes",
+      price: plan.price == null ? "" : String(plan.price),
+      description: plan.description || "",
+      active: plan.active !== false,
+      sort_order: Number.isFinite(Number(plan.sort_order)) ? Number(plan.sort_order) : 0,
+    });
+  };
+
+  const savePlan = async (event) => {
+    event.preventDefault();
+    if (!plansProduct || planSaving || !planForm.name.trim()) return;
+    const price = Number(planForm.price);
+    if (!Number.isFinite(price) || price < 0) {
+      setMessage("Ingresa un precio válido para el plan.");
+      return;
+    }
+    setPlanSaving(true);
+    setMessage("");
+    try {
+      const payload = {
+        product_id: plansProduct.id,
+        name: planForm.name.trim(),
+        duration: planForm.duration.trim(),
+        price,
+        description: planForm.description.trim(),
+        active: Boolean(planForm.active),
+        sort_order: Math.max(0, Number(planForm.sort_order) || 0),
+        updated_at: new Date().toISOString(),
+      };
+      if (planEditing) {
+        const { error } = await supabase.from("product_plans").update(payload).eq("id", planEditing.id);
+        if (error) throw error;
+        setMessage("Plan actualizado correctamente.");
+      } else {
+        const { error } = await supabase.from("product_plans").insert(payload);
+        if (error) throw error;
+        setMessage("Plan creado correctamente.");
+      }
+      startPlanCreate();
+      await loadPlans(plansProduct.id);
+    } catch (error) {
+      setMessage(error?.message || "No pudimos guardar el plan.");
+    } finally {
+      setPlanSaving(false);
+    }
+  };
+
+  const deletePlan = async (plan) => {
+    if (!window.confirm("¿Eliminar el plan " + plan.name + "?")) return;
+    const { error } = await supabase.from("product_plans").delete().eq("id", plan.id);
+    if (error) {
+      setMessage(error.message || "No pudimos eliminar el plan.");
+    } else {
+      setMessage("Plan eliminado.");
+      await loadPlans(plansProduct.id);
+    }
   };
 
   const loadAdmin = async (userId) => {
@@ -449,6 +545,7 @@ export default function AdminPage() {
                           <div className="admin-catalog-orb">{product.logo_url ? <img src={product.logo_url} alt="" /> : product.name.charAt(0)}</div>
                           <div><span>{product.category}</span><strong>{product.name}</strong><small>{product.price_from ? "Desde S/" + Number(product.price_from).toFixed(2) : "Precio por definir"}</small></div>
                           <div className="admin-catalog-card-actions">
+                            <button type="button" onClick={() => openPlansManager(product)}>Gestionar</button>
                             <button type="button" onClick={() => openCatalogEdit(product)}>Editar</button>
                             <button type="button" onClick={() => deleteCatalogProduct(product)}>Eliminar</button>
                           </div>
@@ -471,6 +568,46 @@ export default function AdminPage() {
                       {catalogForm.logoFile && <div className="admin-logo-preview"><img src={URL.createObjectURL(catalogForm.logoFile)} alt="Vista previa del logo" /></div>}
                       <div className="admin-catalog-form-actions"><button type="button" className="admin-secondary" onClick={resetCatalogForm}>Cancelar</button><button type="submit" className="admin-primary" disabled={catalogSaving}>{catalogSaving ? "Guardando..." : "Guardar producto"}</button></div>
                     </form>
+                  )}
+                  {plansProduct && (
+                    <div className="admin-plans-overlay" role="dialog" aria-modal="true" aria-label={"Planes de " + plansProduct.name}>
+                      <section className="admin-plans-modal">
+                        <div className="admin-plans-head">
+                          <div>
+                            <span>GESTIÓN DE PLANES</span>
+                            <h3>{plansProduct.name}</h3>
+                            <p>{plansProduct.category} · precios y condiciones publicados</p>
+                          </div>
+                          <button type="button" className="admin-icon-button" onClick={closePlansManager}>×</button>
+                        </div>
+                        <div className="admin-plans-body">
+                          <div className="admin-plans-list">
+                            <div className="admin-plans-list-head"><strong>{plans.length} planes</strong><button type="button" className="admin-primary" onClick={startPlanCreate}>＋ Nuevo plan</button></div>
+                            {plansLoading ? (
+                              <div className="admin-loading"><span className="admin-spinner" /> Cargando planes...</div>
+                            ) : plans.length ? (
+                              plans.map((plan) => (
+                                <article className="admin-plan-card" key={plan.id}>
+                                  <div><span className={plan.active ? "admin-plan-active" : "admin-plan-inactive"}>{plan.active ? "ACTIVO" : "OCULTO"}</span><strong>{plan.name}</strong><small>{plan.duration} · {plan.description || "Sin descripción"}</small></div>
+                                  <b>S/{Number(plan.price || 0).toFixed(2)}</b>
+                                  <div className="admin-plan-actions"><button type="button" onClick={() => startPlanEdit(plan)}>Editar</button><button type="button" onClick={() => deletePlan(plan)}>Eliminar</button></div>
+                                </article>
+                              ))
+                            ) : <div className="admin-empty-block">Este producto todavía no tiene planes.</div>}
+                          </div>
+                          <form className="admin-plan-form" onSubmit={savePlan}>
+                            <div><span>{planEditing ? "EDITAR PLAN" : "NUEVO PLAN"}</span><h4>{planEditing ? planEditing.name : "Agregar plan"}</h4></div>
+                            <label><span>Nombre del plan</span><input required value={planForm.name} onChange={(e) => setPlanForm({ ...planForm, name: e.target.value })} placeholder="Premium" /></label>
+                            <label><span>Duración</span><input value={planForm.duration} onChange={(e) => setPlanForm({ ...planForm, duration: e.target.value })} placeholder="1 mes" /></label>
+                            <label><span>Precio (S/)</span><input required type="number" min="0" step="0.01" value={planForm.price} onChange={(e) => setPlanForm({ ...planForm, price: e.target.value })} placeholder="25" /></label>
+                            <label><span>Descripción / condiciones</span><textarea rows="4" value={planForm.description} onChange={(e) => setPlanForm({ ...planForm, description: e.target.value })} placeholder="Describe qué incluye el plan." /></label>
+                            <label><span>Orden</span><input type="number" min="0" step="1" value={planForm.sort_order} onChange={(e) => setPlanForm({ ...planForm, sort_order: e.target.value })} /></label>
+                            <label className="admin-switch-row"><input type="checkbox" checked={planForm.active} onChange={(e) => setPlanForm({ ...planForm, active: e.target.checked })} /><span>Plan visible en VEXORA</span></label>
+                            <div className="admin-plan-form-actions">{planEditing && <button type="button" className="admin-secondary" onClick={startPlanCreate}>Cancelar edición</button>}<button type="submit" className="admin-primary" disabled={planSaving}>{planSaving ? "Guardando..." : planEditing ? "Guardar cambios" : "Crear plan"}</button></div>
+                          </form>
+                        </div>
+                      </section>
+                    </div>
                   )}
                   <div className="admin-info-callout"><span>CATÁLOGO DINÁMICO</span><strong>Ahora puedes agregar nuevos servicios sin tocar el código.</strong><p>Sube el logo, define categoría, descripción y precio. Los datos quedan guardados en Supabase para que después podamos conectarlos automáticamente a la tienda.</p></div>
                 </section>

@@ -26,6 +26,22 @@ a { color: inherit; text-decoration: none; }
 .ambient-two { background:#16b7d8; bottom:5%; left:-250px; }
 
 .topbar { height:78px; padding:0 5vw; display:flex; align-items:center; justify-content:space-between; position:relative; z-index:20; border-bottom:1px solid rgba(255,255,255,.05); backdrop-filter:blur(18px); }
+.topbar-actions { display:flex;align-items:center;gap:10px; }
+.profile-top-button { min-height:46px;display:flex;align-items:center;gap:10px;padding:6px 11px 6px 7px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(15,19,31,.72);color:#cbd0dc;cursor:pointer;backdrop-filter:blur(18px);transition:transform .25s,border-color .25s,background .25s,box-shadow .25s; }
+.profile-top-button:hover { transform:translateY(-1px);border-color:rgba(164,154,255,.32);background:rgba(25,29,46,.88);box-shadow:0 10px 30px rgba(0,0,0,.25),0 0 28px rgba(117,103,255,.08); }
+.profile-top-button-active { border-color:rgba(164,154,255,.28); }
+.profile-top-avatar { width:32px;height:32px;display:grid;place-items:center;border:1px solid rgba(164,154,255,.3);border-radius:11px;background:linear-gradient(145deg,rgba(139,124,255,.28),rgba(139,124,255,.06));color:#c9c3ff;font:600 13px 'Space Grotesk';box-shadow:inset 0 1px 0 rgba(255,255,255,.12); }
+.profile-top-copy { display:flex;flex-direction:column;align-items:flex-start;line-height:1.1; }
+.profile-top-copy small { color:#6f7890;font-size:7px;letter-spacing:.14em; }
+.profile-top-copy strong { margin-top:4px;color:#e5e7ee;font-size:11px;font-weight:600;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.profile-top-button > b { color:#7d8495;font-size:12px;font-weight:400; }
+.profile-account-card { margin:4px 0 18px;padding:16px;border:1px solid rgba(164,154,255,.16);border-radius:18px;background:linear-gradient(145deg,rgba(139,124,255,.09),rgba(255,255,255,.025));text-align:left;box-shadow:inset 0 1px 0 rgba(255,255,255,.04); }
+.profile-account-label { display:block;color:#8f86df;font-size:7px;letter-spacing:.16em;font-weight:700;margin-bottom:8px; }
+.profile-account-card strong { display:block;color:#eef0f6;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.profile-account-card small { display:block;margin-top:5px;color:#788196;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.profile-modal .profile-login-button { cursor:pointer; }
+.profile-modal .profile-login-button:hover { transform:translateY(-1px);background:rgba(139,124,255,.17);border-color:rgba(139,124,255,.38); }
+
 .brand { display:flex; align-items:center; gap:11px; font:700 19px 'Space Grotesk', sans-serif; letter-spacing:.14em; }
 .brand-orb { width:26px; height:26px; border-radius:9px 13px 9px 13px; transform:rotate(22deg); background:linear-gradient(135deg,#a394ff,#4de0ff); box-shadow:0 0 26px rgba(117,110,255,.6); }
 .desktop-nav { display:flex; gap:32px; color:#7e8699; font-size:13px; }
@@ -224,6 +240,7 @@ a { color: inherit; text-decoration: none; }
 .auth-switch { margin-top:16px;border:0;background:none;color:#aaa2ff;font-size:10px;cursor:pointer; }
 .auth-demo-note { display:block;margin-top:14px;color:#505a6d;font-size:8px;line-height:1.5; }
 @media (max-width: 900px) {
+  .profile-top-button { display:none; }
   .desktop-nav { display:none; }
   .hero { grid-template-columns:1fr;min-height:auto;padding-top:65px; }
   .hero-copy { text-align:center;margin:auto; }

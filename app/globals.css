@@ -213,6 +213,16 @@ a { color: inherit; text-decoration: none; }
 .mobile-nav a:active,.mobile-nav button:active { transform:translateY(-2px) scale(.96); }
 .mobile-nav .mobile-active { color:#aaa0ff; }
 .mobile-nav .mobile-active span { filter:drop-shadow(0 0 7px #8c80ff);transform:translateY(-1px); }
+.auth-form { display:grid;gap:12px;margin-top:20px;text-align:left; }
+.auth-form label { display:grid;gap:6px; }
+.auth-form label span { color:#777f92;font-size:9px;letter-spacing:.08em;text-transform:uppercase; }
+.auth-form input { width:100%;height:46px;padding:0 13px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(255,255,255,.035);color:#fff;outline:none;font-size:12px;transition:border-color .25s,box-shadow .25s; }
+.auth-form input:focus { border-color:rgba(139,124,255,.4);box-shadow:0 0 25px rgba(111,98,255,.08); }
+.auth-form input::placeholder { color:#535d70; }
+.auth-form .profile-login-button { margin-top:3px;cursor:pointer;transition:transform .3s,background .3s,border-color .3s; }
+.auth-form .profile-login-button:hover { transform:translateY(-2px);background:rgba(139,124,255,.16);border-color:rgba(139,124,255,.35); }
+.auth-switch { margin-top:16px;border:0;background:none;color:#aaa2ff;font-size:10px;cursor:pointer; }
+.auth-demo-note { display:block;margin-top:14px;color:#505a6d;font-size:8px;line-height:1.5; }
 @media (max-width: 900px) {
   .desktop-nav { display:none; }
   .hero { grid-template-columns:1fr;min-height:auto;padding-top:65px; }

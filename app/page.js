@@ -170,7 +170,7 @@ export default function Home() {
                   <span className="logo-3d">
                     <span className="logo-depth" aria-hidden="true">
                       {Array.from({ length: 18 }).map((_, layer) => (
-                        <img key={layer} src={product.logo} alt="" draggable="false" style={{ transform: "translateZ(" + (-layer * 1.5) + "px)" }} />
+                        <img key={layer} src={product.logo} alt="" draggable="false" style={{ transform: "translateZ(" + (-layer * 1.8) + "px)" }} />
                       ))}
                     </span>
                     <img className="logo-face" src={product.logo} alt={product.name + " logo"} draggable="false" />

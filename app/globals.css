@@ -1518,3 +1518,11 @@ img[src="/logos/openai.svg"] {
 @media (prefers-reduced-motion: reduce) {
   .profile-admin-button,.profile-admin-button > b { transition:none !important; }
 }
+
+
+/* BRAND LOGO COLOR CORRECTIONS */
+.logo-brand-notion-plus .logo-face { filter: brightness(0) invert(1) drop-shadow(0 24px 35px rgba(0,0,0,.62)); }
+.logo-brand-notion-plus .logo-depth img { filter: brightness(0) invert(1) brightness(.45) drop-shadow(0 6px 8px rgba(0,0,0,.68)); }
+.logo-brand-hbo-max .logo-face { filter: brightness(0) invert(1) drop-shadow(0 24px 35px rgba(0,0,0,.62)); }
+.logo-brand-hbo-max .logo-depth img { filter: brightness(0) invert(1) brightness(.45) drop-shadow(0 6px 8px rgba(0,0,0,.68)); }
+.logo-brand-microsoft-365 .logo-face { filter: none; }

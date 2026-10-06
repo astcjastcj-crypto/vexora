@@ -376,7 +376,17 @@ export default function Home() {
           <a href="#categorias">Categorías</a>
           <a href="#nosotros">Nosotros</a>
         </nav>
-        <button className="icon-button" onClick={() => setSearchOpen(!searchOpen)} aria-label="Buscar"><span>⌕</span></button>
+        <div className="topbar-actions">
+          <button className="icon-button" onClick={() => setSearchOpen(!searchOpen)} aria-label="Buscar"><span>⌕</span></button>
+          <button className={currentUser ? "profile-top-button profile-top-button-active" : "profile-top-button"} onClick={() => setProfileOpen(true)} aria-label="Abrir perfil">
+            <span className="profile-top-avatar">{currentUser?.user_metadata?.full_name?.trim()?.charAt(0)?.toUpperCase() || "V"}</span>
+            <span className="profile-top-copy">
+              <small>{currentUser ? "CUENTA ACTIVA" : "ESPACIO VEXORA"}</small>
+              <strong>{currentUser ? (currentUser.user_metadata?.full_name || "Mi cuenta") : "Perfil"}</strong>
+            </span>
+            <b>⌄</b>
+          </button>
+        </div>
       </header>
 
       {searchOpen && (

@@ -37,7 +37,7 @@ const categories = ["Todos", "IA", "Streaming", "Gaming", "Productividad", "Dise
 export default function Home() {
   const router = useRouter();
   const [products, setProducts] = useState(fallbackProducts);
-  const carouselNames = ["chatgpt", "canva pro", "geforce now", "spotify premium", "disney+"];
+  const carouselNames = ["chatgpt", "canva pro", "geforce now", "spotify premium"];
   const carouselProducts = carouselNames
     .map((name) => products.find((product) => product.name.trim().toLowerCase() === name))
     .filter(Boolean);
@@ -538,7 +538,7 @@ export default function Home() {
         <div className={authTransition ? "entry-gate is-transitioning" : "entry-gate"} role="dialog" aria-modal="true" aria-label="Bienvenido a VEXORA">
           <div className="entry-noise" aria-hidden="true" />
           <div className="entry-stars" aria-hidden="true">
-            {products.map((product, index) => (
+            {carouselProducts.map((product, index) => (
               <span key={product.name} className={"entry-brand entry-brand-" + index}>
                 <span className="entry-brand-orbit" />
                 <img src={product.logo} alt="" />

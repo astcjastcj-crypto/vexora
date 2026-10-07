@@ -262,9 +262,39 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [searchOpen]);
 
-  const enterVexora = () => {
-    try { window.sessionStorage.setItem("vexora-entry-seen", "1"); } catch {}
-    setEntryOpen(false);
+  const enterVexora = async () => {
+    if (authBusy) return;
+    setAuthBusy(true);
+    setAuthMessage("");
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) throw error;
+
+      if (data.session?.user) {
+        try { window.sessionStorage.setItem("vexora-entry-seen", "1"); } catch {}
+        setEntryOpen(false);
+        return;
+      }
+
+      const { error: guestError } = await supabase.auth.signInAnonymously({
+        options: {
+          data: { display_name: "Invitado VEXORA" },
+        },
+      });
+
+      if (guestError) throw guestError;
+
+      setAuthTransition(true);
+      window.setTimeout(() => {
+        try { window.sessionStorage.setItem("vexora-entry-seen", "1"); } catch {}
+        setEntryOpen(false);
+        setAuthTransition(false);
+        setAuthBusy(false);
+      }, 1200);
+    } catch (error) {
+      setAuthMessage(error?.message || "No pudimos activar el acceso como invitado. Inténtalo de nuevo.");
+      setAuthBusy(false);
+    }
   };
 
   const submitEntryAuth = async (event) => {
@@ -571,8 +601,8 @@ export default function Home() {
 
             <div className="entry-divider"><span>O</span></div>
 
-            <button type="button" className="entry-guest" onClick={enterVexora}>
-              <span>Continuar como visitante</span><b>→</b>
+            <button type="button" className={"entry-guest" + (authBusy ? " disabled" : "")} onClick={enterVexora} disabled={authBusy}>
+              <span>{authBusy ? "Activando acceso..." : "Continuar como visitante"}</span><b>→</b>
             </button>
             <small className="entry-note">Tu cuenta se guarda de forma segura con Supabase Auth. Podrás administrar tu espacio desde Perfil.</small>
           </div>

@@ -1526,3 +1526,30 @@ img[src="/logos/openai.svg"] {
 .logo-brand-hbo-max .logo-face { filter: brightness(0) invert(1) drop-shadow(0 24px 35px rgba(0,0,0,.62)); }
 .logo-brand-hbo-max .logo-depth img { filter: brightness(0) invert(1) brightness(.45) drop-shadow(0 6px 8px rgba(0,0,0,.68)); }
 .logo-brand-microsoft-365 .logo-face { filter: none; }
+
+/* QA FIXES — 2026-10 */
+.admin-shell{overflow:clip}
+.logo-stage{perspective:1400px}
+.side-logo.side-1{transform:translate3d(245px,-10px,-65px) rotateY(-28deg) rotateZ(-2deg) scale(.68);opacity:.52}
+.side-logo.side--1{transform:translate3d(-245px,10px,-65px) rotateY(28deg) rotateZ(2deg) scale(.68);opacity:.52}
+.side-logo.side-2{transform:translate3d(390px,28px,-165px) rotateY(-40deg) rotateZ(-4deg) scale(.46);opacity:.28}
+.side-logo.side--2{transform:translate3d(-390px,-28px,-165px) rotateY(40deg) rotateZ(4deg) scale(.46);opacity:.28}
+@media(max-width:900px){
+  .side-logo.side-1{transform:translate3d(185px,-8px,-65px) rotateY(-28deg) rotateZ(-2deg) scale(.58);opacity:.48}
+  .side-logo.side--1{transform:translate3d(-185px,8px,-65px) rotateY(28deg) rotateZ(2deg) scale(.58);opacity:.48}
+  .side-logo.side-2{transform:translate3d(285px,22px,-155px) rotateY(-38deg) rotateZ(-4deg) scale(.38);opacity:.22}
+  .side-logo.side--2{transform:translate3d(-285px,-22px,-155px) rotateY(38deg) rotateZ(4deg) scale(.38);opacity:.22}
+}
+.entry-brand-0{left:14%;top:22%;right:auto;bottom:auto}
+.entry-brand-1{left:40%;top:10%;right:auto;bottom:auto}
+.entry-brand-2{right:14%;top:27%;left:auto;bottom:auto}
+.entry-brand-3{left:18%;bottom:20%;top:auto;right:auto}
+.entry-brand-4{right:19%;bottom:19%;top:auto;left:auto}
+.entry-brand-0,.entry-brand-1,.entry-brand-2,.entry-brand-3,.entry-brand-4{z-index:3}
+@media(max-width:760px){
+  .entry-brand-0{left:8%;top:22%}
+  .entry-brand-1{left:38%;top:9%}
+  .entry-brand-2{right:8%;top:24%}
+  .entry-brand-3{left:13%;bottom:18%}
+  .entry-brand-4{right:12%;bottom:17%}
+}

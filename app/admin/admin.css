@@ -252,3 +252,16 @@
 .admin-plan-card{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)}.admin-plan-card:last-child{border-bottom:0}.admin-plan-card strong{display:block;margin:5px 0 3px;color:#f0f2f7}.admin-plan-card small{display:block;color:#737c8e;line-height:1.45}.admin-plan-card>b{font-size:18px;color:#e7e9f1;white-space:nowrap}.admin-plan-active,.admin-plan-inactive{font-size:8px;letter-spacing:.12em;font-weight:800}.admin-plan-active{color:#7ee2ae}.admin-plan-inactive{color:#777f90}.admin-plan-actions{display:flex;gap:5px}.admin-plan-form{display:grid;align-content:start;gap:12px}.admin-plan-form h4{margin:5px 0 8px;font-size:18px}.admin-plan-form label{display:grid;gap:6px}.admin-plan-form label>span{font-size:11px;color:#8d95a5}.admin-plan-form input,.admin-plan-form textarea{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(4,7,14,.72);color:#eef0f6;padding:11px 12px;outline:none;font:inherit}.admin-plan-form input:focus,.admin-plan-form textarea:focus{border-color:rgba(170,160,255,.5);box-shadow:0 0 0 3px rgba(170,160,255,.08)}.admin-plan-form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}.admin-plan-form-actions button{flex:1;min-height:42px}
 @media(max-width:800px){.admin-plans-overlay{padding:8px;align-items:center}.admin-plans-modal{max-height:calc(100vh - 16px);border-radius:22px}.admin-plans-head{padding:20px;}.admin-plans-body{grid-template-columns:1fr;padding:12px}.admin-plan-card{grid-template-columns:minmax(0,1fr) auto}.admin-plan-actions{grid-column:1/-1}.admin-plan-actions button{flex:1}.admin-catalog-card-actions{grid-column:1/-1;justify-content:flex-start}.admin-catalog-card-actions button{flex:1}}
 @media(prefers-reduced-motion:reduce){.admin-plans-modal{animation:none}.admin-catalog-card-actions button,.admin-plan-actions button{transition:none}}
+
+/* QA FIXES — 2026-10 */
+.admin-shell{overflow:clip}
+.admin-order-side select,.admin-catalog-form-grid select{color:#edf0f7;background:#0d1320}
+.admin-order-side select option,.admin-catalog-form-grid select option{background:#0d1320;color:#edf0f7}
+.admin-plans-overlay{overflow-y:auto;overflow-x:hidden;align-items:flex-start;padding:18px}
+.admin-plans-modal{max-height:none;overflow:visible;margin:auto}
+.admin-plans-head{position:sticky;top:0}
+@media(max-width:800px){
+  .admin-plans-overlay{padding:10px;align-items:flex-start}
+  .admin-plans-modal{max-height:none;overflow:visible}
+  .admin-plans-head{position:sticky;top:0}
+}

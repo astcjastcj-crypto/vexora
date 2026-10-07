@@ -173,6 +173,23 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [statusBusy, setStatusBusy] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orderAccesses, setOrderAccesses] = useState([]);
+  const [orderAccessesLoading, setOrderAccessesLoading] = useState(false);
+  const [orderAccessModalOpen, setOrderAccessModalOpen] = useState(false);
+  const [accessSaving, setAccessSaving] = useState(false);
+  const [accessEditing, setAccessEditing] = useState(null);
+  const [accessForm, setAccessForm] = useState({
+    access_type: "cuenta",
+    email: "",
+    username: "",
+    password: "",
+    two_factor_enabled: false,
+    status: "active",
+    starts_at: "",
+    expires_at: "",
+    notes: "",
+  });
   const [products, setProducts] = useState([]);
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [catalogSaving, setCatalogSaving] = useState(false);
@@ -473,6 +490,175 @@ export default function AdminPage() {
     return { income, pending, delivered, activeAccesses };
   }, [orders, accesses]);
 
+  const emptyAccessForm = () => ({
+    access_type: "cuenta",
+    email: "",
+    username: "",
+    password: "",
+    two_factor_enabled: false,
+    status: "active",
+    starts_at: "",
+    expires_at: "",
+    notes: "",
+  });
+
+  const toDateTimeLocal = (value) => {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    const offset = date.getTimezoneOffset();
+    return new Date(date.getTime() - offset * 60000).toISOString().slice(0, 16);
+  };
+
+  const loadOrderAccesses = async (orderItemId) => {
+    if (!orderItemId) {
+      setOrderAccesses([]);
+      return;
+    }
+    setOrderAccessesLoading(true);
+    const { data, error } = await supabase
+      .from("accesses")
+      .select("id, order_item_id, access_type, email, username, password, two_factor_enabled, notes, status, starts_at, expires_at, created_at")
+      .eq("order_item_id", orderItemId)
+      .order("created_at", { ascending: false });
+    if (error) {
+      setMessage("No pudimos cargar los accesos de este pedido.");
+      setOrderAccesses([]);
+    } else {
+      setOrderAccesses(data || []);
+    }
+    setOrderAccessesLoading(false);
+  };
+
+  const openOrderDetail = async (order) => {
+    setSelectedOrder(order);
+    setOrderAccessModalOpen(true);
+    setAccessEditing(null);
+    setAccessForm(emptyAccessForm());
+    await loadOrderAccesses(order.order_items?.[0]?.id);
+  };
+
+  const closeOrderDetail = () => {
+    setOrderAccessModalOpen(false);
+    setSelectedOrder(null);
+    setOrderAccesses([]);
+    setAccessEditing(null);
+    setAccessForm(emptyAccessForm());
+  };
+
+  const startAccessCreate = () => {
+    const item = selectedOrder?.order_items?.[0];
+    setAccessEditing(null);
+    setAccessForm({
+      ...emptyAccessForm(),
+      notes: item ? "Entrega correspondiente a " + (item.product_name || "este pedido") + "." : "",
+    });
+  };
+
+  const startAccessEdit = (access) => {
+    setAccessEditing(access);
+    setAccessForm({
+      access_type: access.access_type || "cuenta",
+      email: access.email || "",
+      username: access.username || "",
+      password: access.password || "",
+      two_factor_enabled: Boolean(access.two_factor_enabled),
+      status: access.status || "active",
+      starts_at: toDateTimeLocal(access.starts_at),
+      expires_at: toDateTimeLocal(access.expires_at),
+      notes: access.notes || "",
+    });
+  };
+
+  const saveAccess = async (event) => {
+    event.preventDefault();
+    if (!selectedOrder || accessSaving) return;
+    const orderItemId = selectedOrder.order_items?.[0]?.id;
+    if (!orderItemId) {
+      setMessage("Este pedido no tiene un producto asociado.");
+      return;
+    }
+
+    if (!accessForm.email.trim() && !accessForm.username.trim()) {
+      setMessage("Ingresa un correo o usuario para registrar el acceso.");
+      return;
+    }
+
+    const startsAt = accessForm.starts_at ? new Date(accessForm.starts_at).toISOString() : null;
+    const expiresAt = accessForm.expires_at ? new Date(accessForm.expires_at).toISOString() : null;
+
+    if (startsAt && expiresAt && new Date(expiresAt) < new Date(startsAt)) {
+      setMessage("La fecha de vencimiento no puede ser anterior al inicio.");
+      return;
+    }
+
+    setAccessSaving(true);
+    setMessage("");
+
+    try {
+      const payload = {
+        order_item_id: orderItemId,
+        access_type: accessForm.access_type.trim() || "cuenta",
+        email: accessForm.email.trim() || null,
+        username: accessForm.username.trim() || null,
+        password: accessForm.password || null,
+        two_factor_enabled: Boolean(accessForm.two_factor_enabled),
+        status: accessForm.status,
+        starts_at: startsAt,
+        expires_at: expiresAt,
+        notes: accessForm.notes.trim() || null,
+      };
+
+      if (accessEditing) {
+        const { data, error } = await supabase
+          .from("accesses")
+          .update(payload)
+          .eq("id", accessEditing.id)
+          .select("id, order_item_id, access_type, email, username, password, two_factor_enabled, notes, status, starts_at, expires_at, created_at")
+          .single();
+        if (error) throw error;
+        setOrderAccesses((current) => current.map((access) => access.id === data.id ? data : access));
+        setAccessEditing(null);
+        setMessage("Acceso actualizado correctamente.");
+      } else {
+        const { data, error } = await supabase
+          .from("accesses")
+          .insert(payload)
+          .select("id, order_item_id, access_type, email, username, password, two_factor_enabled, notes, status, starts_at, expires_at, created_at")
+          .single();
+        if (error) throw error;
+        setOrderAccesses((current) => [data, ...current]);
+        setMessage("Acceso registrado correctamente.");
+      }
+
+      setAccessForm(emptyAccessForm());
+      const { data: refreshedAccesses } = await supabase
+        .from("accesses")
+        .select("id, order_item_id, access_type, email, username, password, two_factor_enabled, notes, status, starts_at, expires_at, created_at")
+        .eq("order_item_id", orderItemId)
+        .order("created_at", { ascending: false });
+      setOrderAccesses(refreshedAccesses || []);
+      await loadAdmin(session?.user?.id);
+    } catch (error) {
+      setMessage(error?.message || "No pudimos guardar el acceso.");
+    } finally {
+      setAccessSaving(false);
+    }
+  };
+
+  const deleteAccess = async (access) => {
+    if (!window.confirm("¿Eliminar este acceso registrado?")) return;
+    const { error } = await supabase.from("accesses").delete().eq("id", access.id);
+    if (error) {
+      setMessage(error.message || "No pudimos eliminar el acceso.");
+      return;
+    }
+    setOrderAccesses((current) => current.filter((item) => item.id !== access.id));
+    setAccessEditing(null);
+    setAccessForm(emptyAccessForm());
+    setMessage("Acceso eliminado.");
+  };
+
   const updateOrderStatus = async (orderId, status) => {
     if (statusBusy) return;
     setStatusBusy(orderId);
@@ -721,7 +907,7 @@ export default function AdminPage() {
                     {orders.map((order) => {
                       const item = order.order_items?.[0];
                       return (
-                        <article className="admin-order-card" key={order.id}>
+                        <article className="admin-order-card" key={order.id} onDoubleClick={() => openOrderDetail(order)}>
                           <div className="admin-order-main">
                             <div className="admin-order-id"><span>VEX-{order.id.slice(0, 8).toUpperCase()}</span><small>{new Date(order.created_at).toLocaleString("es-PE")}</small></div>
                             <h3>{item?.product_name || "Pedido VEXORA"} — {item?.plan_name || "Acceso digital"}</h3>
@@ -913,6 +1099,89 @@ export default function AdminPage() {
                   )}
                   <div className="admin-info-callout"><span>CATÁLOGO DINÁMICO</span><strong>Ahora puedes agregar nuevos servicios sin tocar el código.</strong><p>Sube el logo, define categoría, descripción y precio. Los datos quedan guardados en Supabase para que después podamos conectarlos automáticamente a la tienda.</p></div>
                 </section>
+              )}
+
+              {orderAccessModalOpen && selectedOrder && (
+                <div className="admin-order-modal-overlay" role="dialog" aria-modal="true" aria-label="Detalle y entrega del pedido">
+                  <section className="admin-order-modal">
+                    <header className="admin-order-modal-head">
+                      <div>
+                        <span>DETALLE DE PEDIDO</span>
+                        <h3>VEX-{selectedOrder.id.slice(0, 8).toUpperCase()}</h3>
+                        <p>{selectedOrder.profiles?.full_name || "Cliente sin nombre"} · {new Date(selectedOrder.created_at).toLocaleString("es-PE")}</p>
+                      </div>
+                      <button type="button" className="admin-icon-button" onClick={closeOrderDetail}>×</button>
+                    </header>
+
+                    <div className="admin-order-modal-body">
+                      <section className="admin-order-summary-card">
+                        <div>
+                          <span>PRODUCTO</span>
+                          <strong>{selectedOrder.order_items?.[0]?.product_name || "—"}</strong>
+                          <small>{selectedOrder.order_items?.[0]?.plan_name || "Acceso digital"} · {selectedOrder.order_items?.[0]?.duration || "—"}</small>
+                        </div>
+                        <div className="admin-order-summary-price">
+                          <span>TOTAL</span>
+                          <strong>S/{Number(selectedOrder.total || 0).toFixed(2)}</strong>
+                          <small className={"admin-status status-" + selectedOrder.status}>{statusLabels[selectedOrder.status] || selectedOrder.status}</small>
+                        </div>
+                      </section>
+
+                      <section className="admin-order-accesses">
+                        <div className="admin-panel-head">
+                          <div><span>ENTREGA</span><h4>Accesos del pedido</h4></div>
+                          <button type="button" className="admin-primary" onClick={startAccessCreate}>＋ Registrar acceso</button>
+                        </div>
+
+                        {orderAccessesLoading ? (
+                          <div className="admin-loading"><span className="admin-spinner" /> Cargando accesos...</div>
+                        ) : orderAccesses.length ? (
+                          <div className="admin-order-access-list">
+                            {orderAccesses.map((access) => (
+                              <article className="admin-order-access-card" key={access.id}>
+                                <div>
+                                  <span className={"admin-status status-" + access.status}>{access.status}</span>
+                                  <strong>{access.email || access.username || "Sin usuario"}</strong>
+                                  <small>{access.access_type} · {access.two_factor_enabled ? "2FA activo" : "Sin 2FA"}</small>
+                                  <small>Vence: {access.expires_at ? new Date(access.expires_at).toLocaleString("es-PE") : "Sin fecha"}</small>
+                                </div>
+                                <div className="admin-plan-actions">
+                                  <button type="button" onClick={() => startAccessEdit(access)}>Editar</button>
+                                  <button type="button" onClick={() => deleteAccess(access)}>Eliminar</button>
+                                </div>
+                              </article>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="admin-empty-block">Este pedido todavía no tiene un acceso registrado.</div>
+                        )}
+                      </section>
+
+                      <form className="admin-access-form" onSubmit={saveAccess}>
+                        <div>
+                          <span>{accessEditing ? "EDITAR ACCESO" : "NUEVA ENTREGA"}</span>
+                          <h4>{accessEditing ? "Actualizar acceso" : "Registrar credenciales"}</h4>
+                          <p>Los datos quedan asociados únicamente al pedido seleccionado.</p>
+                        </div>
+                        <div className="admin-access-form-grid">
+                          <label><span>Tipo de acceso</span><input required value={accessForm.access_type} onChange={(e) => setAccessForm({ ...accessForm, access_type: e.target.value })} placeholder="cuenta" /></label>
+                          <label><span>Correo</span><input type="email" value={accessForm.email} onChange={(e) => setAccessForm({ ...accessForm, email: e.target.value })} placeholder="cliente@correo.com" /></label>
+                          <label><span>Usuario</span><input value={accessForm.username} onChange={(e) => setAccessForm({ ...accessForm, username: e.target.value })} placeholder="usuario" /></label>
+                          <label><span>Contraseña</span><input type="text" value={accessForm.password} onChange={(e) => setAccessForm({ ...accessForm, password: e.target.value })} placeholder="Contraseña de acceso" /></label>
+                          <label><span>Inicio</span><input type="datetime-local" value={accessForm.starts_at} onChange={(e) => setAccessForm({ ...accessForm, starts_at: e.target.value })} /></label>
+                          <label><span>Vencimiento</span><input type="datetime-local" value={accessForm.expires_at} onChange={(e) => setAccessForm({ ...accessForm, expires_at: e.target.value })} /></label>
+                          <label><span>Estado</span><select value={accessForm.status} onChange={(e) => setAccessForm({ ...accessForm, status: e.target.value })}><option value="active">Activo</option><option value="pending">Pendiente</option><option value="expired">Vencido</option><option value="revoked">Revocado</option></select></label>
+                          <label className="admin-switch-row"><input type="checkbox" checked={accessForm.two_factor_enabled} onChange={(e) => setAccessForm({ ...accessForm, two_factor_enabled: e.target.checked })} /><span>2FA habilitado</span></label>
+                          <label className="admin-access-full"><span>Notas de entrega</span><textarea rows="3" value={accessForm.notes} onChange={(e) => setAccessForm({ ...accessForm, notes: e.target.value })} placeholder="Indicaciones, perfil, dispositivo o condiciones." /></label>
+                        </div>
+                        <div className="admin-plan-form-actions">
+                          {accessEditing && <button type="button" className="admin-secondary" onClick={startAccessCreate}>Cancelar edición</button>}
+                          <button type="submit" className="admin-primary" disabled={accessSaving}>{accessSaving ? "Guardando..." : accessEditing ? "Guardar cambios" : "Registrar acceso"}</button>
+                        </div>
+                      </form>
+                    </div>
+                  </section>
+                </div>
               )}
 
               {tab === "accesses" && (

@@ -387,7 +387,26 @@ export default function BrandPage({ params }) {
               ? benefit
               : [benefit.number, benefit.title, benefit.description];
 
-            if (!catalogLoading && !brand) {
+            if (catalogLoading) {
+    return (
+      <main className="brand-page">
+        <div className="brand-page-glow brand-page-glow-one" />
+        <div className="brand-page-glow brand-page-glow-two" />
+        <header className="brand-page-topbar">
+          <Link href="/" className="back-button">← Volver</Link>
+          <span className="brand-page-title">VEXORA</span>
+          <span className="brand-page-status">CARGANDO</span>
+        </header>
+        <section className="plans-empty brand-unavailable">
+          <span>CARGANDO CATÁLOGO</span>
+          <h3>Preparando este acceso.</h3>
+          <p>Estamos sincronizando los planes disponibles.</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (!brand) {
     return (
       <main className="brand-page">
         <div className="brand-page-glow brand-page-glow-one" />

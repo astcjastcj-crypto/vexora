@@ -415,6 +415,7 @@ export default function AdminPage() {
       supabase
         .from("profiles")
         .select("id, full_name, role, created_at")
+        .neq("role", "guest")
         .order("created_at", { ascending: false }),
     ]);
 

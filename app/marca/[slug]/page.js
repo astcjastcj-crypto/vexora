@@ -351,6 +351,41 @@ export default function BrandPage() {
     } finally { setOrderBusy(false); }
   };
 
+  if (catalogLoading) {
+    return (
+      <main className="brand-page">
+        <header className="brand-page-topbar">
+          <Link href="/" className="back-button">← Volver</Link>
+          <span className="brand-page-title">VEXORA</span>
+          <span className="brand-page-status">CARGANDO</span>
+        </header>
+        <section className="plans-empty brand-unavailable">
+          <span>CARGANDO CATÁLOGO</span>
+          <h3>Preparando este acceso.</h3>
+          <p>Estamos sincronizando los planes disponibles.</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (!brand) {
+    return (
+      <main className="brand-page">
+        <header className="brand-page-topbar">
+          <Link href="/" className="back-button">← Volver</Link>
+          <span className="brand-page-title">VEXORA</span>
+          <span className="brand-page-status">CATÁLOGO</span>
+        </header>
+        <section className="plans-empty brand-unavailable">
+          <span>PRÓXIMAMENTE</span>
+          <h3>Este acceso aún no está disponible.</h3>
+          <p>Estamos preparando este servicio para VEXORA. Por ahora no hay planes disponibles para esta marca.</p>
+          <Link href="/" className="brand-unavailable-back">Volver al catálogo</Link>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="brand-page">
       <div className="brand-page-glow brand-page-glow-one" />

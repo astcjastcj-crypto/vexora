@@ -472,7 +472,15 @@ export default function Home() {
 
   const openProduct = (product) => {
     if (movedRef.current) return;
-    const slug = product.name.toLowerCase().replace(/\s+/g, "-");
+    const slug = product.name
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\\u0300-\\u036f]/g, "")
+      .replace(/\\+/g, "-")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
     const path = "/marca/" + encodeURIComponent(slug);
     router.prefetch(path);
     setLaunching(product);

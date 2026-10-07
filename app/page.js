@@ -37,10 +37,7 @@ const categories = ["Todos", "IA", "Streaming", "Gaming", "Productividad", "Dise
 export default function Home() {
   const router = useRouter();
   const [products, setProducts] = useState(fallbackProducts);
-  const carouselNames = ["chatgpt", "canva pro", "geforce now", "spotify premium"];
-  const carouselProducts = carouselNames
-    .map((name) => products.find((product) => product.name.trim().toLowerCase() === name))
-    .filter(Boolean);
+  const carouselProducts = products.filter((product) => product.logoConfigured && product.logo);
   const [active, setActive] = useState(0);
   const [category, setCategory] = useState("Todos");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -101,12 +98,8 @@ export default function Home() {
           return {
             ...product,
             type: item.category || product.type,
-            logo: ({
-            "chatgpt": "/logos/openai.svg",
-            "gemini": "/logos/gemini.svg",
-            "canva pro": "/logos/canva.svg",
-            "iptv": "/logos/iptv.svg",
-          }[product.name.trim().toLowerCase()] || item.logo_url || product.logo),
+            logo: item.logo_url || product.logo,
+            logoConfigured: Boolean(item.logo_url),
             price: Number(item.price_from || 0) > 0 ? "Desde S/" + Number(item.price_from).toFixed(0) : product.price,
           };
         });

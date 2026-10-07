@@ -290,6 +290,9 @@ export default function Home() {
         setEntryOpen(false);
         setAuthTransition(false);
         setAuthBusy(false);
+        window.requestAnimationFrame(() => {
+          window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        });
       }, 1200);
     } catch (error) {
       setAuthMessage(error?.message || "No pudimos activar el acceso como invitado. Inténtalo de nuevo.");
@@ -740,7 +743,7 @@ export default function Home() {
                 if (Math.abs(offset) > 2) return null;
 
                 return (
-                  <button className={"floating-logo side-logo side-" + offset + " logo-brand-" + product.name.toLowerCase().replace(/\s+/g, "-")} key={product.name} onClick={() => move(offset)} aria-label={"Ver " + product.name}>
+                  <button className={"floating-logo side-logo side-" + offset + " logo-brand-" + product.name.toLowerCase().replace(/\s+/g, "-")} key={product.name} onClick={() => openProduct(product)} aria-label={"Abrir " + product.name}>
                     <img src={product.logo} alt={product.name + " logo"} draggable="false" />
                   </button>
                 );

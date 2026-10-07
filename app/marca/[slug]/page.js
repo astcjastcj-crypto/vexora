@@ -303,17 +303,29 @@ export default function BrandPage({ params }) {
 
   const createOrderAndContinue = async (channel) => {
     if (!selectedPlan || !termsAccepted || orderBusy) return;
-    if (!currentUser) {
-      setOrderMessage("Inicia sesión en VEXORA antes de solicitar una compra.");
-      return;
-    }
     setOrderBusy(true);
     setOrderMessage("");
     try {
+      let purchaseUser = currentUser;
+
+      if (!purchaseUser) {
+        const { data: guestData, error: guestError } = await supabase.auth.signInAnonymously({
+          options: {
+            data: { display_name: "Invitado VEXORA" },
+          },
+        });
+        if (guestError) throw guestError;
+        purchaseUser = guestData.user;
+      }
+
+      if (!purchaseUser?.id) {
+        throw new Error("No pudimos activar tu acceso como invitado. Inténtalo de nuevo.");
+      }
+
       const price = Number(String(selectedPlan.price).replace("S/", "").replace(",", ".").trim());
       if (!Number.isFinite(price)) throw new Error("No pudimos identificar el precio del plan.");
       const { data: order, error: orderError } = await supabase.from("orders").insert({
-        user_id: currentUser.id,
+        user_id: purchaseUser.id,
         status: "pending",
         total: price,
         currency: "PEN",
@@ -441,9 +453,9 @@ export default function BrandPage({ params }) {
                 ))}
               </div>
               <label className="terms-check"><input type="checkbox" id="vexora-terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} /><span>Acepto haber leído y comprendido las condiciones del acceso seleccionado.</span></label>
-              {!currentUser && <div className="purchase-auth-note">🔐 Debes iniciar sesión en VEXORA para registrar tu pedido.</div>}
+              {!currentUser && <div className="purchase-auth-note">👤 Puedes continuar como invitado. No necesitas crear una cuenta para solicitar este acceso.</div>}
               {orderMessage && <div className="purchase-order-message" role="status">{orderMessage}</div>}
-              {termsAccepted && currentUser && (
+              {termsAccepted && (
                 <div className="purchase-actions">
                   <button type="button" className={"purchase-action whatsapp" + (orderBusy ? " disabled" : "")} disabled={orderBusy} onClick={() => createOrderAndContinue("whatsapp")}>{orderBusy ? "Creando pedido..." : "Solicitar por WhatsApp"} <span>↗</span></button>
                   <button type="button" className={"purchase-action telegram" + (orderBusy ? " disabled" : "")} disabled={orderBusy} onClick={() => createOrderAndContinue("telegram")}>{orderBusy ? "Creando pedido..." : "Solicitar por Telegram"} <span>↗</span></button>

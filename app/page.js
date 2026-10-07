@@ -97,7 +97,12 @@ export default function Home() {
           return {
             ...product,
             type: item.category || product.type,
-            logo: item.logo_url || product.logo,
+            logo: ({
+            "chatgpt": "/logos/openai.svg",
+            "gemini": "/logos/gemini.svg",
+            "canva pro": "/logos/canva.svg",
+            "iptv": "/logos/iptv.svg",
+          }[product.name.trim().toLowerCase()] || item.logo_url || product.logo),
             price: Number(item.price_from || 0) > 0 ? "Desde S/" + Number(item.price_from).toFixed(0) : product.price,
           };
         });

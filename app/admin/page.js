@@ -185,6 +185,11 @@ export default function AdminPage() {
   const [plansProduct, setPlansProduct] = useState(null);
   const [planEditing, setPlanEditing] = useState(null);
   const [planForm, setPlanForm] = useState({ name: "", duration: "1 mes", price: "", description: "", active: true, sort_order: 0 });
+  const [benefits, setBenefits] = useState([]);
+  const [benefitsLoading, setBenefitsLoading] = useState(false);
+  const [benefitSaving, setBenefitSaving] = useState(false);
+  const [benefitEditing, setBenefitEditing] = useState(null);
+  const [benefitForm, setBenefitForm] = useState({ text: "", active: true, sort_order: 0 });
 
   const loadCatalog = async () => {
     setCatalogLoading(true);
@@ -219,17 +224,39 @@ export default function AdminPage() {
     setPlansLoading(false);
   };
 
+  const loadBenefits = async (productId) => {
+    if (!productId) return;
+    setBenefitsLoading(true);
+    const { data, error } = await supabase
+      .from("product_benefits")
+      .select("id, product_id, text, active, sort_order, created_at, updated_at")
+      .eq("product_id", productId)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (error) {
+      setMessage("No pudimos cargar los beneficios. Ejecuta primero el SQL de beneficios en Supabase.");
+      setBenefits([]);
+    } else {
+      setBenefits(data || []);
+    }
+    setBenefitsLoading(false);
+  };
+
   const openPlansManager = async (product) => {
     setPlansProduct(product);
     setPlanEditing(null);
     setPlanForm({ name: "", duration: "1 mes", price: "", description: "", active: true, sort_order: 0 });
-    await loadPlans(product.id);
+    setBenefitEditing(null);
+    setBenefitForm({ text: "", active: true, sort_order: 0 });
+    await Promise.all([loadPlans(product.id), loadBenefits(product.id)]);
   };
 
   const closePlansManager = () => {
     setPlansProduct(null);
     setPlanEditing(null);
     setPlans([]);
+    setBenefitEditing(null);
+    setBenefits([]);
   };
 
   const startPlanCreate = () => {
@@ -296,6 +323,62 @@ export default function AdminPage() {
     } else {
       setMessage("Plan eliminado.");
       await loadPlans(plansProduct.id);
+    }
+  };
+
+  const startBenefitCreate = () => {
+    setBenefitEditing(null);
+    setBenefitForm({ text: "", active: true, sort_order: benefits.length });
+  };
+
+  const startBenefitEdit = (benefit) => {
+    setBenefitEditing(benefit);
+    setBenefitForm({
+      text: benefit.text || "",
+      active: benefit.active !== false,
+      sort_order: Number.isFinite(Number(benefit.sort_order)) ? Number(benefit.sort_order) : 0,
+    });
+  };
+
+  const saveBenefit = async (event) => {
+    event.preventDefault();
+    if (!plansProduct || benefitSaving || !benefitForm.text.trim()) return;
+    setBenefitSaving(true);
+    setMessage("");
+    try {
+      const payload = {
+        product_id: plansProduct.id,
+        text: benefitForm.text.trim(),
+        active: Boolean(benefitForm.active),
+        sort_order: Math.max(0, Number(benefitForm.sort_order) || 0),
+        updated_at: new Date().toISOString(),
+      };
+      if (benefitEditing) {
+        const { error } = await supabase.from("product_benefits").update(payload).eq("id", benefitEditing.id);
+        if (error) throw error;
+        setMessage("Beneficio actualizado correctamente.");
+      } else {
+        const { error } = await supabase.from("product_benefits").insert(payload);
+        if (error) throw error;
+        setMessage("Beneficio creado correctamente.");
+      }
+      startBenefitCreate();
+      await loadBenefits(plansProduct.id);
+    } catch (error) {
+      setMessage(error?.message || "No pudimos guardar el beneficio.");
+    } finally {
+      setBenefitSaving(false);
+    }
+  };
+
+  const deleteBenefit = async (benefit) => {
+    if (!window.confirm("¿Eliminar este beneficio?")) return;
+    const { error } = await supabase.from("product_benefits").delete().eq("id", benefit.id);
+    if (error) {
+      setMessage(error.message || "No pudimos eliminar el beneficio.");
+    } else {
+      setMessage("Beneficio eliminado.");
+      await loadBenefits(plansProduct.id);
     }
   };
 
@@ -751,6 +834,78 @@ export default function AdminPage() {
                             <label><span>Orden</span><input type="number" min="0" step="1" value={planForm.sort_order} onChange={(e) => setPlanForm({ ...planForm, sort_order: e.target.value })} /></label>
                             <label className="admin-switch-row"><input type="checkbox" checked={planForm.active} onChange={(e) => setPlanForm({ ...planForm, active: e.target.checked })} /><span>Plan visible en VEXORA</span></label>
                             <div className="admin-plan-form-actions">{planEditing && <button type="button" className="admin-secondary" onClick={startPlanCreate}>Cancelar edición</button>}<button type="submit" className="admin-primary" disabled={planSaving}>{planSaving ? "Guardando..." : planEditing ? "Guardar cambios" : "Crear plan"}</button></div>
+                          </form>
+                        </div>
+
+                        <div className="admin-benefits-section">
+                          <div className="admin-benefits-list">
+                            <div className="admin-plans-list-head">
+                              <div>
+                                <strong>Beneficios de la plataforma</strong>
+                                <small className="admin-benefits-subtitle">Se muestran como ventajas generales del servicio.</small>
+                              </div>
+                              <button type="button" className="admin-primary" onClick={startBenefitCreate}>＋ Nuevo beneficio</button>
+                            </div>
+                            {benefitsLoading ? (
+                              <div className="admin-loading"><span className="admin-spinner" /> Cargando beneficios...</div>
+                            ) : benefits.length ? (
+                              benefits.map((benefit, index) => (
+                                <article className="admin-benefit-card" key={benefit.id}>
+                                  <div className="admin-benefit-number">{index + 1}</div>
+                                  <div className="admin-benefit-copy">
+                                    <span className={benefit.active ? "admin-plan-active" : "admin-plan-inactive"}>{benefit.active ? "ACTIVO" : "OCULTO"}</span>
+                                    <strong>{benefit.text}</strong>
+                                  </div>
+                                  <div className="admin-plan-actions">
+                                    <button type="button" onClick={() => startBenefitEdit(benefit)}>Editar</button>
+                                    <button type="button" onClick={() => deleteBenefit(benefit)}>Eliminar</button>
+                                  </div>
+                                </article>
+                              ))
+                            ) : (
+                              <div className="admin-empty-block">Este producto todavía no tiene beneficios.</div>
+                            )}
+                          </div>
+
+                          <form className="admin-benefit-form" onSubmit={saveBenefit}>
+                            <div>
+                              <span>{benefitEditing ? "EDITAR BENEFICIO" : "NUEVO BENEFICIO"}</span>
+                              <h4>{benefitEditing ? "Actualizar ventaja" : "Agregar beneficio"}</h4>
+                            </div>
+                            <label>
+                              <span>Beneficio</span>
+                              <textarea
+                                required
+                                rows="3"
+                                value={benefitForm.text}
+                                onChange={(e) => setBenefitForm({ ...benefitForm, text: e.target.value })}
+                                placeholder="Contenido exclusivo y actualizado."
+                              />
+                            </label>
+                            <label>
+                              <span>Orden</span>
+                              <input
+                                type="number"
+                                min="0"
+                                step="1"
+                                value={benefitForm.sort_order}
+                                onChange={(e) => setBenefitForm({ ...benefitForm, sort_order: e.target.value })}
+                              />
+                            </label>
+                            <label className="admin-switch-row">
+                              <input
+                                type="checkbox"
+                                checked={benefitForm.active}
+                                onChange={(e) => setBenefitForm({ ...benefitForm, active: e.target.checked })}
+                              />
+                              <span>Beneficio visible en VEXORA</span>
+                            </label>
+                            <div className="admin-plan-form-actions">
+                              {benefitEditing && <button type="button" className="admin-secondary" onClick={startBenefitCreate}>Cancelar edición</button>}
+                              <button type="submit" className="admin-primary" disabled={benefitSaving}>
+                                {benefitSaving ? "Guardando..." : benefitEditing ? "Guardar cambios" : "Crear beneficio"}
+                              </button>
+                            </div>
                           </form>
                         </div>
                       </section>

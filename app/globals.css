@@ -166,15 +166,15 @@ a { color: inherit; text-decoration: none; }
 .main-logo:active { cursor:grabbing; animation-play-state:paused; }
 .main-logo { animation:logoFloat 4.5s ease-in-out infinite; }
 .logo-3d { position:relative; width:145px; height:145px; display:block; transform-style:preserve-3d; animation:logoSpin 10s linear infinite; }
-.logo-3d .logo-face { position:absolute; inset:0; width:145px; height:145px; object-fit:contain; display:block; z-index:20; filter:drop-shadow(0 24px 35px rgba(0,0,0,.55)); pointer-events:none; }
+.logo-3d .logo-face { position:absolute; inset:0; width:145px; height:145px; object-fit:contain; display:block; z-index:20; filter:saturate(1.28) contrast(1.06) brightness(1.08) drop-shadow(0 18px 28px rgba(0,0,0,.48)) drop-shadow(0 0 14px rgba(126,104,255,.16)); pointer-events:none; }
 .logo-depth { position:absolute; inset:0; width:145px; height:145px; transform-style:preserve-3d; pointer-events:none; }
-.logo-depth img { position:absolute; inset:0; width:145px; height:145px; object-fit:contain; display:block; opacity:.86; filter:brightness(.42) saturate(.92) drop-shadow(0 6px 8px rgba(0,0,0,.58)); pointer-events:none; }
-.logo-aura { position:absolute; width:190px; height:190px; border-radius:50%; background:radial-gradient(circle,rgba(139,124,255,.18),transparent 65%); filter:blur(10px); pointer-events:none; }
+.logo-depth img { position:absolute; inset:0; width:145px; height:145px; object-fit:contain; display:block; opacity:.82; filter:saturate(1.22) brightness(.62) contrast(1.08) drop-shadow(0 7px 10px rgba(0,0,0,.54)); pointer-events:none; }
+.logo-aura { position:absolute; width:205px; height:205px; border-radius:50%; background:radial-gradient(circle,rgba(139,124,255,.26),rgba(91,77,220,.10) 34%,transparent 68%); filter:blur(12px); pointer-events:none; }
 img[src="/logos/openai.svg"] {
   filter: invert(1) drop-shadow(0 14px 24px rgba(0,0,0,.5));
 }
-.logo-brand-canva-pro .logo-face { filter:drop-shadow(0 24px 35px rgba(0,0,0,.62)); }
-.logo-brand-canva-pro .logo-depth img { filter:brightness(.48) saturate(.9) drop-shadow(0 6px 8px rgba(0,0,0,.68)); }
+ .logo-brand-canva-pro .logo-face { filter:saturate(1.3) contrast(1.06) brightness(1.06) drop-shadow(0 20px 30px rgba(0,0,0,.52)) drop-shadow(0 0 16px rgba(120,105,255,.18)); }
+ .logo-brand-canva-pro .logo-depth img { filter:saturate(1.22) brightness(.62) contrast(1.06) drop-shadow(0 7px 10px rgba(0,0,0,.6)); }
 .logo-brand-chatgpt .logo-face { filter:invert(1) brightness(1.28) drop-shadow(0 24px 35px rgba(0,0,0,.62)); }
 .logo-brand-chatgpt .logo-depth img { filter:invert(1) brightness(.48) drop-shadow(0 6px 8px rgba(0,0,0,.68)); }
 .logo-brand-chatgpt .logo-aura { background:radial-gradient(circle,rgba(164,151,255,.22),transparent 65%); }

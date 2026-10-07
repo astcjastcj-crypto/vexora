@@ -914,6 +914,7 @@ export default function AdminPage() {
                             <p>{order.profiles?.full_name || "Cliente sin nombre"} · {item?.duration || "—"}</p>
                           </div>
                           <div className="admin-order-side">
+                             <button type="button" className="admin-order-detail-button" onClick={() => openOrderDetail(order)}>Detalle ↗</button>
                             <strong>S/{Number(order.total || 0).toFixed(2)}</strong>
                             <select value={order.status} disabled={statusBusy === order.id} onChange={(event) => updateOrderStatus(order.id, event.target.value)} aria-label={"Estado del pedido VEX-" + order.id.slice(0, 8).toUpperCase()}>
                               <option value="pending">Pendiente</option>

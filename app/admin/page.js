@@ -32,7 +32,7 @@ const prepareLogoForUpload = async (file) => {
     const sourceWidth = image.naturalWidth || image.width;
     const sourceHeight = image.naturalHeight || image.height;
     if (!sourceWidth || !sourceHeight) throw new Error("El logo no tiene dimensiones válidas.");
-    const maxSize = 1400;
+    const maxSize = 1800;
     const scale = Math.min(1, maxSize / Math.max(sourceWidth, sourceHeight));
     const width = Math.max(1, Math.round(sourceWidth * scale));
     const height = Math.max(1, Math.round(sourceHeight * scale));
@@ -42,6 +42,8 @@ const prepareLogoForUpload = async (file) => {
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) throw new Error("Tu navegador no permite procesar el logo.");
     ctx.clearRect(0, 0, width, height);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
     ctx.drawImage(image, 0, 0, width, height);
 
     const imageData = ctx.getImageData(0, 0, width, height);
@@ -56,7 +58,7 @@ const prepareLogoForUpload = async (file) => {
     const isBrightNeutral = (index) => {
       const i = index * 4;
       const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2], a = pixels[i + 3];
-      return a > 0 && r >= 232 && g >= 232 && b >= 232 && Math.max(r, g, b) - Math.min(r, g, b) <= 24;
+      return a > 0 && r >= 228 && g >= 228 && b >= 228 && Math.max(r, g, b) - Math.min(r, g, b) <= 24;
     };
 
     const cornerIndexes = [
@@ -64,6 +66,78 @@ const prepareLogoForUpload = async (file) => {
       pixelIndex(0, height - 1), pixelIndex(width - 1, height - 1)
     ];
     const brightCorners = cornerIndexes.filter(isBrightNeutral);
+
+    // Some Canva exports bake the transparency checkerboard into the PNG.
+    // Only activate this pass when the image corners are dark neutral tones
+    // with enough contrast to strongly indicate a checkerboard background.
+    const cornerSamples = cornerIndexes.map((index) => {
+      const i = index * 4;
+      return [pixels[i], pixels[i + 1], pixels[i + 2], pixels[i + 3]];
+    });
+    const darkNeutralCorners = cornerSamples.filter(([r, g, b, a]) =>
+      a > 0 &&
+      Math.max(r, g, b) - Math.min(r, g, b) <= 18 &&
+      (r + g + b) / 3 < 125
+    );
+
+    if (darkNeutralCorners.length >= 3) {
+      const tones = darkNeutralCorners.map(([r, g, b]) => (r + g + b) / 3);
+      const minTone = Math.min(...tones);
+      const maxTone = Math.max(...tones);
+
+      if (maxTone - minTone >= 8) {
+        const checkerBackground = new Uint8Array(total);
+        const checkerQueue = new Int32Array(total);
+        let checkerHead = 0;
+        let checkerTail = 0;
+
+        const isCheckerPixel = (index) => {
+          const i = index * 4;
+          const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2], a = pixels[i + 3];
+          if (a === 0) return true;
+          const neutral = Math.max(r, g, b) - Math.min(r, g, b) <= 22;
+          return neutral && (r + g + b) / 3 < 145;
+        };
+
+        const enqueueChecker = (index) => {
+          if (index < 0 || checkerBackground[index]) return;
+          checkerBackground[index] = 1;
+          checkerQueue[checkerTail++] = index;
+        };
+
+        for (let x = 0; x < width; x += 1) {
+          enqueueChecker(pixelIndex(x, 0));
+          enqueueChecker(pixelIndex(x, height - 1));
+        }
+        for (let y = 0; y < height; y += 1) {
+          enqueueChecker(pixelIndex(0, y));
+          enqueueChecker(pixelIndex(width - 1, y));
+        }
+
+        while (checkerHead < checkerTail) {
+          const index = checkerQueue[checkerHead++];
+          const x = index % width;
+          const y = Math.floor(index / width);
+          const neighbors = [
+            x > 0 ? index - 1 : -1,
+            x < width - 1 ? index + 1 : -1,
+            y > 0 ? index - width : -1,
+            y < height - 1 ? index + width : -1,
+          ];
+
+          for (const neighbor of neighbors) {
+            if (neighbor >= 0 && !checkerBackground[neighbor] && isCheckerPixel(neighbor)) {
+              enqueueChecker(neighbor);
+            }
+          }
+        }
+
+        for (let index = 0; index < total; index += 1) {
+          if (checkerBackground[index]) pixels[index * 4 + 3] = 0;
+        }
+        ctx.putImageData(imageData, 0, 0);
+      }
+    }
 
     if (brightCorners.length >= 2) {
       const seed = brightCorners[0] * 4;

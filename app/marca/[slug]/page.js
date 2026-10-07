@@ -86,10 +86,10 @@ const brands = {
       ["04", "La conexión es clave", "Necesitas una buena conexión a Internet y baja latencia para obtener una experiencia fluida."]
     ],
     plans: [
-      { name: "Performance", duration: "1 mes", price: "S/25", note: "USD 7.5 · Hasta 1440p y 60 FPS" },
-      { name: "Performance + 1 TB", duration: "1 mes", price: "S/42", note: "USD 12 · Performance + 1 TB de almacenamiento persistente" },
-      { name: "Ultimate", duration: "1 mes", price: "S/47", note: "USD 13.5 · Hasta 5K/120 FPS y hasta 360 FPS" },
-      { name: "Ultimate + 1 TB", duration: "1 mes", price: "S/65", note: "USD 18 · Ultimate + 1 TB de almacenamiento persistente" }
+      { name: "Performance", duration: "1 mes", price: "S/25", note: "USD 7.5 · Activación en tu correo/cuenta · Hasta 1440p a 60 FPS" },
+      { name: "Performance + 1 TB", duration: "1 mes", price: "S/42", note: "USD 12 · Activación en tu correo/cuenta · Performance + 1 TB persistente" },
+      { name: "Ultimate", duration: "1 mes", price: "S/47", note: "USD 13.5 · Activación en tu correo/cuenta · Hasta 5K a 120 FPS y hasta 360 FPS" },
+      { name: "Ultimate + 1 TB", duration: "1 mes", price: "S/65", note: "USD 18 · Activación en tu correo/cuenta · Ultimate + 1 TB persistente" }
     ]
   }
 };
@@ -164,7 +164,9 @@ const getPurchaseRules = (brandName, plan) => {
       ["04", "Install-to-Play", "Performance y Ultimate incluyen acceso a <em>Install-to-Play</em> para ampliar la biblioteca con miles de juegos Steam compatibles. También incluyen 100 GB de almacenamiento de sesión para esta función."],
       ["05", "Almacenamiento", hasStorage ? "Este plan añade <em>1 TB de almacenamiento persistente</em> para conservar instalaciones y datos entre sesiones, según compatibilidad." : "El almacenamiento persistente de 1 TB no está incluido en este plan; puede existir como complemento independiente según disponibilidad."],
       ["06", "Tiempo de juego", "Actualmente, Performance y Ultimate cuentan con <em>100 horas mensuales</em> de juego premium. Las horas no utilizadas pueden acumularse hasta el límite indicado por NVIDIA."],
-      ["07", "Requisitos", "El rendimiento real depende del dispositivo, juego, resolución, conexión y latencia. Se requiere una conexión adecuada y una cuenta del servicio."]
+      ["07", "Juegos compatibles", "Puedes jugar títulos compatibles como <em>Fortnite, Cyberpunk 2077 y The Witcher 3: Wild Hunt</em>, además de miles de juegos disponibles en la biblioteca de GeForce NOW. La disponibilidad puede variar por región y plataforma."],
+      ["08", "Activación en tu correo", "La membresía se activa en <em>tu propio correo/cuenta de GeForce NOW</em>. Así mantienes el acceso en tu cuenta y puedes conectar tus bibliotecas compatibles."],
+      ["09", "Requisitos", "El rendimiento real depende del dispositivo, juego, resolución, conexión y latencia. Se requiere una conexión adecuada y una cuenta del servicio."]
     ];
   }
 

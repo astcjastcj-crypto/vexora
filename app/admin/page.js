@@ -67,76 +67,48 @@ const prepareLogoForUpload = async (file) => {
     ];
     const brightCorners = cornerIndexes.filter(isBrightNeutral);
 
-    // Some Canva exports bake the transparency checkerboard into the PNG.
-    // Only activate this pass when the image corners are dark neutral tones
-    // with enough contrast to strongly indicate a checkerboard background.
+    // Canva may export a transparency preview as a baked dark/checkerboard background.
+    // Detect it from the corners and from the dominance of dark neutral pixels.
     const cornerSamples = cornerIndexes.map((index) => {
       const i = index * 4;
       return [pixels[i], pixels[i + 1], pixels[i + 2], pixels[i + 3]];
     });
-    const darkNeutralCorners = cornerSamples.filter(([r, g, b, a]) =>
+
+    const isDarkNeutral = (r, g, b, a) =>
       a > 0 &&
-      Math.max(r, g, b) - Math.min(r, g, b) <= 18 &&
-      (r + g + b) / 3 < 125
-    );
+      Math.max(r, g, b) - Math.min(r, g, b) <= 28 &&
+      (r + g + b) / 3 < 125;
 
-    if (darkNeutralCorners.length >= 3) {
-      const tones = darkNeutralCorners.map(([r, g, b]) => (r + g + b) / 3);
-      const minTone = Math.min(...tones);
-      const maxTone = Math.max(...tones);
+    const darkNeutralCorners = cornerSamples.filter(([r, g, b, a]) => isDarkNeutral(r, g, b, a));
+    let darkNeutralCount = 0;
 
-      if (maxTone - minTone >= 8) {
-        const checkerBackground = new Uint8Array(total);
-        const checkerQueue = new Int32Array(total);
-        let checkerHead = 0;
-        let checkerTail = 0;
-
-        const isCheckerPixel = (index) => {
-          const i = index * 4;
-          const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2], a = pixels[i + 3];
-          if (a === 0) return true;
-          const neutral = Math.max(r, g, b) - Math.min(r, g, b) <= 22;
-          return neutral && (r + g + b) / 3 < 145;
-        };
-
-        const enqueueChecker = (index) => {
-          if (index < 0 || checkerBackground[index]) return;
-          checkerBackground[index] = 1;
-          checkerQueue[checkerTail++] = index;
-        };
-
-        for (let x = 0; x < width; x += 1) {
-          enqueueChecker(pixelIndex(x, 0));
-          enqueueChecker(pixelIndex(x, height - 1));
-        }
-        for (let y = 0; y < height; y += 1) {
-          enqueueChecker(pixelIndex(0, y));
-          enqueueChecker(pixelIndex(width - 1, y));
-        }
-
-        while (checkerHead < checkerTail) {
-          const index = checkerQueue[checkerHead++];
-          const x = index % width;
-          const y = Math.floor(index / width);
-          const neighbors = [
-            x > 0 ? index - 1 : -1,
-            x < width - 1 ? index + 1 : -1,
-            y > 0 ? index - width : -1,
-            y < height - 1 ? index + width : -1,
-          ];
-
-          for (const neighbor of neighbors) {
-            if (neighbor >= 0 && !checkerBackground[neighbor] && isCheckerPixel(neighbor)) {
-              enqueueChecker(neighbor);
-            }
-          }
-        }
-
-        for (let index = 0; index < total; index += 1) {
-          if (checkerBackground[index]) pixels[index * 4 + 3] = 0;
-        }
-        ctx.putImageData(imageData, 0, 0);
+    for (let index = 0; index < total; index += 1) {
+      const i = index * 4;
+      if (isDarkNeutral(pixels[i], pixels[i + 1], pixels[i + 2], pixels[i + 3])) {
+        darkNeutralCount += 1;
       }
+    }
+
+    // If most of the image is dark neutral and the corners are dark, treat that
+    // tone as the baked background. Remove it globally so enclosed areas such
+    // as the inside of the Disney+ arc also become truly transparent.
+    if (darkNeutralCorners.length >= 3 && darkNeutralCount / total > 0.55) {
+      const seed = cornerSamples.find(([r, g, b, a]) => isDarkNeutral(r, g, b, a)) || [0, 0, 0, 255];
+      const sr = seed[0], sg = seed[1], sb = seed[2];
+
+      for (let index = 0; index < total; index += 1) {
+        const i = index * 4;
+        const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2], a = pixels[i + 3];
+        if (
+          a > 0 &&
+          Math.max(r, g, b) - Math.min(r, g, b) <= 34 &&
+          Math.max(Math.abs(r - sr), Math.abs(g - sg), Math.abs(b - sb)) <= 70
+        ) {
+          pixels[i + 3] = 0;
+        }
+      }
+
+      ctx.putImageData(imageData, 0, 0);
     }
 
     if (brightCorners.length >= 2) {

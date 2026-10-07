@@ -190,7 +190,7 @@ const makeSlug = (value = "") =>
 
 export default function BrandPage({ params }) {
   const { slug } = params;
-  const fallbackBrand = brands[slug] || brands.chatgpt;
+  const fallbackBrand = brands[slug] || null;
   const [brand, setBrand] = useState(fallbackBrand);
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -261,8 +261,8 @@ export default function BrandPage({ params }) {
       if (plansError) console.error("Error cargando planes públicos:", plansError);
       if (benefitsError) console.error("Error cargando beneficios públicos:", benefitsError);
 
-      const fallbackPlans = fallbackBrand.plans || [];
-      const fallbackBenefits = fallbackBrand.benefits || [];
+      const fallbackPlans = fallbackBrand?.plans || [];
+      const fallbackBenefits = fallbackBrand?.benefits || [];
 
       const plans = (plansData || []).map((plan) => ({
         ...plan,
@@ -281,7 +281,7 @@ export default function BrandPage({ params }) {
         type: product.category,
         logo: product.logo_url || fallbackBrand.logo,
         intro: product.description || fallbackBrand.intro,
-        benefitTitle: fallbackBrand.benefitTitle || "Beneficios",
+        benefitTitle: fallbackBrand?.benefitTitle || "Beneficios",
         benefits: benefits.length ? benefits : fallbackBenefits,
         plans: plans.length ? plans : fallbackPlans,
       });
@@ -387,7 +387,27 @@ export default function BrandPage({ params }) {
               ? benefit
               : [benefit.number, benefit.title, benefit.description];
 
-            return (
+            if (!catalogLoading && !brand) {
+    return (
+      <main className="brand-page">
+        <div className="brand-page-glow brand-page-glow-one" />
+        <div className="brand-page-glow brand-page-glow-two" />
+        <header className="brand-page-topbar">
+          <Link href="/" className="back-button">← Volver</Link>
+          <span className="brand-page-title">VEXORA</span>
+          <span className="brand-page-status">CATÁLOGO</span>
+        </header>
+        <section className="plans-empty brand-unavailable">
+          <span>PRÓXIMAMENTE</span>
+          <h3>Este acceso aún no está disponible.</h3>
+          <p>Estamos preparando este servicio para VEXORA. Por ahora no hay planes disponibles para esta marca.</p>
+          <Link href="/" className="brand-unavailable-back">Volver al catálogo</Link>
+        </section>
+      </main>
+    );
+  }
+
+  return (
               <article className="benefit-card" key={legacyNumber || index}>
                 <span className="benefit-number">{legacyNumber || String(index + 1).padStart(2, "0")}</span>
                 <div className="benefit-icon">✦</div>

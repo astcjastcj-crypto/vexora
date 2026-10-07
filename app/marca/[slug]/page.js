@@ -86,10 +86,10 @@ const brands = {
       ["04", "La conexión es clave", "Necesitas una buena conexión a Internet y baja latencia para obtener una experiencia fluida."]
     ],
     plans: [
-      { name: "Performance", duration: "1 mes", price: "S/25", note: "USD 7.5 · Activación en tu correo/cuenta · Hasta 1440p a 60 FPS" },
-      { name: "Performance + 1 TB", duration: "1 mes", price: "S/42", note: "USD 12 · Activación en tu correo/cuenta · Performance + 1 TB persistente" },
-      { name: "Ultimate", duration: "1 mes", price: "S/47", note: "USD 13.5 · Activación en tu correo/cuenta · Hasta 5K a 120 FPS y hasta 360 FPS" },
-      { name: "Ultimate + 1 TB", duration: "1 mes", price: "S/65", note: "USD 18 · Activación en tu correo/cuenta · Ultimate + 1 TB persistente" }
+      { name: "Performance", duration: "1 mes", price: "S/25", note: "USD 7.5 · Activación en tu propio correo · RTX · hasta 1440p/60 FPS · 100 h/mes" },
+      { name: "Performance + 1 TB", duration: "1 mes", price: "S/42", note: "USD 12 · Activación en tu propio correo · Performance + 1 TB" },
+      { name: "Ultimate", duration: "1 mes", price: "S/47", note: "USD 13.5 · Activación en tu propio correo · RTX 5080 · hasta 5K HDR/120 FPS · 100 h/mes" },
+      { name: "Ultimate + 1 TB", duration: "1 mes", price: "S/65", note: "USD 18 · Activación en tu propio correo · Ultimate + 1 TB" }
     ]
   }
 };
@@ -158,15 +158,15 @@ const getPurchaseRules = (brandName, plan) => {
     const isUltimate = plan.name.includes("Ultimate");
     const hasStorage = plan.name.includes("1 TB");
     return [
-      ["01", "Biblioteca", "Puedes conectar bibliotecas compatibles como Steam, Epic Games, GOG, PC Game Pass y Ubisoft Connect para jugar títulos que ya posees."],
-      ["02", "Rendimiento", isUltimate ? "Ultimate ofrece servidores de mayor rendimiento, con streaming de hasta <em>5K a 120 FPS</em> y hasta <em>360 FPS</em> en escenarios compatibles." : "Performance ofrece streaming premium de hasta <em>1440p a 60 FPS</em>, según dispositivo, juego y conexión."],
-      ["03", "Tecnologías", "Los planes premium incluyen tecnologías como <em>Ray Tracing, NVIDIA DLSS y Reflex</em>, además de acceso prioritario a los servidores."],
-      ["04", "Install-to-Play", "Performance y Ultimate incluyen acceso a <em>Install-to-Play</em> para ampliar la biblioteca con miles de juegos Steam compatibles. También incluyen 100 GB de almacenamiento de sesión para esta función."],
-      ["05", "Almacenamiento", hasStorage ? "Este plan añade <em>1 TB de almacenamiento persistente</em> para conservar instalaciones y datos entre sesiones, según compatibilidad." : "El almacenamiento persistente de 1 TB no está incluido en este plan; puede existir como complemento independiente según disponibilidad."],
-      ["06", "Tiempo de juego", "Actualmente, Performance y Ultimate cuentan con <em>100 horas mensuales</em> de juego premium. Las horas no utilizadas pueden acumularse hasta el límite indicado por NVIDIA."],
-      ["07", "Juegos compatibles", "Puedes jugar títulos compatibles como <em>Fortnite, Cyberpunk 2077 y The Witcher 3: Wild Hunt</em>, además de miles de juegos disponibles en la biblioteca de GeForce NOW. La disponibilidad puede variar por región y plataforma."],
-      ["08", "Activación en tu correo", "La membresía se activa en <em>tu propio correo/cuenta de GeForce NOW</em>. Así mantienes el acceso en tu cuenta y puedes conectar tus bibliotecas compatibles."],
-      ["09", "Requisitos", "El rendimiento real depende del dispositivo, juego, resolución, conexión y latencia. Se requiere una conexión adecuada y una cuenta del servicio."]
+      ["01", "Biblioteca", "Conecta tus bibliotecas compatibles de <em>Steam, Epic Games, GOG, PC Game Pass y Ubisoft Connect</em> para jugar títulos que ya posees."],
+      ["02", "Rendimiento", isUltimate ? "Ultimate ofrece acceso prioritario a equipos <em>GeForce RTX 5080</em>, con streaming de hasta <em>5K HDR a 120 FPS</em> y hasta <em>360 FPS a 1080p</em> en escenarios compatibles." : "Performance ofrece equipos GeForce RTX con streaming de hasta <em>1440p a 60 FPS</em>, según dispositivo, juego, región y conexión."],
+      ["03", "Tecnologías NVIDIA", "Los planes Premium incluyen <em>Ray Tracing, NVIDIA DLSS y Reflex</em>, además de acceso prioritario a la transmisión frente al plan gratuito."],
+      ["04", "Install-to-Play", "Performance y Ultimate incluyen <em>Install-to-Play</em>, que permite instalar y jugar miles de juegos Steam compatibles. También incluyen <em>100 GB de almacenamiento de sesión</em> para esta función."],
+      ["05", "Almacenamiento 1 TB", hasStorage ? "Este plan VEXORA incluye <em>1 TB de almacenamiento</em> adicional según la modalidad contratada." : "Este plan no incluye el adicional de 1 TB; está disponible en las modalidades <em>+ 1 TB</em>."],
+      ["06", "100 horas mensuales", "Performance y Ultimate cuentan actualmente con <em>100 horas de juego premium al mes</em>. NVIDIA permite transferir hasta 15 horas no utilizadas al siguiente mes."],
+      ["07", "¿Qué puedes jugar?", "GeForce NOW ofrece acceso a miles de juegos compatibles. Entre los títulos disponibles se encuentran <em>Fortnite, Cyberpunk 2077, The Witcher 3, Battlefield 6, ARC Raiders y Borderlands 4</em>, sujeto a disponibilidad por región y tienda."],
+      ["08", "Activación en tu correo", "La activación se realiza en <em>tu propio correo/cuenta de GeForce NOW</em>. No necesitas compartir tu contraseña de correo con VEXORA; recibirás la activación para usar tu propia cuenta."],
+      ["09", "¿Qué necesitas?", "Necesitas una cuenta de GeForce NOW y una conexión a Internet adecuada. El rendimiento final depende del dispositivo, juego, resolución y latencia."]
     ];
   }
 
@@ -192,7 +192,9 @@ const makeSlug = (value = "") =>
     .replace(/^-+|-+$/g, "");
 
 export default function BrandPage() {
-  const { slug = "" } = useParams();
+  const params = useParams();
+  const rawSlug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug || "";
+  const slug = makeSlug(rawSlug);
   const fallbackBrand = brands[slug] || null;
   const [brand, setBrand] = useState(fallbackBrand);
   const [catalogLoading, setCatalogLoading] = useState(true);

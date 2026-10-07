@@ -18,6 +18,31 @@ const tabs = [
   ["catalog", "Catálogo", "◈"],
 ];
 
+
+const baseServices = [
+  {
+    key: "geforce-now",
+    name: "GeForce NOW",
+    category: "Gaming",
+    description: "Juega en la nube con NVIDIA GeForce NOW desde tu propio correo/cuenta.",
+    price_from: 25,
+    plans: [
+      { name: "Performance", duration: "1 mes", price: 25, description: "USD 7.5 · Activación en tu propio correo · hasta 1440p/60 FPS · 100 h/mes", sort_order: 0 },
+      { name: "Performance + 1 TB", duration: "1 mes", price: 42, description: "USD 12 · Activación en tu propio correo · Performance + 1 TB", sort_order: 1 },
+      { name: "Ultimate", duration: "1 mes", price: 47, description: "USD 13.5 · Activación en tu propio correo · RTX 5080 · hasta 5K HDR/120 FPS · 100 h/mes", sort_order: 2 },
+      { name: "Ultimate + 1 TB", duration: "1 mes", price: 65, description: "USD 18 · Activación en tu propio correo · Ultimate + 1 TB", sort_order: 3 },
+    ],
+    benefits: [
+      { text: "Streaming en la nube con equipos NVIDIA GeForce RTX, sin necesitar una PC gamer potente.", sort_order: 0 },
+      { text: "Conecta bibliotecas compatibles como Steam, Epic Games, GOG, PC Game Pass y Ubisoft Connect.", sort_order: 1 },
+      { text: "Performance y Ultimate incluyen tecnologías como Ray Tracing, NVIDIA DLSS y Reflex.", sort_order: 2 },
+      { text: "Performance y Ultimate incluyen 100 horas de juego premium al mes, según las condiciones vigentes de NVIDIA.", sort_order: 3 },
+      { text: "Puedes jugar miles de títulos compatibles, sujetos a disponibilidad por región y tienda.", sort_order: 4 },
+      { text: "La activación se realiza en tu propio correo/cuenta de GeForce NOW.", sort_order: 5 },
+    ],
+  },
+];
+
 const prepareLogoForUpload = async (file) => {
   if (!file) return null;
   const sourceUrl = URL.createObjectURL(file);
@@ -609,6 +634,57 @@ export default function AdminPage() {
     }
   };
 
+  const configureBaseService = async (service) => {
+    if (catalogSaving || !service) return;
+    setCatalogSaving(true);
+    setMessage("");
+    try {
+      const { data: existing, error: existingError } = await supabase
+        .from("products")
+        .select("id")
+        .eq("name", service.name)
+        .maybeSingle();
+      if (existingError) throw existingError;
+      if (existing) {
+        setMessage(service.name + " ya existe en el catálogo. Usa Editar o Gestionar.");
+        await loadCatalog();
+        return;
+      }
+
+      const { data: product, error: productError } = await supabase
+        .from("products")
+        .insert({
+          name: service.name,
+          category: service.category,
+          description: service.description,
+          logo_url: "",
+          price_from: service.price_from,
+          active: true,
+          updated_at: new Date().toISOString(),
+        })
+        .select("id")
+        .single();
+      if (productError) throw productError;
+
+      const { error: plansError } = await supabase.from("product_plans").insert(
+        service.plans.map((plan) => ({ ...plan, product_id: product.id, active: true, updated_at: new Date().toISOString() }))
+      );
+      if (plansError) throw plansError;
+
+      const { error: benefitsError } = await supabase.from("product_benefits").insert(
+        service.benefits.map((benefit) => ({ ...benefit, product_id: product.id, active: true, updated_at: new Date().toISOString() }))
+      );
+      if (benefitsError) throw benefitsError;
+
+      setMessage(service.name + " fue configurado. Ahora puedes subir su logo desde Editar y modificar planes o beneficios desde Gestionar.");
+      await loadCatalog();
+    } catch (error) {
+      setMessage(error?.message || "No pudimos configurar el servicio base.");
+    } finally {
+      setCatalogSaving(false);
+    }
+  };
+
   const deleteCatalogProduct = async (product) => {
     if (!window.confirm("¿Eliminar " + product.name + " del catálogo?")) return;
     const { error } = await supabase.from("products").delete().eq("id", product.id);
@@ -818,6 +894,24 @@ export default function AdminPage() {
                     <div><span>CATÁLOGO</span><h2>Servicios publicados</h2></div>
                     <div className="admin-catalog-actions"><strong className="admin-count">{products.length} productos</strong><button type="button" className="admin-primary admin-catalog-add" onClick={openCatalogCreate}>＋ Nuevo producto</button></div>
                   </div>
+                  {baseServices.some((service) => !products.some((product) => product.name.trim().toLowerCase() === service.name.trim().toLowerCase())) && (
+                    <div className="admin-catalog-base-services">
+                      <div>
+                        <span>SERVICIOS LISTOS PARA CONFIGURAR</span>
+                        <h3>Configura servicios base desde aquí</h3>
+                        <p>Si todavía no has creado un servicio en el catálogo, puedes añadirlo con sus planes y beneficios. El logo queda pendiente para que lo subas tú.</p>
+                      </div>
+                      <div className="admin-catalog-base-list">
+                        {baseServices.filter((service) => !products.some((product) => product.name.trim().toLowerCase() === service.name.trim().toLowerCase())).map((service) => (
+                          <div className="admin-catalog-base-item" key={service.key}>
+                            <div className="admin-catalog-base-icon">NVIDIA</div>
+                            <div><strong>{service.name}</strong><small>{service.plans.length} planes · {service.benefits.length} beneficios · logo pendiente</small></div>
+                            <button type="button" className="admin-primary" onClick={() => configureBaseService(service)} disabled={catalogSaving}>{catalogSaving ? "Configurando..." : "Configurar"}</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {catalogLoading ? (
                     <div className="admin-loading"><span className="admin-spinner" /> Cargando catálogo...</div>
                   ) : (

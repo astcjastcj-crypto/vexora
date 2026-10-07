@@ -223,6 +223,14 @@ export default function BrandPage() {
     const loadBrand = async () => {
       setCatalogLoading(true);
 
+      // GeForce NOW tiene una ficha propia en el código para que nunca dependa
+      // de que exista un registro activo del producto en Supabase.
+      if (resolvedSlug === "geforce-now" && fallbackBrand) {
+        setBrand(fallbackBrand);
+        setCatalogLoading(false);
+        return;
+      }
+
       const { data: productsData, error: productsError } = await supabase
         .from("products")
         .select("id,name,category,description,logo_url,price_from,active")

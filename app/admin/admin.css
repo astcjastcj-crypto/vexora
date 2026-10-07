@@ -259,11 +259,11 @@
 .admin-order-side select option,.admin-catalog-form-grid select option{background:#0d1320;color:#edf0f7}
 .admin-plans-overlay{overflow-y:auto;overflow-x:hidden;align-items:flex-start;padding:18px}
 .admin-plans-modal{max-height:none;overflow:visible;margin:auto}
-.admin-plans-head{position:sticky;top:0}
+.admin-plans-head{position:relative;top:auto;background:rgba(12,16,27,.96);backdrop-filter:none;z-index:1}
 @media(max-width:800px){
   .admin-plans-overlay{padding:10px;align-items:flex-start}
   .admin-plans-modal{max-height:none;overflow:visible}
-  .admin-plans-head{position:sticky;top:0}
+  .admin-plans-head{position:relative;top:auto;background:rgba(12,16,27,.96);backdrop-filter:none}
 }
 
 

@@ -423,6 +423,7 @@ export default function BrandPage() {
               ? benefit
               : [benefit.number, benefit.title, benefit.description];
 
+            return (
               <article className="benefit-card" key={legacyNumber || index}>
                 <span className="benefit-number">{legacyNumber || String(index + 1).padStart(2, "0")}</span>
                 <div className="benefit-icon">✦</div>

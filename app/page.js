@@ -225,7 +225,7 @@ export default function Home() {
       setOrdersLoading(true);
       const { data, error } = await supabase
         .from("orders")
-        .select("id, status, total, currency, created_at, order_items(id, product_name, plan_name, duration, price)")
+        .select("id, status, total, currency, created_at, expires_at, order_items(id, product_name, plan_name, duration, price)")
         .eq("user_id", currentUser.id)
         .order("created_at", { ascending: false });
 
@@ -857,7 +857,7 @@ export default function Home() {
                 <h2>{profileEditing ? "Editar perfil." : "Tu espacio."}</h2>
                 <p>{profileEditing
                   ? "Actualiza tu nombre. El correo de acceso permanece vinculado a tu cuenta."
-                  : "Tu cuenta VEXORA está activa. Desde aquí podrás consultar tus pedidos y organizar tus accesos."}</p>
+                  : "Tu cuenta VEXORA está activa. Consulta tus pedidos, estados y fechas de vencimiento desde este espacio."}</p>
 
                 {profileEditing ? (
                   <form className="auth-form profile-edit-form" onSubmit={saveProfile}>
@@ -994,6 +994,11 @@ export default function Home() {
                                 <div className="profile-order-meta">
                                   <strong>S/{Number(order.total || 0).toFixed(2)}</strong>
                                   <span className={"profile-order-status status-" + order.status}>{statusLabel}</span>
+                                  <span className={order.expires_at && new Date(order.expires_at).getTime() < Date.now() ? "profile-order-expiration is-expired" : "profile-order-expiration"}>
+                                    {order.expires_at
+                                      ? (new Date(order.expires_at).getTime() < Date.now() ? "Vencido · " : "Vence · ") + new Date(order.expires_at).toLocaleDateString("es-PE", { day: "2-digit", month: "2-digit", year: "numeric" })
+                                      : "Sin vencimiento"}
+                                  </span>
                                 </div>
                               </button>
                             );
@@ -1011,6 +1016,12 @@ export default function Home() {
                             <span>Duración</span><b>{selectedOrder.order_items?.[0]?.duration || "—"}</b>
                             <span>Precio</span><b>S/{Number(selectedOrder.total || 0).toFixed(2)}</b>
                             <span>Estado</span><b>{selectedOrder.status === "pending" ? "Pendiente" : selectedOrder.status === "confirmed" ? "Confirmado" : selectedOrder.status === "delivered" ? "Entregado" : selectedOrder.status === "cancelled" ? "Cancelado" : selectedOrder.status}</b>
+                            <span>Vencimiento</span>
+                            <b className={selectedOrder.expires_at && new Date(selectedOrder.expires_at).getTime() < Date.now() ? "profile-order-detail-expired" : ""}>
+                              {selectedOrder.expires_at
+                                ? (new Date(selectedOrder.expires_at).getTime() < Date.now() ? "Vencido · " : "") + new Date(selectedOrder.expires_at).toLocaleString("es-PE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+                                : "Sin vencimiento"}
+                            </b>
                             <span>Pedido</span><b>VEX-{selectedOrder.id.slice(0, 8).toUpperCase()}</b>
                           </div>
                         </div>

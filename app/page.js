@@ -37,6 +37,10 @@ const categories = ["Todos", "IA", "Streaming", "Gaming", "Productividad", "Dise
 export default function Home() {
   const router = useRouter();
   const [products, setProducts] = useState(fallbackProducts);
+  const carouselNames = ["chatgpt", "canva pro", "geforce now", "spotify premium", "disney+"];
+  const carouselProducts = carouselNames
+    .map((name) => products.find((product) => product.name.trim().toLowerCase() === name))
+    .filter(Boolean);
   const [active, setActive] = useState(0);
   const [category, setCategory] = useState("Todos");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -432,7 +436,9 @@ export default function Home() {
   };
 
   const move = (direction) => {
-    setActive((current) => (current + direction + products.length) % products.length);
+    const total = carouselProducts.length;
+    if (!total) return;
+    setActive((current) => (current + direction + total) % total);
     setLogoPosition({ x: 0, y: 0, rotate: 0 });
   };
 
@@ -687,10 +693,10 @@ export default function Home() {
           <button className="carousel-arrow left" onClick={() => move(-1)} aria-label="Logo anterior">‹</button>
 
           <div className="logo-stage">
-            {products.map((product, index) => {
+            {carouselProducts.map((product, index) => {
               let offset = index - active;
-              if (offset > 2) offset -= products.length;
-              if (offset < -2) offset += products.length;
+              if (offset > 2) offset -= carouselProducts.length;
+              if (offset < -2) offset += carouselProducts.length;
 
               if (offset !== 0) {
                 if (Math.abs(offset) > 2) return null;
@@ -732,11 +738,11 @@ export default function Home() {
           <button className="carousel-arrow right" onClick={() => move(1)} aria-label="Siguiente logo">›</button>
 
           <div className="logo-caption">
-            <span>{products[active].type}</span><strong>{products[active].name}</strong><small>{products[active].price}</small>
+            <span>{carouselProducts[active]?.type}</span><strong>{carouselProducts[active]?.name}</strong><small>{carouselProducts[active]?.price}</small>
           </div>
 
           <div className="carousel-dots">
-            {products.map((product, index) => (
+            {carouselProducts.map((product, index) => (
               <button key={product.name} className={index === active ? "dot active" : "dot"} onClick={() => setActive(index)} aria-label={"Ver " + product.name} />
             ))}
           </div>

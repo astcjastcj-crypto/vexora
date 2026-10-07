@@ -693,6 +693,8 @@ export default function Home() {
               if (offset < -2) offset += products.length;
 
               if (offset !== 0) {
+                if (Math.abs(offset) > 2) return null;
+
                 return (
                   <button className={"floating-logo side-logo side-" + offset + " logo-brand-" + product.name.toLowerCase().replace(/\s+/g, "-")} key={product.name} onClick={() => move(offset)} aria-label={"Ver " + product.name}>
                     <img src={product.logo} alt={product.name + " logo"} draggable="false" />

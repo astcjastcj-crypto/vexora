@@ -177,9 +177,22 @@ const getPurchaseRules = (brandName, plan) => {
   ];
 };
 
+const makeSlug = (value = "") =>
+  value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\\u0300-\\u036f]/g, "")
+    .replace(/\\+/g, "-")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 export default function BrandPage({ params }) {
   const { slug } = params;
-  const brand = brands[slug] || brands.chatgpt;
+  const fallbackBrand = brands[slug] || brands.chatgpt;
+  const [brand, setBrand] = useState(fallbackBrand);
+  const [catalogLoading, setCatalogLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -198,9 +211,95 @@ export default function BrandPage({ params }) {
   }, []);
 
   useEffect(() => {
+    let mounted = true;
+
+    const loadBrand = async () => {
+      setCatalogLoading(true);
+
+      const { data: productsData, error: productsError } = await supabase
+        .from("products")
+        .select("id,name,category,description,logo_url,price_from,active")
+        .eq("active", true);
+
+      if (!mounted) return;
+
+      if (productsError) {
+        console.error("Error cargando producto público:", productsError);
+        setBrand(fallbackBrand);
+        setCatalogLoading(false);
+        return;
+      }
+
+      const product = (productsData || []).find(
+        (item) => makeSlug(item.name) === slug
+      );
+
+      if (!product) {
+        setBrand(fallbackBrand);
+        setCatalogLoading(false);
+        return;
+      }
+
+      const [{ data: plansData, error: plansError }, { data: benefitsData, error: benefitsError }] =
+        await Promise.all([
+          supabase
+            .from("product_plans")
+            .select("id,name,duration,price,description,active,sort_order")
+            .eq("product_id", product.id)
+            .eq("active", true)
+            .order("sort_order", { ascending: true }),
+          supabase
+            .from("product_benefits")
+            .select("id,text,active,sort_order")
+            .eq("product_id", product.id)
+            .eq("active", true)
+            .order("sort_order", { ascending: true }),
+        ]);
+
+      if (!mounted) return;
+
+      if (plansError) console.error("Error cargando planes públicos:", plansError);
+      if (benefitsError) console.error("Error cargando beneficios públicos:", benefitsError);
+
+      const fallbackPlans = fallbackBrand.plans || [];
+      const fallbackBenefits = fallbackBrand.benefits || [];
+
+      const plans = (plansData || []).map((plan) => ({
+        ...plan,
+        price: "S/" + Number(plan.price || 0).toFixed(2).replace(".00", ""),
+        note: plan.description || "Acceso disponible según las condiciones del plan.",
+      }));
+
+      const benefits = (benefitsData || []).map((benefit, index) => ({
+        number: String(index + 1).padStart(2, "0"),
+        title: benefit.text,
+        description: "",
+      }));
+
+      setBrand({
+        name: product.name,
+        type: product.category,
+        logo: product.logo_url || fallbackBrand.logo,
+        intro: product.description || fallbackBrand.intro,
+        benefitTitle: fallbackBrand.benefitTitle || "Beneficios",
+        benefits: benefits.length ? benefits : fallbackBenefits,
+        plans: plans.length ? plans : fallbackPlans,
+      });
+      setCatalogLoading(false);
+    };
+
+    loadBrand();
+
+    return () => {
+      mounted = false;
+    };
+  }, [slug]);
+
+  useEffect(() => {
     setTermsAccepted(false);
     setOrderMessage("");
-  }, [selectedPlan]);
+    setSelectedPlan(null);
+  }, [slug, selectedPlan?.id, selectedPlan?.name, selectedPlan?.price]);
 
   const createOrderAndContinue = async (channel) => {
     if (!selectedPlan || !termsAccepted || orderBusy) return;
@@ -266,18 +365,24 @@ export default function BrandPage({ params }) {
         <div className="benefits-heading">
           <span>CONOCE EL SERVICIO</span>
           <h2>{brand.benefitTitle}</h2>
-          <p>Antes de elegir un plan, conoce qué puedes hacer con {brand.name} y qué tipo de acceso puede encajar mejor contigo.</p>
+          <p>Conoce los beneficios principales de {brand.name} antes de elegir el acceso que más te conviene.</p>
         </div>
 
         <div className="benefits-grid">
-          {brand.benefits.map(([number, title, description]) => (
-            <article className="benefit-card" key={number}>
-              <span className="benefit-number">{number}</span>
-              <div className="benefit-icon">✦</div>
-              <h3>{title}</h3>
-              <p>{description}</p>
-            </article>
-          ))}
+          {brand.benefits.map((benefit, index) => {
+            const [legacyNumber, legacyTitle, legacyDescription] = Array.isArray(benefit)
+              ? benefit
+              : [benefit.number, benefit.title, benefit.description];
+
+            return (
+              <article className="benefit-card" key={legacyNumber || index}>
+                <span className="benefit-number">{legacyNumber || String(index + 1).padStart(2, "0")}</span>
+                <div className="benefit-icon">✦</div>
+                <h3>{legacyTitle}</h3>
+                {legacyDescription ? <p>{legacyDescription}</p> : null}
+              </article>
+            );
+          })}
         </div>
       </section>
 
@@ -288,7 +393,13 @@ export default function BrandPage({ params }) {
           <p>Selecciona un plan y luego coordinamos tu compra directamente con VEXORA.</p>
         </div>
 
-        {brand.plans.length ? (
+        {catalogLoading ? (
+          <div className="plans-empty">
+            <span>CARGANDO CATÁLOGO</span>
+            <h3>Preparando los accesos de {brand.name}.</h3>
+            <p>Estamos sincronizando planes y beneficios.</p>
+          </div>
+        ) : brand.plans.length ? (
           <div className="plans-grid">
             {brand.plans.map((plan, index) => (
               <article className={"plan-card " + (index === 2 ? "featured" : "")} key={plan.name + plan.price}>

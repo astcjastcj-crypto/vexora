@@ -1530,15 +1530,15 @@ img[src="/logos/openai.svg"] {
 /* QA FIXES — 2026-10 */
 .admin-shell{overflow:clip}
 .logo-stage{perspective:1400px}
-.side-logo.side-1{transform:translate3d(245px,-10px,-65px) rotateY(-28deg) rotateZ(-2deg) scale(.68);opacity:.52}
-.side-logo.side--1{transform:translate3d(-245px,10px,-65px) rotateY(28deg) rotateZ(2deg) scale(.68);opacity:.52}
-.side-logo.side-2{transform:translate3d(390px,28px,-165px) rotateY(-40deg) rotateZ(-4deg) scale(.46);opacity:.28}
-.side-logo.side--2{transform:translate3d(-390px,-28px,-165px) rotateY(40deg) rotateZ(4deg) scale(.46);opacity:.28}
+.side-logo.side-1{transform:translate3d(330px,-18px,-95px) rotateY(-34deg) rotateZ(-3deg) scale(.58);opacity:.34}
+.side-logo.side--1{transform:translate3d(-330px,18px,-95px) rotateY(34deg) rotateZ(3deg) scale(.58);opacity:.34}
+.side-logo.side-2{transform:translate3d(505px,42px,-210px) rotateY(-48deg) rotateZ(-5deg) scale(.34);opacity:.14}
+.side-logo.side--2{transform:translate3d(-505px,-42px,-210px) rotateY(48deg) rotateZ(5deg) scale(.34);opacity:.14}
 @media(max-width:900px){
-  .side-logo.side-1{transform:translate3d(185px,-8px,-65px) rotateY(-28deg) rotateZ(-2deg) scale(.58);opacity:.48}
-  .side-logo.side--1{transform:translate3d(-185px,8px,-65px) rotateY(28deg) rotateZ(2deg) scale(.58);opacity:.48}
-  .side-logo.side-2{transform:translate3d(285px,22px,-155px) rotateY(-38deg) rotateZ(-4deg) scale(.38);opacity:.22}
-  .side-logo.side--2{transform:translate3d(-285px,-22px,-155px) rotateY(38deg) rotateZ(4deg) scale(.38);opacity:.22}
+  .side-logo.side-1{transform:translate3d(235px,-12px,-90px) rotateY(-32deg) rotateZ(-3deg) scale(.50);opacity:.30}
+  .side-logo.side--1{transform:translate3d(-235px,12px,-90px) rotateY(32deg) rotateZ(3deg) scale(.50);opacity:.30}
+  .side-logo.side-2{transform:translate3d(355px,34px,-190px) rotateY(-45deg) rotateZ(-5deg) scale(.30);opacity:.12}
+  .side-logo.side--2{transform:translate3d(-355px,-34px,-190px) rotateY(45deg) rotateZ(5deg) scale(.30);opacity:.12}
 }
 .entry-brand-0{left:14%;top:22%;right:auto;bottom:auto}
 .entry-brand-1{left:40%;top:10%;right:auto;bottom:auto}

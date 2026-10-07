@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { supabase } from "../../../utils/supabase/client";
 
 const brands = {
@@ -188,8 +189,8 @@ const makeSlug = (value = "") =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-export default function BrandPage({ params }) {
-  const { slug } = use(params);
+export default function BrandPage() {
+  const { slug = "" } = useParams();
   const fallbackBrand = brands[slug] || null;
   const [brand, setBrand] = useState(fallbackBrand);
   const [catalogLoading, setCatalogLoading] = useState(true);

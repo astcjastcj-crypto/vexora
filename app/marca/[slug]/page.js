@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { supabase } from "../../../utils/supabase/client";
 
 const brands = {
@@ -189,7 +189,7 @@ const makeSlug = (value = "") =>
     .replace(/^-+|-+$/g, "");
 
 export default function BrandPage({ params }) {
-  const { slug } = params;
+  const { slug } = use(params);
   const fallbackBrand = brands[slug] || null;
   const [brand, setBrand] = useState(fallbackBrand);
   const [catalogLoading, setCatalogLoading] = useState(true);

@@ -6,7 +6,7 @@ import { supabase } from "../utils/supabase/client";
 
 const fallbackProducts = [
   { name: "ChatGPT", type: "Inteligencia Artificial", logo: "/logos/openai.svg", price: "Consultar precio" },
-  { name: "Gemini", type: "Inteligencia Artificial", logo: "https://cdn.simpleicons.org/googlegemini", price: "Consultar precio" },
+  { name: "Gemini", type: "Inteligencia Artificial", logo: "/logos/gemini.svg", price: "Consultar precio" },
   { name: "Netflix", type: "Streaming", logo: "https://cdn.simpleicons.org/netflix", price: "Consultar precio" },
   { name: "Canva Pro", type: "Diseño", logo: "/logos/canva.svg", price: "Consultar precio" },
   { name: "Disney+", type: "Streaming", logo: "https://cdn.simpleicons.org/disneyplus", price: "Consultar precio" },

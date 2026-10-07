@@ -197,7 +197,7 @@ export default function BrandPage() {
   const rawSlug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug || pathname?.split("/").filter(Boolean).pop() || "";
   const slug = makeSlug(rawSlug);
   const resolvedSlug = slug === "geforce-now" || pathname?.toLowerCase().includes("/marca/geforce-now") ? "geforce-now" : slug;
-  const fallbackBrand = brands[resolvedSlug] || null;
+  const fallbackBrand = resolvedSlug === "geforce-now" ? brands["geforce-now"] : brands[resolvedSlug] || null;
   const [brand, setBrand] = useState(fallbackBrand);
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -225,8 +225,8 @@ export default function BrandPage() {
 
       // GeForce NOW tiene una ficha propia en el código para que nunca dependa
       // de que exista un registro activo del producto en Supabase.
-      if (resolvedSlug === "geforce-now" && fallbackBrand) {
-        setBrand(fallbackBrand);
+      if (resolvedSlug === "geforce-now") {
+        setBrand(brands["geforce-now"]);
         setCatalogLoading(false);
         return;
       }

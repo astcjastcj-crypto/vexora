@@ -299,7 +299,7 @@ export default function BrandPage({ params }) {
     setTermsAccepted(false);
     setOrderMessage("");
     setSelectedPlan(null);
-  }, [slug, selectedPlan?.id, selectedPlan?.name, selectedPlan?.price]);
+  }, [slug]);
 
   const createOrderAndContinue = async (channel) => {
     if (!selectedPlan || !termsAccepted || orderBusy) return;
@@ -328,7 +328,8 @@ export default function BrandPage({ params }) {
         price,
       });
       if (itemError) throw itemError;
-      const message = "Hola VEXORA, quiero adquirir " + brand.name + " — " + selectedPlan.name + " — " + selectedPlan.price + " — " + selectedPlan.duration + ". Mi pedido es " + order.id + ".";
+      const shortOrderId = "VEX-" + order.id.slice(0, 8).toUpperCase();
+      const message = "Hola VEXORA, quiero adquirir " + brand.name + " — " + selectedPlan.name + " — " + selectedPlan.price + " — " + selectedPlan.duration + ". Mi pedido es " + shortOrderId + ".";
       const destination = channel === "telegram" ? "https://t.me/Camerdj?text=" + encodeURIComponent(message) : "https://wa.me/51992491189?text=" + encodeURIComponent(message);
       window.open(destination, "_blank", "noopener,noreferrer");
       setOrderMessage("Pedido creado correctamente. Ahora puedes continuar con VEXORA.");
@@ -442,10 +443,12 @@ export default function BrandPage({ params }) {
               <label className="terms-check"><input type="checkbox" id="vexora-terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} /><span>Acepto haber leído y comprendido las condiciones del acceso seleccionado.</span></label>
               {!currentUser && <div className="purchase-auth-note">🔐 Debes iniciar sesión en VEXORA para registrar tu pedido.</div>}
               {orderMessage && <div className="purchase-order-message" role="status">{orderMessage}</div>}
-              <div className="purchase-actions">
-                <button type="button" className={"purchase-action whatsapp" + (termsAccepted && currentUser && !orderBusy ? "" : " disabled")} disabled={!termsAccepted || !currentUser || orderBusy} onClick={() => createOrderAndContinue("whatsapp")}>{orderBusy ? "Creando pedido..." : "Solicitar por WhatsApp"} <span>↗</span></button>
-                <button type="button" className={"purchase-action telegram" + (termsAccepted && currentUser && !orderBusy ? "" : " disabled")} disabled={!termsAccepted || !currentUser || orderBusy} onClick={() => createOrderAndContinue("telegram")}>{orderBusy ? "Creando pedido..." : "Solicitar por Telegram"} <span>↗</span></button>
-              </div>
+              {termsAccepted && currentUser && (
+                <div className="purchase-actions">
+                  <button type="button" className={"purchase-action whatsapp" + (orderBusy ? " disabled" : "")} disabled={orderBusy} onClick={() => createOrderAndContinue("whatsapp")}>{orderBusy ? "Creando pedido..." : "Solicitar por WhatsApp"} <span>↗</span></button>
+                  <button type="button" className={"purchase-action telegram" + (orderBusy ? " disabled" : "")} disabled={orderBusy} onClick={() => createOrderAndContinue("telegram")}>{orderBusy ? "Creando pedido..." : "Solicitar por Telegram"} <span>↗</span></button>
+                </div>
+              )}
               <small className="purchase-note">Al continuar, VEXORA registrará tu pedido como pendiente y luego abrirá el canal elegido para coordinar disponibilidad, pago y entrega.</small>
             </div>
           </div>

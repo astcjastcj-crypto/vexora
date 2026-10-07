@@ -17,7 +17,7 @@
 .admin-user strong{font-size:9px}
 .admin-user small{margin-top:3px;color:#646e81;font-size:6px;letter-spacing:.12em}
 .admin-icon-button{width:36px;height:36px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:rgba(255,255,255,.03);color:#8f99aa;cursor:pointer}
-.admin-layout{position:relative;z-index:1;display:grid;grid-template-columns:220px minmax(0,1fr);max-width:1440px;margin:0 auto}
+.admin-layout{position:relative;z-index:auto;display:grid;grid-template-columns:220px minmax(0,1fr);max-width:1440px;margin:0 auto}
 .admin-sidebar{min-height:calc(100vh - 76px);padding:28px 14px;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column}
 .admin-side-heading{padding:0 12px 12px;color:#4e586a;font-size:7px;letter-spacing:.2em}
 .admin-nav{display:grid;gap:5px}

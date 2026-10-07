@@ -1567,4 +1567,4 @@ img[src="/logos/openai.svg"] {
 
 .logo-face { filter:saturate(1.45) contrast(1.12) brightness(1.16) drop-shadow(0 0 8px rgba(88,171,255,.24)) drop-shadow(0 18px 28px rgba(0,0,0,.42)); }
 .logo-depth img { filter:saturate(1.38) brightness(.76) contrast(1.12) drop-shadow(0 5px 8px rgba(0,0,0,.42)); }
-.logo-brand-disney+ .logo-face { filter:saturate(1.6) contrast(1.16) brightness(1.25) drop-shadow(0 0 9px rgba(50,155,255,.5)) drop-shadow(0 0 18px rgba(145,76,255,.36)) drop-shadow(0 18px 28px rgba(0,0,0,.38)); }
+[class*="logo-brand-disney"] .logo-face { filter:saturate(1.6) contrast(1.16) brightness(1.25) drop-shadow(0 0 9px rgba(50,155,255,.5)) drop-shadow(0 0 18px rgba(145,76,255,.36)) drop-shadow(0 18px 28px rgba(0,0,0,.38)); }

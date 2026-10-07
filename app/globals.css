@@ -1568,3 +1568,23 @@ img[src="/logos/openai.svg"] {
 .logo-face { filter:saturate(1.45) contrast(1.12) brightness(1.16) drop-shadow(0 0 8px rgba(88,171,255,.24)) drop-shadow(0 18px 28px rgba(0,0,0,.42)); }
 .logo-depth img { filter:saturate(1.38) brightness(.76) contrast(1.12) drop-shadow(0 5px 8px rgba(0,0,0,.42)); }
 [class*="logo-brand-disney"] .logo-face { image-rendering:auto; filter:saturate(1.7) contrast(1.2) brightness(1.28) drop-shadow(0 0 3px rgba(255,255,255,.9)) drop-shadow(0 0 7px rgba(45,175,255,.72)) drop-shadow(0 0 12px rgba(125,80,255,.34)) drop-shadow(0 16px 24px rgba(0,0,0,.34)); }
+
+
+/* CUSTOMER ORDER EXPIRATION */
+.profile-order-expiration {
+  color:#788196;
+  font-size:7px;
+  letter-spacing:.02em;
+  white-space:nowrap;
+}
+.profile-order-expiration.is-expired {
+  color:#ff9a9a;
+}
+.profile-order-detail-expired {
+  color:#ff9a9a!important;
+}
+@media (max-width:600px) {
+  .profile-order-item { align-items:flex-start; }
+  .profile-order-meta { min-width:86px; }
+  .profile-order-expiration { white-space:normal; text-align:right; line-height:1.25; }
+}

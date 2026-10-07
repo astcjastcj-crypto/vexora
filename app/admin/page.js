@@ -19,6 +19,104 @@ const tabs = [
   ["accesses", "Accesos", "⌁"],
 ];
 
+const prepareLogoForUpload = async (file) => {
+  if (!file) return null;
+  const sourceUrl = URL.createObjectURL(file);
+  try {
+    const image = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("No pudimos leer el logo seleccionado."));
+      img.src = sourceUrl;
+    });
+    const sourceWidth = image.naturalWidth || image.width;
+    const sourceHeight = image.naturalHeight || image.height;
+    if (!sourceWidth || !sourceHeight) throw new Error("El logo no tiene dimensiones válidas.");
+    const maxSize = 1400;
+    const scale = Math.min(1, maxSize / Math.max(sourceWidth, sourceHeight));
+    const width = Math.max(1, Math.round(sourceWidth * scale));
+    const height = Math.max(1, Math.round(sourceHeight * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) throw new Error("Tu navegador no permite procesar el logo.");
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(image, 0, 0, width, height);
+
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const pixels = imageData.data;
+    const total = width * height;
+    const background = new Uint8Array(total);
+    const queue = new Int32Array(total);
+    let head = 0;
+    let tail = 0;
+    const pixelIndex = (x, y) => y * width + x;
+
+    const isBrightNeutral = (index) => {
+      const i = index * 4;
+      const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2], a = pixels[i + 3];
+      return a > 0 && r >= 232 && g >= 232 && b >= 232 && Math.max(r, g, b) - Math.min(r, g, b) <= 24;
+    };
+
+    const cornerIndexes = [
+      pixelIndex(0, 0), pixelIndex(width - 1, 0),
+      pixelIndex(0, height - 1), pixelIndex(width - 1, height - 1)
+    ];
+    const brightCorners = cornerIndexes.filter(isBrightNeutral);
+
+    if (brightCorners.length >= 2) {
+      const seed = brightCorners[0] * 4;
+      const sr = pixels[seed], sg = pixels[seed + 1], sb = pixels[seed + 2];
+      const canRemove = (index) => {
+        const i = index * 4;
+        const alpha = pixels[i + 3];
+        return alpha > 0 &&
+          Math.max(Math.abs(pixels[i] - sr), Math.abs(pixels[i + 1] - sg), Math.abs(pixels[i + 2] - sb)) <= 42;
+      };
+      const enqueue = (index) => {
+        if (background[index]) return;
+        background[index] = 1;
+        queue[tail++] = index;
+      };
+
+      for (let x = 0; x < width; x += 1) {
+        const top = pixelIndex(x, 0), bottom = pixelIndex(x, height - 1);
+        if (canRemove(top)) enqueue(top);
+        if (canRemove(bottom)) enqueue(bottom);
+      }
+      for (let y = 0; y < height; y += 1) {
+        const left = pixelIndex(0, y), right = pixelIndex(width - 1, y);
+        if (canRemove(left)) enqueue(left);
+        if (canRemove(right)) enqueue(right);
+      }
+
+      while (head < tail) {
+        const index = queue[head++];
+        const x = index % width, y = Math.floor(index / width);
+        const neighbors = [
+          x > 0 ? index - 1 : -1, x < width - 1 ? index + 1 : -1,
+          y > 0 ? index - width : -1, y < height - 1 ? index + width : -1
+        ];
+        for (const neighbor of neighbors) {
+          if (neighbor >= 0 && !background[neighbor] && canRemove(neighbor)) enqueue(neighbor);
+        }
+      }
+
+      for (let index = 0; index < total; index += 1) {
+        if (background[index]) pixels[index * 4 + 3] = 0;
+      }
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    if (!blob) throw new Error("No pudimos preparar el logo.");
+    return blob;
+  } finally {
+    URL.revokeObjectURL(sourceUrl);
+  }
+};
+
 export default function AdminPage() {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -294,9 +392,12 @@ export default function AdminPage() {
     try {
       let logoUrl = catalogForm.logoUrl || "";
       if (catalogForm.logoFile) {
-        const safeName = catalogForm.logoFile.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-");
-        const path = Date.now() + "-" + safeName;
-        const { error: uploadError } = await supabase.storage.from("product-logos").upload(path, catalogForm.logoFile, { upsert: true, contentType: catalogForm.logoFile.type || "image/png" });
+        const preparedLogo = await prepareLogoForUpload(catalogForm.logoFile);
+        const baseName = catalogForm.logoFile.name.replace(/\.[^/.]+$/, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "logo";
+        const path = Date.now() + "-" + baseName + ".png";
+        const { error: uploadError } = await supabase.storage
+          .from("product-logos")
+          .upload(path, preparedLogo, { upsert: true, contentType: "image/png", cacheControl: "31536000" });
         if (uploadError) throw uploadError;
         const { data: publicData } = supabase.storage.from("product-logos").getPublicUrl(path);
         logoUrl = publicData.publicUrl;

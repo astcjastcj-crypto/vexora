@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { supabase } from "../../../utils/supabase/client";
 
 const brands = {
@@ -193,9 +193,11 @@ const makeSlug = (value = "") =>
 
 export default function BrandPage() {
   const params = useParams();
-  const rawSlug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug || "";
+  const pathname = usePathname();
+  const rawSlug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug || pathname?.split("/").filter(Boolean).pop() || "";
   const slug = makeSlug(rawSlug);
-  const fallbackBrand = brands[slug] || null;
+  const resolvedSlug = slug === "geforce-now" || pathname?.toLowerCase().includes("/marca/geforce-now") ? "geforce-now" : slug;
+  const fallbackBrand = brands[resolvedSlug] || null;
   const [brand, setBrand] = useState(fallbackBrand);
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -236,7 +238,7 @@ export default function BrandPage() {
       }
 
       const product = (productsData || []).find(
-        (item) => makeSlug(item.name) === slug
+        (item) => makeSlug(item.name) === resolvedSlug
       );
 
       if (!product) {
@@ -298,13 +300,13 @@ export default function BrandPage() {
     return () => {
       mounted = false;
     };
-  }, [slug]);
+  }, [resolvedSlug]);
 
   useEffect(() => {
     setTermsAccepted(false);
     setOrderMessage("");
     setSelectedPlan(null);
-  }, [slug]);
+  }, [resolvedSlug]);
 
   const createOrderAndContinue = async (channel) => {
     if (!selectedPlan || !termsAccepted || orderBusy) return;

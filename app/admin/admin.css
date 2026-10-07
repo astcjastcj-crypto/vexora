@@ -265,3 +265,144 @@
   .admin-plans-modal{max-height:none;overflow:visible}
   .admin-plans-head{position:sticky;top:0}
 }
+
+
+/* Product benefits manager */
+.admin-benefits-section{
+  display:grid;
+  grid-template-columns:minmax(0,1.35fr) minmax(280px,.75fr);
+  gap:18px;
+  padding:0 22px 22px;
+}
+.admin-benefits-list,.admin-benefit-form{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  background:rgba(255,255,255,.025);
+  padding:18px;
+}
+.admin-benefits-list-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.admin-benefits-list-head>div{
+  min-width:0;
+}
+.admin-benefits-list-head strong{
+  display:block;
+  font-size:13px;
+  color:#aab1c0;
+}
+.admin-benefits-subtitle{
+  display:block;
+  margin-top:5px;
+  color:#6f788a;
+  font-size:9px;
+  line-height:1.45;
+}
+.admin-benefit-card{
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  padding:13px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  animation:adminRowIn .45s cubic-bezier(.16,.8,.2,1) both;
+}
+.admin-benefit-card:last-child{
+  border-bottom:0;
+}
+.admin-benefit-number{
+  width:30px;
+  height:30px;
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(139,124,255,.16);
+  background:rgba(139,124,255,.055);
+  color:#aaa0ff;
+  font-size:10px;
+  font-weight:800;
+}
+.admin-benefit-copy{
+  min-width:0;
+}
+.admin-benefit-copy strong{
+  display:block;
+  margin-top:5px;
+  color:#eef0f6;
+  font-size:13px;
+  line-height:1.45;
+}
+.admin-benefit-form{
+  display:grid;
+  align-content:start;
+  gap:12px;
+}
+.admin-benefit-form h4{
+  margin:5px 0 8px;
+  font-size:18px;
+}
+.admin-benefit-form>div>span{
+  font-size:10px;
+  letter-spacing:.16em;
+  color:#8f86df;
+  font-weight:800;
+}
+.admin-benefit-form label{
+  display:grid;
+  gap:6px;
+}
+.admin-benefit-form label>span{
+  font-size:11px;
+  color:#8d95a5;
+}
+.admin-benefit-form input,.admin-benefit-form textarea{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;
+  background:rgba(4,7,14,.72);
+  color:#eef0f6;
+  padding:11px 12px;
+  outline:none;
+  font:inherit;
+}
+.admin-benefit-form textarea{
+  resize:vertical;
+  min-height:78px;
+}
+.admin-benefit-form input:focus,.admin-benefit-form textarea:focus{
+  border-color:rgba(170,160,255,.5);
+  box-shadow:0 0 0 3px rgba(170,160,255,.08);
+}
+@media(max-width:800px){
+  .admin-benefits-section{
+    grid-template-columns:1fr;
+    padding:0 12px 12px;
+  }
+  .admin-benefits-list,.admin-benefit-form{
+    padding:14px;
+  }
+  .admin-benefits-list-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .admin-benefits-list-head button{
+    width:100%;
+  }
+  .admin-benefit-card{
+    grid-template-columns:30px minmax(0,1fr);
+  }
+  .admin-benefit-card .admin-plan-actions{
+    grid-column:1/-1;
+  }
+  .admin-benefit-card .admin-plan-actions button{
+    flex:1;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .admin-benefit-card{animation:none}
+}

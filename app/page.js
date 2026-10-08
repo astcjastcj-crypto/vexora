@@ -260,6 +260,36 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [searchOpen]);
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key !== "Escape") return;
+      if (searchOpen) {
+        setSearchOpen(false);
+        return;
+      }
+      if (selectedOrder) {
+        setSelectedOrder(null);
+        return;
+      }
+      if (profileOpen) setProfileOpen(false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [searchOpen, selectedOrder, profileOpen]);
+
+  useEffect(() => {
+    const hasBlockingOverlay = entryOpen || authTransition || searchOpen || profileOpen || Boolean(launching);
+    if (!hasBlockingOverlay) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [entryOpen, authTransition, searchOpen, profileOpen, launching]);
+
   const enterVexora = async () => {
     if (authBusy) return;
     setAuthBusy(true);

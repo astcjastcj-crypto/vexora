@@ -728,9 +728,27 @@ export default function Home() {
 
         <div className="showcase logo-showcase" aria-label="Productos destacados">
           <div className="showcase-glow" />
+          <div className="showcase-light-rig" aria-hidden="true">
+            <span className="showcase-light-ring" />
+            <span className="showcase-light-core" />
+            <span className="showcase-light-beam" />
+            <span className="showcase-light-beam showcase-light-beam-two" />
+          </div>
           <button className="carousel-arrow left" onClick={() => move(-1)} aria-label="Logo anterior">‹</button>
 
           <div className="logo-stage">
+            <span
+              className="logo-floor-shadow"
+              aria-hidden="true"
+              style={{
+                transform: "translate3d(" + (logoPosition.x * 0.34) + "px, " + (148 + logoPosition.y * 0.08) + "px, 0) scale(" + (1 - Math.min(Math.abs(logoPosition.y) / 900, 0.12)) + ")"
+              }}
+            />
+            <span className="logo-platform" aria-hidden="true">
+              <span className="platform-top" />
+              <span className="platform-edge" />
+              <span className="platform-glow" />
+            </span>
             {carouselProducts.map((product, index) => {
               let offset = index - active;
               if (offset > 2) offset -= carouselProducts.length;

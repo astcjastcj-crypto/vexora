@@ -132,9 +132,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-
-  useEffect(() => {
     products.forEach((product) => {
       if (!product.logo) return;
       const image = new Image();
@@ -143,7 +140,10 @@ export default function Home() {
     });
   }, [products]);
 
-   const applySession = async (session) => {
+  useEffect(() => {
+    let mounted = true;
+
+    const applySession = async (session) => {
   if (!mounted) return;
 
   if (!session?.user) {

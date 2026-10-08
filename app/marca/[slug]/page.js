@@ -308,6 +308,26 @@ export default function BrandPage() {
     setSelectedPlan(null);
   }, [resolvedSlug]);
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setSelectedPlan(null);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedPlan) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [selectedPlan]);
+
   const createOrderAndContinue = async (channel) => {
     if (!selectedPlan || !termsAccepted || orderBusy) return;
     setOrderBusy(true);

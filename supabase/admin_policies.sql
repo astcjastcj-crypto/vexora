@@ -57,12 +57,40 @@ with check (
   )
 );
 
+alter table public.profiles enable row level security;
+alter table public.orders enable row level security;
+alter table public.order_items enable row level security;
+alter table public.accesses enable row level security;
+
+drop policy if exists "Users can create own orders" on public.orders;
+create policy "Users can create own orders"
+on public.orders
+for insert
+to authenticated
+with check ((select auth.uid()) = user_id or (select public.is_vexora_admin()));
+
 drop policy if exists "Admins can view all orders" on public.orders;
 create policy "Admins can view all orders"
 on public.orders
 for select
 to authenticated
 using ((select auth.uid()) = user_id or (select public.is_vexora_admin()));
+
+drop policy if exists "VEXORA order ownership guard" on public.orders;
+create policy "VEXORA order ownership guard"
+on public.orders
+as restrictive
+for select
+to authenticated
+using ((select auth.uid()) = user_id or (select public.is_vexora_admin()));
+
+drop policy if exists "VEXORA order insert guard" on public.orders;
+create policy "VEXORA order insert guard"
+on public.orders
+as restrictive
+for insert
+to authenticated
+with check ((select auth.uid()) = user_id or (select public.is_vexora_admin()));
 
 drop policy if exists "Admins can update all orders" on public.orders;
 create policy "Admins can update all orders"
@@ -71,6 +99,23 @@ for update
 to authenticated
 using ((select public.is_vexora_admin()))
 with check ((select public.is_vexora_admin()));
+
+drop policy if exists "VEXORA order update guard" on public.orders;
+create policy "VEXORA order update guard"
+on public.orders
+as restrictive
+for update
+to authenticated
+using ((select public.is_vexora_admin()))
+with check ((select public.is_vexora_admin()));
+
+drop policy if exists "VEXORA order delete guard" on public.orders;
+create policy "VEXORA order delete guard"
+on public.orders
+as restrictive
+for delete
+to authenticated
+using ((select public.is_vexora_admin()));
 
 drop policy if exists "Admins can view all order items" on public.order_items;
 create policy "Admins can view all order items"
@@ -91,7 +136,64 @@ create policy "Admins can insert order items"
 on public.order_items
 for insert
 to authenticated
+with check (
+  (select public.is_vexora_admin())
+  or exists (
+    select 1
+    from public.orders
+    where orders.id = order_items.order_id
+      and orders.user_id = (select auth.uid())
+  )
+);
+
+drop policy if exists "VEXORA order item ownership guard" on public.order_items;
+create policy "VEXORA order item ownership guard"
+on public.order_items
+as restrictive
+for select
+to authenticated
+using (
+  (select public.is_vexora_admin())
+  or exists (
+    select 1
+    from public.orders
+    where orders.id = order_items.order_id
+      and orders.user_id = (select auth.uid())
+  )
+);
+
+drop policy if exists "VEXORA order item insert guard" on public.order_items;
+create policy "VEXORA order item insert guard"
+on public.order_items
+as restrictive
+for insert
+to authenticated
+with check (
+  (select public.is_vexora_admin())
+  or exists (
+    select 1
+    from public.orders
+    where orders.id = order_items.order_id
+      and orders.user_id = (select auth.uid())
+  )
+);
+
+drop policy if exists "VEXORA order item update guard" on public.order_items;
+create policy "VEXORA order item update guard"
+on public.order_items
+as restrictive
+for update
+to authenticated
+using ((select public.is_vexora_admin()))
 with check ((select public.is_vexora_admin()));
+
+drop policy if exists "VEXORA order item delete guard" on public.order_items;
+create policy "VEXORA order item delete guard"
+on public.order_items
+as restrictive
+for delete
+to authenticated
+using ((select public.is_vexora_admin()));
 
 drop policy if exists "Admins can update order items" on public.order_items;
 create policy "Admins can update order items"

@@ -74,7 +74,6 @@ export default function Home() {
       });
   const dragRef = useRef(null);
   const movedRef = useRef(false);
-  const [launching, setLaunching] = useState(null);
   const searchResults = searchQuery.trim()
     ? products.filter((product) => (product.name + " " + product.type).toLowerCase().includes(searchQuery.trim().toLowerCase()))
     : products;
@@ -130,15 +129,6 @@ export default function Home() {
 
     return () => { mounted = false; };
   }, []);
-
-  useEffect(() => {
-    products.forEach((product) => {
-      if (!product.logo) return;
-      const image = new Image();
-      image.decoding = "async";
-      image.src = product.logo;
-    });
-  }, [products]);
 
   useEffect(() => {
     let mounted = true;
@@ -289,7 +279,7 @@ export default function Home() {
   }, [searchOpen, selectedOrder, profileOpen]);
 
   useEffect(() => {
-    const hasBlockingOverlay = entryOpen || authTransition || searchOpen || profileOpen || Boolean(launching);
+    const hasBlockingOverlay = entryOpen || authTransition || searchOpen || profileOpen;
     if (!hasBlockingOverlay) return;
 
     const previousOverflow = document.body.style.overflow;
@@ -298,7 +288,7 @@ export default function Home() {
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [entryOpen, authTransition, searchOpen, profileOpen, launching]);
+  }, [entryOpen, authTransition, searchOpen, profileOpen]);
 
   const enterVexora = async () => {
     if (authBusy) return;
@@ -605,11 +595,7 @@ export default function Home() {
       .replace(/^-+|-+$/g, "");
     const path = "/marca/" + encodeURIComponent(slug);
     router.prefetch(path);
-    setLaunching(product);
-    window.setTimeout(() => {
-      setLaunching(null);
-      router.push(path);
-    }, 2350);
+    router.push(path);
   };
 
   const selectCategory = (item) => {
@@ -710,24 +696,6 @@ export default function Home() {
               <small>PREPARANDO TU EXPERIENCIA DIGITAL</small>
             </div>
           )}
-        </div>
-      )}
-
-      {launching && (
-        <div className={"product-launch brand-launch-" + launching.name.toLowerCase().replace(/\s+/g, "-")} aria-hidden="true">
-          <div className="launch-vignette" />
-          <div className="launch-particle launch-particle-one" />
-          <div className="launch-particle launch-particle-two" />
-          <div className="launch-particle launch-particle-three" />
-          <div className="launch-ring launch-ring-one" />
-          <div className="launch-ring launch-ring-two" />
-          <div className="launch-ring launch-ring-three" />
-          <div className="launch-energy" />
-          <div className="launch-logo-wrap">
-            <span className="launch-logo-depth" />
-            <img src={launching.logo} alt="" />
-          </div>
-          <div className="launch-label"><span>VEXORA</span><strong>{launching.name.toUpperCase()}</strong><small>PREPARANDO TU ACCESO</small></div>
         </div>
       )}
 

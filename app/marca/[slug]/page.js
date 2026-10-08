@@ -223,14 +223,6 @@ export default function BrandPage() {
     const loadBrand = async () => {
       setCatalogLoading(true);
 
-      // GeForce NOW tiene una ficha propia en el código para que nunca dependa
-      // de que exista un registro activo del producto en Supabase.
-      if (resolvedSlug === "geforce-now") {
-        setBrand(brands["geforce-now"]);
-        setCatalogLoading(false);
-        return;
-      }
-
       const { data: productsData, error: productsError } = await supabase
         .from("products")
         .select("id,name,category,description,logo_url,price_from,active")
@@ -294,11 +286,11 @@ export default function BrandPage() {
       setBrand({
         name: product.name,
         type: product.category,
-        logo: product.logo_url || fallbackBrand.logo,
-        intro: product.description || fallbackBrand.intro,
+        logo: product.logo_url || fallbackBrand?.logo || "",
+        intro: product.description || fallbackBrand?.intro || "Conoce este acceso digital disponible en VEXORA.",
         benefitTitle: fallbackBrand?.benefitTitle || "Beneficios",
-        benefits: benefits.length ? benefits : fallbackBenefits,
-        plans: plans.length ? plans : fallbackPlans,
+        benefits: benefits.length ? benefits : (fallbackBrand ? fallbackBenefits : []),
+        plans: plans.length ? plans : (fallbackBrand ? fallbackPlans : []),
       });
       setCatalogLoading(false);
     };

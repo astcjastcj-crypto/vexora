@@ -33,10 +33,11 @@ const fallbackProducts = [
 ];
 
 const categories = ["Todos", "IA", "Streaming", "Gaming", "Productividad", "Diseño"];
+const visibleCatalogNames = new Set(["chatgpt", "geforce now", "canva pro", "spotify premium"]);
 
 export default function Home() {
   const router = useRouter();
-  const [products, setProducts] = useState(fallbackProducts);
+  const [products, setProducts] = useState(() => fallbackProducts.filter((product) => visibleCatalogNames.has(product.name.trim().toLowerCase())));
   const carouselProducts = products.filter((product) => product.logoConfigured && product.logo);
   const [active, setActive] = useState(0);
   const [category, setCategory] = useState("Todos");
@@ -88,9 +89,11 @@ export default function Home() {
 
       if (!mounted || error || !data) return;
 
+      const visibleData = data.filter((item) => visibleCatalogNames.has((item.name || "").trim().toLowerCase()));
+
       setProducts((current) => {
         const catalogByName = new Map(
-          data.map((item) => [item.name.trim().toLowerCase(), item])
+          visibleData.map((item) => [item.name.trim().toLowerCase(), item])
         );
         const merged = current.map((product) => {
           const item = catalogByName.get(product.name.trim().toLowerCase());
@@ -105,7 +108,7 @@ export default function Home() {
         });
 
         const existingNames = new Set(merged.map((product) => product.name.trim().toLowerCase()));
-        data.forEach((item) => {
+        visibleData.forEach((item) => {
           const name = item.name?.trim();
           if (!name || existingNames.has(name.toLowerCase())) return;
           merged.push({

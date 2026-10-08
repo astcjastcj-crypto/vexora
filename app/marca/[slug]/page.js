@@ -382,6 +382,9 @@ export default function BrandPage() {
     } finally { setOrderBusy(false); }
   };
 
+  const safeBenefits = Array.isArray(brand?.benefits) ? brand.benefits : [];
+  const safePlans = Array.isArray(brand?.plans) ? brand.plans : [];
+
   if (!brand) {
     return (
       <main className="brand-page">
@@ -432,7 +435,7 @@ export default function BrandPage() {
         </div>
 
         <div className="benefits-grid">
-          {brand.benefits.map((benefit, index) => {
+          {safeBenefits.map((benefit, index) => {
             const [legacyNumber, legacyTitle, legacyDescription] = Array.isArray(benefit)
               ? benefit
               : [benefit.number, benefit.title, benefit.description];
@@ -456,9 +459,9 @@ export default function BrandPage() {
           <p>Selecciona un plan y luego coordinamos tu compra directamente con VEXORA.</p>
         </div>
 
-        {brand.plans.length ? (
+        {safePlans.length ? (
           <div className="plans-grid">
-            {brand.plans.map((plan, index) => (
+            {safePlans.map((plan, index) => (
               <article className={"plan-card " + (index === 2 ? "featured" : "")} key={plan.name + plan.price}>
                 {index === 2 && <div className="plan-badge">MÁS ELEGIDO</div>}
                 <div className="plan-number">0{index + 1}</div>

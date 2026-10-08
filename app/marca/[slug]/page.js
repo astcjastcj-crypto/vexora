@@ -373,7 +373,7 @@ export default function BrandPage() {
       });
       if (itemError) throw itemError;
       const shortOrderId = "VEX-" + order.id.slice(0, 8).toUpperCase();
-      const message = "Hola VEXORA, quiero adquirir " + brand.name + " — " + selectedPlan.name + " — " + selectedPlan.price + " — " + selectedPlan.duration + ". Mi pedido es " + shortOrderId + ".";
+      const message = "Hola VEXORA, quiero adquirir " + safeBrand.name + " — " + selectedPlan.name + " — " + selectedPlan.price + " — " + selectedPlan.duration + ". Mi pedido es " + shortOrderId + ".";
       const destination = channel === "telegram" ? "https://t.me/Camerdj?text=" + encodeURIComponent(message) : "https://wa.me/51992491189?text=" + encodeURIComponent(message);
       window.open(destination, "_blank", "noopener,noreferrer");
       setOrderMessage("Pedido creado correctamente. Ahora puedes continuar con VEXORA.");
@@ -384,8 +384,38 @@ export default function BrandPage() {
 
   const safeBenefits = Array.isArray(brand?.benefits) ? brand.benefits : [];
   const safePlans = Array.isArray(brand?.plans) ? brand.plans : [];
+  const isValidLogoSource = (value) =>
+    typeof value === "string" && (/^\//.test(value.trim()) || /^https?:\/\//i.test(value.trim()));
+  const safeBrand = brand
+    ? {
+        name: String(brand.name || "Acceso digital"),
+        type: String(brand.type || "Digital"),
+        logo: isValidLogoSource(brand.logo) ? brand.logo.trim() : (fallbackBrand?.logo || "/favicon.svg"),
+        intro: String(brand.intro || "Conoce este acceso digital disponible en VEXORA."),
+        benefitTitle: String(brand.benefitTitle || "Beneficios"),
+        benefits: safeBenefits,
+        plans: safePlans,
+      }
+    : null;
 
-  if (!brand && !catalogLoading) {
+  if (catalogLoading && !brand) {
+    return (
+      <main className="brand-page">
+        <header className="brand-page-topbar">
+          <Link href="/" className="back-button">← Volver</Link>
+          <span className="brand-page-title">VEXORA</span>
+          <span className="brand-page-status">CATÁLOGO</span>
+        </header>
+        <section className="plans-empty brand-unavailable">
+          <span>CARGANDO CATÁLOGO</span>
+          <h3>Preparando este acceso.</h3>
+          <p>Estamos cargando la información del producto.</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (!safeBrand) {
     return (
       <main className="brand-page">
         <header className="brand-page-topbar">
@@ -418,24 +448,24 @@ export default function BrandPage() {
         <div className="brand-hero-logo">
           <span className="brand-orbit orbit-a" />
           <span className="brand-orbit orbit-b" />
-          <img src={brand.logo} alt={brand.name + " logo"} />
+          <img src={safeBrand.logo} alt={safeBrand.name + " logo"} onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackBrand?.logo || "/favicon.svg"; }} />
         </div>
         <div className="brand-hero-copy">
-          <span>{brand.type}</span>
-          <h1>{brand.name}</h1>
-          <p>{brand.intro}</p>
+          <span>{safeBrand.type}</span>
+          <h1>{safeBrand.name}</h1>
+          <p>{safeBrand.intro}</p>
         </div>
       </section>
 
       <section className="benefits-section">
         <div className="benefits-heading">
           <span>CONOCE EL SERVICIO</span>
-          <h2>{brand.benefitTitle}</h2>
-          <p>Conoce los beneficios principales de {brand.name} antes de elegir el acceso que más te conviene.</p>
+          <h2>{safeBrand.benefitTitle}</h2>
+          <p>Conoce los beneficios principales de {safeBrand.name} antes de elegir el acceso que más te conviene.</p>
         </div>
 
         <div className="benefits-grid">
-          {safeBenefits.map((benefit, index) => {
+          {safeBrand.benefits.map((benefit, index) => {
             const [legacyNumber, legacyTitle, legacyDescription] = Array.isArray(benefit)
               ? benefit
               : [benefit.number, benefit.title, benefit.description];
@@ -459,9 +489,9 @@ export default function BrandPage() {
           <p>Selecciona un plan y luego coordinamos tu compra directamente con VEXORA.</p>
         </div>
 
-        {safePlans.length ? (
+        {safeBrand.plans.length ? (
           <div className="plans-grid">
-            {safePlans.map((plan, index) => (
+            {safeBrand.plans.map((plan, index) => (
               <article className={"plan-card " + (index === 2 ? "featured" : "")} key={plan.name + plan.price}>
                 {index === 2 && <div className="plan-badge">MÁS ELEGIDO</div>}
                 <div className="plan-number">0{index + 1}</div>
@@ -476,7 +506,7 @@ export default function BrandPage() {
         ) : (
           <div className="plans-empty">
             <span>PRÓXIMAMENTE</span>
-            <h3>Estamos preparando los planes de {brand.name}.</h3>
+            <h3>Estamos preparando los planes de {safeBrand.name}.</h3>
             <p>Vuelve pronto para ver los accesos disponibles.</p>
           </div>
         )}
@@ -487,8 +517,8 @@ export default function BrandPage() {
           <div className="purchase-modal">
             <button className="purchase-close" onClick={() => setSelectedPlan(null)} aria-label="Cerrar">×</button>
             <div className="purchase-modal-head">
-              <div className="purchase-modal-logo"><img src={brand.logo} alt="" /></div>
-              <div><span>{brand.name} · {selectedPlan.duration}</span><h2>{selectedPlan.name}</h2><strong>{selectedPlan.price}</strong></div>
+              <div className="purchase-modal-logo"><img src={safeBrand.logo} alt="" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackBrand?.logo || "/favicon.svg"; }} /></div>
+              <div><span>{safeBrand.name} · {selectedPlan.duration}</span><h2>{selectedPlan.name}</h2><strong>{selectedPlan.price}</strong></div>
             </div>
             <div className="purchase-info">
               <span className="purchase-kicker">ANTES DE CONTINUAR</span>

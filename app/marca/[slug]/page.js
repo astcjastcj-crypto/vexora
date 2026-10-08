@@ -385,7 +385,7 @@ export default function BrandPage() {
   const safeBenefits = Array.isArray(brand?.benefits) ? brand.benefits : [];
   const safePlans = Array.isArray(brand?.plans) ? brand.plans : [];
 
-  if (!brand) {
+  if (!brand && !catalogLoading) {
     return (
       <main className="brand-page">
         <header className="brand-page-topbar">

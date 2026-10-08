@@ -134,6 +134,15 @@ export default function Home() {
   useEffect(() => {
     let mounted = true;
 
+  useEffect(() => {
+    products.forEach((product) => {
+      if (!product.logo) return;
+      const image = new Image();
+      image.decoding = "async";
+      image.src = product.logo;
+    });
+  }, [products]);
+
    const applySession = async (session) => {
   if (!mounted) return;
 
@@ -600,7 +609,7 @@ export default function Home() {
     window.setTimeout(() => {
       setLaunching(null);
       router.push(path);
-    }, 2050);
+    }, 2350);
   };
 
   const selectCategory = (item) => {

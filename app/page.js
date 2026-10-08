@@ -564,6 +564,13 @@ export default function Home() {
     dragRef.current = null;
     setIsLogoDragging(false);
     setLogoPosition({ x: 0, y: 0, rotate: 0 });
+
+    // Conserva el objetivo del arrastre solo para bloquear el click
+    // fantasma del mismo logo. Los demás productos deben seguir
+    // siendo clicables inmediatamente.
+    if (activeDrag && movedRef.current) {
+      movedRef.current = activeDrag.target;
+    }
   };
 
   const startDrag = (event) => {
@@ -602,8 +609,7 @@ export default function Home() {
     document.addEventListener("pointercancel", documentUpHandler);
   };
 
-    const openProduct = (product) => {
-    if (movedRef.current) return;
+  const getProductPath = (product) => {
     const slug = product.name
       .toString()
       .trim()
@@ -613,9 +619,25 @@ export default function Home() {
       .replace(/\\+/g, "-")
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
-    const path = "/marca/" + encodeURIComponent(slug);
-    router.prefetch(path);
-    router.push(path);
+    return "/marca/" + encodeURIComponent(slug);
+  };
+
+  const prefetchProduct = (product) => {
+    const path = getProductPath(product);
+    if (path) router.prefetch(path);
+  };
+
+  const openProduct = (product, event) => {
+    // Si hubo un arrastre, solo bloqueamos el click generado
+    // por el mismo elemento arrastrado. Cualquier otro producto
+    // debe abrirse al primer click.
+    if (movedRef.current) {
+      const draggedTarget = movedRef.current;
+      movedRef.current = false;
+      if (event?.currentTarget === draggedTarget) return;
+    }
+
+    router.push(getProductPath(product));
   };
 
   const selectCategory = (item) => {
@@ -769,11 +791,12 @@ export default function Home() {
                   type="button"
                   className="search-result"
                   key={product.name}
-                  onClick={() => {
+                  onClick={(event) => {
                     setSearchOpen(false);
                     setSearchQuery("");
-                    openProduct(product);
+                    openProduct(product, event);
                   }}
+                  onMouseEnter={() => prefetchProduct(product)}
                   style={{ "--search-delay": (index * 55) + "ms" }}
                 >
                   <span className="search-result-logo"><img src={product.logo} alt="" /></span>
@@ -856,13 +879,9 @@ export default function Home() {
                   onPointerUp={endDrag}
                   onPointerCancel={endDrag}
                   onDoubleClick={() => setLogoPosition({ x: 0, y: 0, rotate: 0 })}
-                  onClick={() => {
-                    if (movedRef.current) {
-                      movedRef.current = false;
-                      return;
-                    }
-                    openProduct(product);
-                  }}
+                  onClick={(event) => openProduct(product, event)}
+                  onMouseEnter={() => prefetchProduct(product)}
+                  onFocus={() => prefetchProduct(product)}
                   aria-label={"Abrir " + product.name}
                   style={{
                     transform: "translate3d(" + logoPosition.x + "px, " + logoPosition.y + "px, 100px) rotateY(" + logoPosition.rotate + "deg) rotateZ(" + (logoPosition.rotate * 0.08) + "deg)",
@@ -955,20 +974,22 @@ export default function Home() {
             <article
               className="mini-product"
               key={product.name}
-              onClick={() => openProduct(product)}
+              onClick={(event) => openProduct(product, event)}
+              onMouseEnter={() => prefetchProduct(product)}
+              onFocus={() => prefetchProduct(product)}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault();
-                  openProduct(product);
+                  openProduct(product, event);
                 }
               }}
               style={{ "--product-delay": (index * 70) + "ms" }}
             >
               <div className={"mini-mark mark-" + index}><img src={product.logo} alt={product.name + " logo"} /></div>
               <div><span>{product.type}</span><h3>{product.name}</h3><p>{product.price}</p></div>
-              <button onClick={(event) => { event.stopPropagation(); openProduct(product); }} aria-label={"Ver planes de " + product.name}>↗</button>
+              <button onClick={(event) => { event.stopPropagation(); openProduct(product, event); }} aria-label={"Ver planes de " + product.name}>↗</button>
             </article>
           ))}
           {filteredProducts.length === 0 && (

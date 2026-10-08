@@ -802,8 +802,8 @@ img[src="/logos/openai.svg"] {
   place-items: center;
   padding: 22px;
   background: rgba(2,4,9,.78);
-  backdrop-filter: blur(14px);
-  animation: purchaseOverlayIn .32s ease both;
+  backdrop-filter: blur(7px);
+  animation: purchaseOverlayIn .18s ease both;
 }
 .purchase-modal {
   position: relative;
@@ -819,7 +819,7 @@ img[src="/logos/openai.svg"] {
   border-radius: 28px;
   background: linear-gradient(145deg, rgba(18,23,37,.98), rgba(6,9,16,.98));
   box-shadow: 0 35px 100px rgba(0,0,0,.55), 0 0 70px rgba(117,103,255,.1);
-  animation: purchaseModalIn .5s cubic-bezier(.16,.8,.2,1) both;
+  animation: purchaseModalIn .24s cubic-bezier(.2,.8,.2,1) both;
 }
 .purchase-close {
   position:absolute;
@@ -871,9 +871,9 @@ img[src="/logos/openai.svg"] {
   border:1px solid rgba(255,255,255,.065);
   border-radius:15px;
   background:rgba(255,255,255,.025);
-  animation:purchaseRuleIn .45s cubic-bezier(.2,.8,.2,1) both;
+  animation:purchaseRuleIn .18s cubic-bezier(.2,.8,.2,1) both;
 }
-.purchase-rules > div:nth-child(2){animation-delay:.04s}.purchase-rules > div:nth-child(3){animation-delay:.08s}.purchase-rules > div:nth-child(4){animation-delay:.12s}.purchase-rules > div:nth-child(5){animation-delay:.16s}.purchase-rules > div:nth-child(6){animation-delay:.2s}
+.purchase-rules > div:nth-child(2){animation-delay:0s}.purchase-rules > div:nth-child(3){animation-delay:0s}.purchase-rules > div:nth-child(4){animation-delay:0s}.purchase-rules > div:nth-child(5){animation-delay:0s}.purchase-rules > div:nth-child(6){animation-delay:0s}
 .purchase-rules b { color:#5e6678;font:600 9px 'Space Grotesk';padding-top:2px; }
 .purchase-rules span { color:#7f889a;font-size:10px;line-height:1.65; }
 .purchase-rules strong { display:block;color:#dce0e8;font-size:11px;margin-bottom:2px; }

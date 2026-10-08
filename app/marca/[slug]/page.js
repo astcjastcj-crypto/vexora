@@ -377,23 +377,6 @@ export default function BrandPage() {
     } finally { setOrderBusy(false); }
   };
 
-  if (catalogLoading) {
-    return (
-      <main className="brand-page">
-        <header className="brand-page-topbar">
-          <Link href="/" className="back-button">← Volver</Link>
-          <span className="brand-page-title">VEXORA</span>
-          <span className="brand-page-status">CARGANDO</span>
-        </header>
-        <section className="plans-empty brand-unavailable">
-          <span>CARGANDO CATÁLOGO</span>
-          <h3>Preparando este acceso.</h3>
-          <p>Estamos sincronizando los planes disponibles.</p>
-        </section>
-      </main>
-    );
-  }
-
   if (!brand) {
     return (
       <main className="brand-page">
@@ -468,13 +451,7 @@ export default function BrandPage() {
           <p>Selecciona un plan y luego coordinamos tu compra directamente con VEXORA.</p>
         </div>
 
-        {catalogLoading ? (
-          <div className="plans-empty">
-            <span>CARGANDO CATÁLOGO</span>
-            <h3>Preparando los accesos de {brand.name}.</h3>
-            <p>Estamos sincronizando planes y beneficios.</p>
-          </div>
-        ) : brand.plans.length ? (
+        {brand.plans.length ? (
           <div className="plans-grid">
             {brand.plans.map((plan, index) => (
               <article className={"plan-card " + (index === 2 ? "featured" : "")} key={plan.name + plan.price}>

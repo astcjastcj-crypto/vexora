@@ -5,17 +5,17 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../utils/supabase/client";
 
 const fallbackProducts = [
-  { name: "ChatGPT", type: "Inteligencia Artificial", logo: "/logos/openai.svg", price: "Consultar precio" },
+  { name: "ChatGPT", type: "Inteligencia Artificial", logo: "/logos/openai.svg", logoConfigured: true, price: "Consultar precio" },
   { name: "Gemini", type: "Inteligencia Artificial", logo: "/logos/gemini.svg", price: "Consultar precio" },
   { name: "Netflix", type: "Streaming", logo: "https://cdn.simpleicons.org/netflix", price: "Consultar precio" },
-  { name: "Canva Pro", type: "Diseño", logo: "/logos/canva.svg", price: "Consultar precio" },
+  { name: "Canva Pro", type: "Diseño", logo: "/logos/canva.svg", logoConfigured: true, price: "Consultar precio" },
   { name: "Disney+", type: "Streaming", logo: "https://cdn.simpleicons.org/disneyplus", price: "Consultar precio" },
   { name: "NordVPN", type: "Productividad", logo: "https://cdn.simpleicons.org/nordvpn", price: "Consultar precio" },
-  { name: "GeForce NOW", type: "Gaming", logo: "https://upload.wikimedia.org/wikipedia/commons/4/4d/GeForce_Now_logo_%282022%29.svg", price: "Consultar precio" },
+  { name: "GeForce NOW", type: "Gaming", logo: "https://upload.wikimedia.org/wikipedia/commons/4/4d/GeForce_Now_logo_%282022%29.svg", logoConfigured: true, price: "Consultar precio" },
   { name: "Microsoft 365", type: "Productividad", logo: "https://www.google.com/s2/favicons?domain=microsoft.com&sz=256", price: "Consultar precio" },
   { name: "CapCut Pro", type: "Diseño", logo: "https://www.google.com/s2/favicons?domain=capcut.com&sz=256", price: "Consultar precio" },
   { name: "YouTube Premium", type: "Streaming", logo: "https://cdn.simpleicons.org/youtube", price: "Consultar precio" },
-  { name: "Spotify Premium", type: "Streaming", logo: "https://cdn.simpleicons.org/spotify", price: "Consultar precio" },
+  { name: "Spotify Premium", type: "Streaming", logo: "https://cdn.simpleicons.org/spotify", logoConfigured: true, price: "Consultar precio" },
   { name: "IPTV", type: "Streaming", logo: "/logos/iptv.svg", price: "Consultar precio" },
   { name: "Crunchyroll", type: "Streaming", logo: "https://cdn.simpleicons.org/crunchyroll", price: "Consultar precio" },
   { name: "Hosting Cloud", type: "Productividad", logo: "https://cdn.simpleicons.org/cloudflare", price: "Consultar precio" },
@@ -98,8 +98,8 @@ export default function Home() {
           return {
             ...product,
             type: item.category || product.type,
-            logo: item.logo_url || product.logo,
-            logoConfigured: Boolean(item.logo_url),
+            logo: item.logo_url || (product.logoConfigured ? product.logo : ""),
+            logoConfigured: Boolean(item.logo_url) || Boolean(product.logoConfigured),
             price: Number(item.price_from || 0) > 0 ? "Desde S/" + Number(item.price_from).toFixed(0) : product.price,
           };
         });
@@ -112,6 +112,7 @@ export default function Home() {
             name,
             type: item.category || "Otros",
             logo: item.logo_url || "",
+            logoConfigured: Boolean(item.logo_url),
             price: Number(item.price_from || 0) > 0 ? "Desde S/" + Number(item.price_from).toFixed(0) : "Consultar precio",
           });
         });

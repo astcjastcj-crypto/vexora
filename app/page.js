@@ -85,20 +85,6 @@ export default function Home() {
     : products;
 
   useEffect(() => {
-    products.forEach((product) => {
-      const slug = String(product.name || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\\u0300-\\u036f]/g, "")
-        .replace(/\\+/g, "-")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
-      if (slug) router.prefetch("/marca/" + encodeURIComponent(slug));
-    });
-  }, [products, router]);
-
-  useEffect(() => {
     let mounted = true;
 
     const loadPublicCatalog = async () => {
@@ -796,6 +782,7 @@ export default function Home() {
                     setSearchQuery("");
                     openProduct(product, event);
                   }}
+                  onPointerDown={() => prefetchProduct(product)}
                   onMouseEnter={() => prefetchProduct(product)}
                   style={{ "--search-delay": (index * 55) + "ms" }}
                 >
@@ -880,6 +867,7 @@ export default function Home() {
                   onPointerCancel={endDrag}
                   onDoubleClick={() => setLogoPosition({ x: 0, y: 0, rotate: 0 })}
                   onClick={(event) => openProduct(product, event)}
+                  onPointerDown={() => prefetchProduct(product)}
                   onMouseEnter={() => prefetchProduct(product)}
                   onFocus={() => prefetchProduct(product)}
                   aria-label={"Abrir " + product.name}
@@ -975,6 +963,7 @@ export default function Home() {
               className="mini-product"
               key={product.name}
               onClick={(event) => openProduct(product, event)}
+              onPointerDown={() => prefetchProduct(product)}
               onMouseEnter={() => prefetchProduct(product)}
               onFocus={() => prefetchProduct(product)}
               role="button"

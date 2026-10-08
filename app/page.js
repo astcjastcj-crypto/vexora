@@ -750,11 +750,6 @@ export default function Home() {
                 <button
                   className={"floating-logo main-logo logo-brand-" + product.name.toLowerCase().replace(/\s+/g, "-")}
                   key={product.name}
-                  onPointerDown={startDrag}
-                  onPointerMove={dragLogo}
-                  onPointerUp={endDrag}
-                  onPointerCancel={endDrag}
-                  onDoubleClick={() => setLogoPosition({ x: 0, y: 0, rotate: 0 })}
                   onClick={() => openProduct(product)}
                   aria-label={"Abrir " + product.name}
                   style={{ transform: "translate3d(" + logoPosition.x + "px, " + logoPosition.y + "px, 100px) rotateY(" + logoPosition.rotate + "deg) rotateZ(" + (logoPosition.rotate * 0.08) + "deg)" }}

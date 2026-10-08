@@ -181,8 +181,7 @@ const getPurchaseRules = (brandName, plan) => {
 };
 
 const makeSlug = (value = "") =>
-  value
-    .toString()
+  String(value ?? "")
     .trim()
     .toLowerCase()
     .normalize("NFD")
@@ -223,7 +222,8 @@ export default function BrandPage() {
     const loadBrand = async () => {
       setCatalogLoading(true);
 
-      const { data: productsData, error: productsError } = await supabase
+      try {
+        const { data: productsData, error: productsError } = await supabase
         .from("products")
         .select("id,name,category,description,logo_url,price_from,active")
         .eq("active", true);
@@ -283,7 +283,7 @@ export default function BrandPage() {
         description: "",
       }));
 
-      setBrand({
+        setBrand({
         name: product.name,
         type: product.category,
         logo: product.logo_url || fallbackBrand?.logo || "",
@@ -292,7 +292,12 @@ export default function BrandPage() {
         benefits: benefits.length ? benefits : (fallbackBrand ? fallbackBenefits : []),
         plans: plans.length ? plans : (fallbackBrand ? fallbackPlans : []),
       });
-      setCatalogLoading(false);
+        setCatalogLoading(false);
+      } catch (error) {
+        console.error("Error inesperado cargando la marca:", error);
+        setBrand(fallbackBrand);
+        setCatalogLoading(false);
+      }
     };
 
     loadBrand();

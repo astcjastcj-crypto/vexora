@@ -473,26 +473,10 @@ export default function Home() {
     setLogoPosition({ x: 0, y: 0, rotate: 0 });
   };
 
-  const startDrag = (event) => {
-    if (event.button !== undefined && event.button !== 0) return;
-    event.preventDefault();
-    try {
-      event.currentTarget.setPointerCapture(event.pointerId);
-    } catch {}
-    movedRef.current = false;
-    setIsLogoDragging(true);
-    dragRef.current = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      originX: logoPosition.x,
-      originY: logoPosition.y,
-      originRotate: logoPosition.rotate,
-    };
-  };
-
   const dragLogo = (event) => {
     if (!dragRef.current || event.pointerId !== dragRef.current.pointerId) return;
+    event.preventDefault();
+
     const dx = event.clientX - dragRef.current.startX;
     const dy = event.clientY - dragRef.current.startY;
 
@@ -509,11 +493,65 @@ export default function Home() {
 
   const endDrag = (event) => {
     if (dragRef.current && event?.pointerId !== undefined && event.pointerId !== dragRef.current.pointerId) return;
+
+    const activeDrag = dragRef.current;
+    if (activeDrag?.documentMoveHandler) {
+      document.removeEventListener("pointermove", activeDrag.documentMoveHandler);
+    }
+    if (activeDrag?.documentUpHandler) {
+      document.removeEventListener("pointerup", activeDrag.documentUpHandler);
+      document.removeEventListener("pointercancel", activeDrag.documentUpHandler);
+    }
+
+    if (activeDrag?.target && activeDrag.pointerId !== undefined) {
+      try {
+        if (activeDrag.target.hasPointerCapture(activeDrag.pointerId)) {
+          activeDrag.target.releasePointerCapture(activeDrag.pointerId);
+        }
+      } catch {}
+    }
+
     dragRef.current = null;
     setIsLogoDragging(false);
   };
 
-  const openProduct = (product) => {
+  const startDrag = (event) => {
+    if (event.button !== undefined && event.button !== 0) return;
+    event.preventDefault();
+
+    const target = event.currentTarget;
+    const pointerId = event.pointerId;
+    movedRef.current = false;
+    setIsLogoDragging(true);
+
+    const dragState = {
+      pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: logoPosition.x,
+      originY: logoPosition.y,
+      originRotate: logoPosition.rotate,
+      target,
+      documentMoveHandler: null,
+      documentUpHandler: null,
+    };
+
+    const documentMoveHandler = (moveEvent) => dragLogo(moveEvent);
+    const documentUpHandler = (upEvent) => endDrag(upEvent);
+    dragState.documentMoveHandler = documentMoveHandler;
+    dragState.documentUpHandler = documentUpHandler;
+    dragRef.current = dragState;
+
+    try {
+      target.setPointerCapture(pointerId);
+    } catch {}
+
+    document.addEventListener("pointermove", documentMoveHandler, { passive: false });
+    document.addEventListener("pointerup", documentUpHandler);
+    document.addEventListener("pointercancel", documentUpHandler);
+  };
+
+    const openProduct = (product) => {
     if (movedRef.current) return;
     const slug = product.name
       .toString()
@@ -796,7 +834,12 @@ export default function Home() {
                     openProduct(product);
                   }}
                   aria-label={"Abrir " + product.name}
-                  style={{ transform: "translate3d(" + logoPosition.x + "px, " + logoPosition.y + "px, 100px) rotateY(" + logoPosition.rotate + "deg) rotateZ(" + (logoPosition.rotate * 0.08) + "deg)" }}
+                  style={{
+                    transform: "translate3d(" + logoPosition.x + "px, " + logoPosition.y + "px, 100px) rotateY(" + logoPosition.rotate + "deg) rotateZ(" + (logoPosition.rotate * 0.08) + "deg)",
+                    touchAction: "none",
+                    userSelect: "none",
+                    WebkitUserSelect: "none",
+                  }}
                 >
                   <span className="logo-aura" />
                   <span className="logo-3d">

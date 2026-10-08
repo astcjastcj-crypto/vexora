@@ -62,7 +62,8 @@ export default function Home() {
   const [entryOpen, setEntryOpen] = useState(true);
   const [authTransition, setAuthTransition] = useState(false);
   const [mobileSection, setMobileSection] = useState("inicio");
-  const isAdmin = currentUser?.profile?.role === "admin";
+  const isGuest = Boolean(currentUser?.is_anonymous);
+  const isAdmin = currentUser?.profile?.role === "admin" && !isGuest;
   const [logoPosition, setLogoPosition] = useState({ x: 0, y: 0, rotate: 0 });
   const [isLogoDragging, setIsLogoDragging] = useState(false);
   const filteredProducts = category === "Todos"
@@ -426,7 +427,7 @@ export default function Home() {
 
   const saveProfile = async (event) => {
     event.preventDefault();
-    if (!currentUser || profileBusy) return;
+    if (!currentUser || isGuest || profileBusy) return;
 
     const trimmedName = profileName.trim();
     if (!trimmedName) {
@@ -595,10 +596,7 @@ export default function Home() {
       .replace(/^-+|-+$/g, "");
     const path = "/marca/" + encodeURIComponent(slug);
     router.prefetch(path);
-    setLaunching(product);
-    window.setTimeout(() => {
-      router.push(path);
-    }, 2050);
+    router.push(path);
   };
 
   const selectCategory = (item) => {
@@ -730,11 +728,11 @@ export default function Home() {
         </nav>
         <div className="topbar-actions">
           <button className="icon-button" onClick={() => setSearchOpen(!searchOpen)} aria-label="Buscar"><span>⌕</span></button>
-          <button className={currentUser ? "profile-top-button profile-top-button-active" : "profile-top-button"} onClick={() => setProfileOpen(true)} aria-label="Abrir perfil">
-            <span className="profile-top-avatar">{currentUser?.profile?.avatar_url ? <img src={currentUser.profile.avatar_url} alt="" /> : ((currentUser?.profile?.full_name || currentUser?.user_metadata?.full_name || "").trim()?.charAt(0)?.toUpperCase() || "V")}</span>
+          <button className={currentUser && !isGuest ? "profile-top-button profile-top-button-active" : "profile-top-button"} onClick={() => setProfileOpen(true)} aria-label="Abrir perfil">
+            <span className="profile-top-avatar">{currentUser?.profile?.avatar_url && !isGuest ? <img src={currentUser.profile.avatar_url} alt="" /> : ((currentUser?.profile?.full_name || currentUser?.user_metadata?.full_name || "").trim()?.charAt(0)?.toUpperCase() || "V")}</span>
             <span className="profile-top-copy">
-              <small>{currentUser ? "CUENTA ACTIVA" : "ESPACIO VEXORA"}</small>
-              <strong>{currentUser ? (currentUser.profile?.full_name || currentUser.user_metadata?.full_name || "Mi cuenta") : "Perfil"}</strong>
+              <small>{isGuest ? "MODO INVITADO" : currentUser ? "CUENTA ACTIVA" : "ESPACIO VEXORA"}</small>
+              <strong>{isGuest ? "Invitado" : currentUser ? (currentUser.profile?.full_name || currentUser.user_metadata?.full_name || "Mi cuenta") : "Perfil"}</strong>
             </span>
             <b>⌄</b>
           </button>
@@ -995,7 +993,7 @@ export default function Home() {
             <div className="profile-orb">V</div>
             <span className="section-kicker">ESPACIO VEXORA</span>
 
-            {currentUser ? (
+            {currentUser && !isGuest ? (
               <>
                 <h2>{profileEditing ? "Editar perfil." : "Tu espacio."}</h2>
                 <p>{profileEditing
@@ -1188,6 +1186,52 @@ export default function Home() {
                     </button>
                   </>
                 )}
+              </>
+            ) : isGuest ? (
+              <>
+                <h2>Estás como invitado.</h2>
+                <p>Puedes navegar y comprar sin registrarte. Tu sesión de invitado se mantiene activa para asociar tus pedidos.</p>
+
+                <div className="profile-account-card">
+                  <span className="profile-account-label">ACCESO ACTUAL</span>
+                  <div className="profile-account-avatar"><span>V</span></div>
+                  <div className="profile-account-copy">
+                    <strong>Invitado VEXORA</strong>
+                    <small>Sin cuenta registrada</small>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="profile-login-button"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    setCurrentUser(null);
+                    setAuthMode("login");
+                    setAuthEmail("");
+                    setAuthPassword("");
+                    setAuthMessage("");
+                  }}
+                >
+                  Iniciar sesión
+                </button>
+
+                <button
+                  type="button"
+                  className="profile-secondary-button"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    setCurrentUser(null);
+                    setAuthMode("register");
+                    setAuthEmail("");
+                    setAuthPassword("");
+                    setAuthMessage("");
+                  }}
+                >
+                  Crear cuenta
+                </button>
+
+                <small className="auth-demo-note">Puedes seguir comprando como invitado sin crear una cuenta.</small>
               </>
             ) : (
               <>

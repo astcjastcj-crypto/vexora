@@ -864,7 +864,7 @@ export default function Home() {
                 if (Math.abs(offset) > 2) return null;
 
                 return (
-                  <button className={"floating-logo side-logo side-" + offset + " logo-brand-" + product.name.toLowerCase().replace(/\s+/g, "-")} key={product.name} onClick={() => {\n                    if (movedRef.current) {\n                      movedRef.current = false;\n                      return;\n                    }\n                    openProduct(product);\n                  }} aria-label={"Abrir " + product.name}>
+                  <button className={"floating-logo side-logo side-" + offset + " logo-brand-" + product.name.toLowerCase().replace(/\s+/g, "-")} key={product.name} onClick={(event) => openProduct(product, event)} onMouseEnter={() => prefetchProduct(product)} onFocus={() => prefetchProduct(product)} aria-label={"Abrir " + product.name}>
                     <img src={product.logo} alt={product.name + " logo"} draggable="false" />
                   </button>
                 );

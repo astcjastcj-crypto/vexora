@@ -59,7 +59,13 @@ export default function Home() {
   const [userOrders, setUserOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [entryOpen, setEntryOpen] = useState(true);
+  const [entryOpen, setEntryOpen] = useState(() => {
+    try {
+      return window.sessionStorage.getItem("vexora-entry-seen") !== "1";
+    } catch {
+      return true;
+    }
+  });
   const [authTransition, setAuthTransition] = useState(false);
   const [mobileSection, setMobileSection] = useState("inicio");
   const isGuest = Boolean(currentUser?.is_anonymous);

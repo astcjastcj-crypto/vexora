@@ -366,7 +366,7 @@ export default function BrandPage() {
       if (orderError) throw orderError;
       const { error: itemError } = await supabase.from("order_items").insert({
         order_id: order.id,
-        product_name: brand.name,
+        product_name: safeBrand.name,
         plan_name: selectedPlan.name,
         duration: selectedPlan.duration,
         price,
@@ -525,7 +525,7 @@ export default function BrandPage() {
               <h3>Información importante del acceso</h3>
               <p>Este acceso se entrega con las condiciones indicadas a continuación. Léelas con atención antes de solicitar tu compra.</p>
               <div className="purchase-rules">
-                {getPurchaseRules(brand.name, selectedPlan).map(([number, title, description]) => (
+                {getPurchaseRules(safeBrand.name, selectedPlan).map(([number, title, description]) => (
                   <div key={number}><b>{number}</b><span><strong>{title}</strong><span dangerouslySetInnerHTML={{ __html: description }} /></span></div>
                 ))}
               </div>

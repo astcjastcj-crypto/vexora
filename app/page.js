@@ -513,6 +513,7 @@ export default function Home() {
 
     dragRef.current = null;
     setIsLogoDragging(false);
+    setLogoPosition({ x: 0, y: 0, rotate: 0 });
   };
 
   const startDrag = (event) => {

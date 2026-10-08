@@ -85,6 +85,20 @@ export default function Home() {
     : products;
 
   useEffect(() => {
+    products.forEach((product) => {
+      const slug = String(product.name || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\\u0300-\\u036f]/g, "")
+        .replace(/\\+/g, "-")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      if (slug) router.prefetch("/marca/" + encodeURIComponent(slug));
+    });
+  }, [products, router]);
+
+  useEffect(() => {
     let mounted = true;
 
     const loadPublicCatalog = async () => {
@@ -607,7 +621,7 @@ export default function Home() {
   const selectCategory = (item) => {
     setCategory(item);
     window.requestAnimationFrame(() => {
-      document.getElementById("productos")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("productos")?.scrollIntoView({ behavior: "auto", block: "start" });
     });
   };
 

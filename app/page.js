@@ -729,6 +729,7 @@ export default function Home() {
         <div className="showcase logo-showcase" aria-label="Productos destacados">
           <div className="showcase-glow" />
           <div className="showcase-light-rig" aria-hidden="true">
+            <span className="showcase-light-fixture" />
             <span className="showcase-light-ring" />
             <span className="showcase-light-core" />
             <span className="showcase-light-beam" />
@@ -748,6 +749,7 @@ export default function Home() {
               <span className="platform-top" />
               <span className="platform-edge" />
               <span className="platform-glow" />
+              <span className="platform-reflection" />
             </span>
             {carouselProducts.map((product, index) => {
               let offset = index - active;

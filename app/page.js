@@ -836,7 +836,7 @@ export default function Home() {
         </div>
 
         <div className="product-grid category-product-grid" key={category}>
-          {filteredProducts.slice(0, 6).map((product, index) => (
+          {filteredProducts.map((product, index) => (
             <article
               className="mini-product"
               key={product.name}

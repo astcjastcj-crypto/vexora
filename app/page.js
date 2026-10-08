@@ -64,6 +64,7 @@ export default function Home() {
   const [mobileSection, setMobileSection] = useState("inicio");
   const isAdmin = currentUser?.profile?.role === "admin";
   const [logoPosition, setLogoPosition] = useState({ x: 0, y: 0, rotate: 0 });
+  const [isLogoDragging, setIsLogoDragging] = useState(false);
   const filteredProducts = category === "Todos"
     ? products
     : products.filter((product) => {
@@ -473,9 +474,15 @@ export default function Home() {
   };
 
   const startDrag = (event) => {
-    event.currentTarget.setPointerCapture(event.pointerId);
+    if (event.button !== undefined && event.button !== 0) return;
+    event.preventDefault();
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {}
     movedRef.current = false;
+    setIsLogoDragging(true);
     dragRef.current = {
+      pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
       originX: logoPosition.x,
@@ -485,19 +492,25 @@ export default function Home() {
   };
 
   const dragLogo = (event) => {
-    if (!dragRef.current) return;
+    if (!dragRef.current || event.pointerId !== dragRef.current.pointerId) return;
     const dx = event.clientX - dragRef.current.startX;
     const dy = event.clientY - dragRef.current.startY;
-    if (Math.abs(dx) > 6 || Math.abs(dy) > 6) movedRef.current = true;
+
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      movedRef.current = true;
+    }
+
     const x = Math.max(-150, Math.min(150, dragRef.current.originX + dx));
     const y = Math.max(-120, Math.min(120, dragRef.current.originY + dy));
     const rotate = dragRef.current.originRotate + dx * 0.55;
+
     setLogoPosition({ x, y, rotate });
   };
 
-  const endDrag = () => {
+  const endDrag = (event) => {
+    if (dragRef.current && event?.pointerId !== undefined && event.pointerId !== dragRef.current.pointerId) return;
     dragRef.current = null;
-    setLogoPosition({ x: 0, y: 0, rotate: 0 });
+    setIsLogoDragging(false);
   };
 
   const openProduct = (product) => {
@@ -768,9 +781,20 @@ export default function Home() {
 
               return (
                 <button
-                  className={"floating-logo main-logo logo-brand-" + product.name.toLowerCase().replace(/\s+/g, "-")}
+                  className={"floating-logo main-logo" + (isLogoDragging ? " is-dragging" : "") + " logo-brand-" + product.name.toLowerCase().replace(/\s+/g, "-")}
                   key={product.name}
-                  onClick={() => openProduct(product)}
+                  onPointerDown={startDrag}
+                  onPointerMove={dragLogo}
+                  onPointerUp={endDrag}
+                  onPointerCancel={endDrag}
+                  onDoubleClick={() => setLogoPosition({ x: 0, y: 0, rotate: 0 })}
+                  onClick={() => {
+                    if (movedRef.current) {
+                      movedRef.current = false;
+                      return;
+                    }
+                    openProduct(product);
+                  }}
                   aria-label={"Abrir " + product.name}
                   style={{ transform: "translate3d(" + logoPosition.x + "px, " + logoPosition.y + "px, 100px) rotateY(" + logoPosition.rotate + "deg) rotateZ(" + (logoPosition.rotate * 0.08) + "deg)" }}
                 >

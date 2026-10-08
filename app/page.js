@@ -718,7 +718,7 @@ export default function Home() {
             <span className="launch-logo-depth" />
             <img src={launching.logo} alt="" />
           </div>
-          <div className="launch-label" aria-hidden="true" />
+          <div className="launch-label"><span>VEXORA</span><strong>{launching.name.toUpperCase()}</strong><small>PREPARANDO TU ACCESO</small></div>
         </div>
       )}
 

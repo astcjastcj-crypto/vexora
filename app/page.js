@@ -33,6 +33,7 @@ const fallbackProducts = [
 ];
 
 const categories = ["Todos", "IA", "Streaming", "Gaming", "Productividad", "Diseño"];
+const visibleCatalogNames = new Set(["chatgpt", "geforce now", "canva pro", "spotify premium"]);
 
 export default function Home() {
   const router = useRouter();

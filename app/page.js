@@ -33,7 +33,6 @@ const fallbackProducts = [
 ];
 
 const categories = ["Todos", "IA", "Streaming", "Gaming", "Productividad", "Diseño"];
-const visibleCatalogNames = new Set(["chatgpt", "geforce now", "canva pro", "spotify premium"]);
 
 export default function Home() {
   const router = useRouter();
@@ -94,41 +93,37 @@ export default function Home() {
         .eq("active", true)
         .order("created_at", { ascending: true });
 
-      if (!mounted || error || !data) return;
+      if (!mounted) return;
+      if (error || !data) {
+        console.error("No se pudo sincronizar el catálogo público de VEXORA:", error);
+        return;
+      }
 
-      const visibleData = data.filter((item) => visibleCatalogNames.has((item.name || "").trim().toLowerCase()));
+      // El catálogo de Supabase es la fuente de verdad: todo producto
+      // activo creado desde Admin debe aparecer en la tienda. La lista
+      // estática solo se usa mientras carga o si falla la consulta.
+      const catalogProducts = data
+        .filter((item) => item.name && item.name.trim())
+        .map((item) => {
+          const fallback = fallbackProducts.find(
+            (product) => product.name.trim().toLowerCase() === item.name.trim().toLowerCase()
+          );
+          const logo = (item.logo_url || "").trim() || (fallback?.logoConfigured ? fallback.logo : "");
+          const price = Number(item.price_from || 0) > 0
+            ? "Desde S/" + Number(item.price_from).toFixed(2)
+            : (fallback?.price || "Consultar precio");
 
-      setProducts((current) => {
-        const catalogByName = new Map(
-          visibleData.map((item) => [item.name.trim().toLowerCase(), item])
-        );
-        const merged = current.map((product) => {
-          const item = catalogByName.get(product.name.trim().toLowerCase());
-          if (!item) return product;
           return {
-            ...product,
-            type: item.category || product.type,
-            logo: item.logo_url || (product.logoConfigured ? product.logo : ""),
-            logoConfigured: Boolean(item.logo_url) || Boolean(product.logoConfigured),
-            price: Number(item.price_from || 0) > 0 ? "Desde S/" + Number(item.price_from).toFixed(0) : product.price,
+            id: item.id,
+            name: item.name.trim(),
+            type: item.category || fallback?.type || "Otros",
+            logo,
+            logoConfigured: Boolean(logo),
+            price,
           };
         });
 
-        const existingNames = new Set(merged.map((product) => product.name.trim().toLowerCase()));
-        visibleData.forEach((item) => {
-          const name = item.name?.trim();
-          if (!name || existingNames.has(name.toLowerCase())) return;
-          merged.push({
-            name,
-            type: item.category || "Otros",
-            logo: item.logo_url || "",
-            logoConfigured: Boolean(item.logo_url),
-            price: Number(item.price_from || 0) > 0 ? "Desde S/" + Number(item.price_from).toFixed(0) : "Consultar precio",
-          });
-        });
-
-        return merged;
-      });
+      setProducts(catalogProducts);
     };
 
     loadPublicCatalog();

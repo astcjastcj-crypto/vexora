@@ -124,7 +124,32 @@ export default function Home() {
           };
         });
 
-      setProducts(catalogProducts);
+      setProducts((current) => {
+        // Conserva los cuatro accesos base que ya estaban publicados,
+        // y añade todos los productos activos configurados desde Admin.
+        const merged = [...current];
+        const indexByName = new Map(
+          merged.map((product, index) => [product.name.trim().toLowerCase(), index])
+        );
+
+        catalogProducts.forEach((product) => {
+          const key = product.name.trim().toLowerCase();
+          const existingIndex = indexByName.get(key);
+          if (existingIndex === undefined) {
+            indexByName.set(key, merged.length);
+            merged.push(product);
+          } else {
+            merged[existingIndex] = {
+              ...merged[existingIndex],
+              ...product,
+              logo: product.logo || merged[existingIndex].logo || "",
+              logoConfigured: Boolean(product.logo || merged[existingIndex].logo),
+            };
+          }
+        });
+
+        return merged;
+      });
     };
 
     loadPublicCatalog();

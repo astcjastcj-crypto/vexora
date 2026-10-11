@@ -262,7 +262,7 @@ export default function BrandPage() {
         return;
       }
 
-      const [{ data: plansData, error: plansError }, { data: benefitsData, error: benefitsError }] =
+      const [{ data: plansData, error: plansError }, { data: benefitsData, error: benefitsError }, { data: conditionsData, error: conditionsError }] =
         await Promise.all([
           supabase
             .from("product_plans")
@@ -276,12 +276,19 @@ export default function BrandPage() {
             .eq("product_id", product.id)
             .eq("active", true)
             .order("sort_order", { ascending: true }),
+          supabase
+            .from("product_conditions")
+            .select("id,title,description,active,sort_order")
+            .eq("product_id", product.id)
+            .eq("active", true)
+            .order("sort_order", { ascending: true }),
         ]);
 
       if (!mounted) return;
 
       if (plansError) console.error("Error cargando planes públicos:", plansError);
       if (benefitsError) console.error("Error cargando beneficios públicos:", benefitsError);
+      if (conditionsError) console.error("Error cargando condiciones públicas:", conditionsError);
 
       const fallbackPlans = fallbackBrand?.plans || [];
       const fallbackBenefits = fallbackBrand?.benefits || [];
@@ -297,6 +304,11 @@ export default function BrandPage() {
         title: benefit.text,
         description: "",
       }));
+      const conditions = (conditionsData || []).map((condition, index) => ({
+        number: String(index + 1).padStart(2, "0"),
+        title: condition.title,
+        description: condition.description,
+      }));
 
         setBrand({
         name: product.name,
@@ -306,6 +318,7 @@ export default function BrandPage() {
         benefitTitle: fallbackBrand?.benefitTitle || "Beneficios",
         benefits: benefits.length ? benefits : (fallbackBrand ? fallbackBenefits : []),
         plans: plans.length ? plans : (fallbackBrand ? fallbackPlans : []),
+        conditions,
       });
         setCatalogLoading(false);
       } catch (error) {
@@ -410,6 +423,7 @@ export default function BrandPage() {
         benefitTitle: String(brand.benefitTitle || "Beneficios"),
         benefits: safeBenefits,
         plans: safePlans,
+        conditions: Array.isArray(brand.conditions) ? brand.conditions : [],
       }
     : null;
 
@@ -540,7 +554,10 @@ export default function BrandPage() {
               <h3>Información importante del acceso</h3>
               <p>Este acceso se entrega con las condiciones indicadas a continuación. Léelas con atención antes de solicitar tu compra.</p>
               <div className="purchase-rules">
-                {getPurchaseRules(safeBrand.name, selectedPlan).map(([number, title, description]) => (
+                {(safeBrand.conditions.length
+                  ? safeBrand.conditions.map((condition) => [condition.number, condition.title, condition.description])
+                  : getPurchaseRules(safeBrand.name, selectedPlan)
+                ).map(([number, title, description]) => (
                   <div key={number}><b>{number}</b><span><strong>{title}</strong><span dangerouslySetInnerHTML={{ __html: description }} /></span></div>
                 ))}
               </div>

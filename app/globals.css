@@ -1717,3 +1717,68 @@ img[src="/logos/openai.svg"] {
   .vexora-system-page{padding:22px 18px}
   .vexora-system-page h1{font-size:34px}
 }
+
+
+/* Mobile performance and touch reliability: keep the desktop look unchanged. */
+@media (max-width: 600px) {
+  .main-logo {
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .logo-depth {
+    display: none !important;
+  }
+  .logo-3d {
+    animation: none !important;
+    transform-style: flat;
+  }
+  .logo-face {
+    transform: none !important;
+  }
+  .ambient {
+    filter: blur(42px);
+    opacity: .11;
+  }
+  .showcase-glow {
+    filter: none;
+    opacity: .7;
+  }
+  .mobile-nav {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .category-pill,
+  .mini-product,
+  .mini-product > button,
+  .carousel-arrow,
+  .icon-button,
+  .profile-close,
+  .search-close,
+  .back-button {
+    transition-duration: .14s !important;
+  }
+  .category-pill.active {
+    transform: none;
+  }
+  .product-grid,
+  .mini-product,
+  .empty-category {
+    animation-duration: .18s;
+    animation-delay: 0s !important;
+  }
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .mini-product:hover,
+  .mini-product:hover > button,
+  .category-pill:hover::after,
+  .search-result:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}

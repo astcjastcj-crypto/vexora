@@ -217,6 +217,11 @@ export default function AdminPage() {
   const [benefitSaving, setBenefitSaving] = useState(false);
   const [benefitEditing, setBenefitEditing] = useState(null);
   const [benefitForm, setBenefitForm] = useState({ text: "", active: true, sort_order: 0 });
+  const [conditions, setConditions] = useState([]);
+  const [conditionsLoading, setConditionsLoading] = useState(false);
+  const [conditionSaving, setConditionSaving] = useState(false);
+  const [conditionEditing, setConditionEditing] = useState(null);
+  const [conditionForm, setConditionForm] = useState({ title: "", description: "", active: true, sort_order: 0 });
 
   const loadCatalog = async () => {
     setCatalogLoading(true);
@@ -269,13 +274,90 @@ export default function AdminPage() {
     setBenefitsLoading(false);
   };
 
+  const loadConditions = async (productId) => {
+    if (!productId) return;
+    setConditionsLoading(true);
+    const { data, error } = await supabase
+      .from("product_conditions")
+      .select("id, product_id, title, description, active, sort_order, created_at, updated_at")
+      .eq("product_id", productId)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (error) {
+      setMessage("No pudimos cargar las condiciones. Actualiza el panel y verifica la conexión con Supabase.");
+      setConditions([]);
+    } else {
+      setConditions(data || []);
+    }
+    setConditionsLoading(false);
+  };
+
+  const startConditionCreate = () => {
+    setConditionEditing(null);
+    setConditionForm({ title: "", description: "", active: true, sort_order: conditions.length });
+  };
+
+  const startConditionEdit = (condition) => {
+    setConditionEditing(condition);
+    setConditionForm({
+      title: condition.title || "",
+      description: condition.description || "",
+      active: condition.active !== false,
+      sort_order: Number.isFinite(Number(condition.sort_order)) ? Number(condition.sort_order) : 0,
+    });
+  };
+
+  const saveCondition = async (event) => {
+    event.preventDefault();
+    if (!plansProduct || conditionSaving || !conditionForm.title.trim() || !conditionForm.description.trim()) return;
+    setConditionSaving(true);
+    setMessage("");
+    try {
+      const payload = {
+        product_id: plansProduct.id,
+        title: conditionForm.title.trim(),
+        description: conditionForm.description.trim(),
+        active: Boolean(conditionForm.active),
+        sort_order: Math.max(0, Number(conditionForm.sort_order) || 0),
+        updated_at: new Date().toISOString(),
+      };
+      if (conditionEditing) {
+        const { error } = await supabase.from("product_conditions").update(payload).eq("id", conditionEditing.id);
+        if (error) throw error;
+        setMessage("Condición actualizada correctamente.");
+      } else {
+        const { error } = await supabase.from("product_conditions").insert(payload);
+        if (error) throw error;
+        setMessage("Condición agregada correctamente.");
+      }
+      startConditionCreate();
+      await loadConditions(plansProduct.id);
+    } catch (error) {
+      setMessage(error?.message || "No pudimos guardar la condición.");
+    } finally {
+      setConditionSaving(false);
+    }
+  };
+
+  const deleteCondition = async (condition) => {
+    if (!window.confirm("¿Eliminar la condición \"" + condition.title + "\"?")) return;
+    const { error } = await supabase.from("product_conditions").delete().eq("id", condition.id);
+    if (error) setMessage(error.message || "No pudimos eliminar la condición.");
+    else {
+      setMessage("Condición eliminada.");
+      await loadConditions(plansProduct.id);
+    }
+  };
+
   const openPlansManager = async (product) => {
     setPlansProduct(product);
     setPlanEditing(null);
     setPlanForm({ name: "", duration: "1 mes", price: "", description: "", active: true, sort_order: 0 });
     setBenefitEditing(null);
     setBenefitForm({ text: "", active: true, sort_order: 0 });
-    await Promise.all([loadPlans(product.id), loadBenefits(product.id)]);
+    setConditionEditing(null);
+    setConditionForm({ title: "", description: "", active: true, sort_order: 0 });
+    await Promise.all([loadPlans(product.id), loadBenefits(product.id), loadConditions(product.id)]);
   };
 
   const closePlansManager = () => {
@@ -284,6 +366,8 @@ export default function AdminPage() {
     setPlans([]);
     setBenefitEditing(null);
     setBenefits([]);
+    setConditionEditing(null);
+    setConditions([]);
   };
 
   const startPlanCreate = () => {
@@ -1052,6 +1136,35 @@ export default function AdminPage() {
                                 {benefitSaving ? "Guardando..." : benefitEditing ? "Guardar cambios" : "Crear beneficio"}
                               </button>
                             </div>
+                          </form>
+                        </div>
+
+                        <div className="admin-conditions-section">
+                          <div className="admin-benefits-list">
+                            <div className="admin-benefits-list-head">
+                              <div><strong>Condiciones de compra</strong><small className="admin-benefits-subtitle">Estas reglas sustituyen las condiciones genéricas en la ficha pública de este producto.</small></div>
+                              <button type="button" className="admin-primary" onClick={startConditionCreate}>＋ Nueva condición</button>
+                            </div>
+                            {conditionsLoading ? (
+                              <div className="admin-loading"><span className="admin-spinner" /> Cargando condiciones...</div>
+                            ) : conditions.length ? conditions.map((condition, index) => (
+                              <article className="admin-benefit-card" key={condition.id}>
+                                <div className="admin-benefit-number">{String(index + 1).padStart(2, "0")}</div>
+                                <div className="admin-benefit-copy">
+                                  <span className={condition.active ? "admin-plan-active" : "admin-plan-inactive"}>{condition.active ? "VISIBLE" : "OCULTA"}</span>
+                                  <strong>{condition.title}</strong><small>{condition.description}</small>
+                                </div>
+                                <div className="admin-plan-actions"><button type="button" onClick={() => startConditionEdit(condition)}>Editar</button><button type="button" onClick={() => deleteCondition(condition)}>Eliminar</button></div>
+                              </article>
+                            )) : <div className="admin-empty-block">Todavía no hay condiciones propias. Agrega aquí las reglas específicas de este servicio.</div>}
+                          </div>
+                          <form className="admin-benefit-form" onSubmit={saveCondition}>
+                            <div><span>{conditionEditing ? "EDITAR CONDICIÓN" : "NUEVA CONDICIÓN"}</span><h4>{conditionEditing ? "Actualizar condición" : "Agregar condición"}</h4></div>
+                            <label><span>Título</span><input required value={conditionForm.title} onChange={(e) => setConditionForm({ ...conditionForm, title: e.target.value })} placeholder="Ej. Dispositivos permitidos" /></label>
+                            <label><span>Descripción</span><textarea required rows="4" value={conditionForm.description} onChange={(e) => setConditionForm({ ...conditionForm, description: e.target.value })} placeholder="Escribe la condición real de este producto." /></label>
+                            <label><span>Orden de aparición</span><input type="number" min="0" step="1" value={conditionForm.sort_order} onChange={(e) => setConditionForm({ ...conditionForm, sort_order: e.target.value })} /></label>
+                            <label className="admin-switch-row"><input type="checkbox" checked={conditionForm.active} onChange={(e) => setConditionForm({ ...conditionForm, active: e.target.checked })} /><span>Mostrar esta condición en la tienda</span></label>
+                            <div className="admin-plan-form-actions">{conditionEditing && <button type="button" className="admin-secondary" onClick={startConditionCreate}>Cancelar edición</button>}<button type="submit" className="admin-primary" disabled={conditionSaving}>{conditionSaving ? "Guardando..." : conditionEditing ? "Guardar cambios" : "Agregar condición"}</button></div>
                           </form>
                         </div>
                       </section>

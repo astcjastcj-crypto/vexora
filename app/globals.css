@@ -1721,6 +1721,9 @@ img[src="/logos/openai.svg"] {
 
 /* Mobile performance and touch reliability: keep the desktop look unchanged. */
 @media (max-width: 600px) {
+  .showcase {
+    touch-action: pan-y;
+  }
   .main-logo {
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: transparent;

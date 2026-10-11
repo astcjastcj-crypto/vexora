@@ -549,7 +549,8 @@ export default function Home() {
   };
 
   const endDrag = (event) => {
-    if (dragRef.current && event?.pointerId !== undefined && event.pointerId !== dragRef.current.pointerId) return;
+    if (!dragRef.current) return;
+    if (event?.pointerId !== undefined && event.pointerId !== dragRef.current.pointerId) return;
 
     const activeDrag = dragRef.current;
     if (activeDrag?.documentMoveHandler) {
@@ -882,13 +883,18 @@ export default function Home() {
                 <button
                   className={"floating-logo main-logo" + (isLogoDragging ? " is-dragging" : "") + " logo-brand-" + product.name.toLowerCase().replace(/\s+/g, "-")}
                   key={product.name}
-                  onPointerDown={startDrag}
+                  onPointerDown={(event) => {
+                    // En pantallas táctiles priorizamos el toque y el scroll nativo;
+                    // el arrastre 3D se conserva para mouse/trackpad.
+                    if (event.pointerType === "touch") return;
+                    prefetchProduct(product);
+                    startDrag(event);
+                  }}
                   onPointerMove={dragLogo}
                   onPointerUp={endDrag}
                   onPointerCancel={endDrag}
                   onDoubleClick={() => setLogoPosition({ x: 0, y: 0, rotate: 0 })}
                   onClick={(event) => openProduct(product, event)}
-                  onPointerDown={() => prefetchProduct(product)}
                   onMouseEnter={() => prefetchProduct(product)}
                   onFocus={() => prefetchProduct(product)}
                   aria-label={"Abrir " + product.name}

@@ -554,12 +554,13 @@ export default function BrandPage() {
               <h3>Información importante del acceso</h3>
               <p>Este acceso se entrega con las condiciones indicadas a continuación. Léelas con atención antes de solicitar tu compra.</p>
               <div className="purchase-rules">
-                {(safeBrand.conditions.length
-                  ? safeBrand.conditions.map((condition) => [condition.number, condition.title, condition.description])
-                  : getPurchaseRules(safeBrand.name, selectedPlan)
-                ).map(([number, title, description]) => (
-                  <div key={number}><b>{number}</b><span><strong>{title}</strong><span dangerouslySetInnerHTML={{ __html: description }} /></span></div>
-                ))}
+                {safeBrand.conditions.length
+                  ? safeBrand.conditions.map((condition) => (
+                    <div key={condition.number}><b>{condition.number}</b><span><strong>{condition.title}</strong><span>{condition.description}</span></span></div>
+                  ))
+                  : getPurchaseRules(safeBrand.name, selectedPlan).map(([number, title, description]) => (
+                    <div key={number}><b>{number}</b><span><strong>{title}</strong><span dangerouslySetInnerHTML={{ __html: description }} /></span></div>
+                  ))}
               </div>
               <label className="terms-check"><input type="checkbox" id="vexora-terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} /><span>Acepto haber leído y comprendido las condiciones del acceso seleccionado.</span></label>
               {!currentUser && <div className="purchase-auth-note">👤 Puedes continuar como invitado. No necesitas crear una cuenta para solicitar este acceso.</div>}

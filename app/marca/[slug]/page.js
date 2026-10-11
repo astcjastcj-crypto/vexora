@@ -170,13 +170,28 @@ const getPurchaseRules = (brandName, plan) => {
     ];
   }
 
+  const planDetails = String(plan?.note || plan?.description || "").trim();
+  const category = String(brands[makeSlug(brandName)]?.type || "").toLowerCase();
+  const isStreaming = category.includes("streaming") || /disney|spotify|crunchyroll|netflix|youtube/i.test(brandName);
+  const isGaming = category.includes("gaming") || /geforce|game pass|gta|gaming/i.test(brandName);
+
   return [
-    ["01", "Acceso y dispositivo", "El plan compartido está destinado a <em>1 dispositivo por cliente</em>. Recibirás el correo y la contraseña para ingresar."],
-    ["02", "Código de acceso", "Al iniciar sesión, el servicio puede solicitar un código de verificación. <em>El código será proporcionado por el administrador de VEXORA</em> cuando corresponda."],
-    ["03", "Uso responsable", "No cambies el correo, contraseña, método de acceso ni la configuración de la cuenta."],
-    ["04", "Proyectos y archivos", "Si utilizas proyectos, conversaciones o archivos importantes, mantén siempre una copia propia."],
-    ["05", "Imágenes y archivos", "Las funciones pueden estar sujetas a límites de uso según el tipo de acceso y disponibilidad del servicio."],
-    ["06", "Condiciones del plan", "Las características, límites y condiciones corresponden al plan seleccionado."]
+    ["01", "Qué incluye", planDetails
+      ? planDetails
+      : "Revisa la descripción y las características del plan seleccionado en VEXORA antes de solicitar la compra."],
+    ["02", "Activación y entrega", isStreaming
+      ? "El método de activación y los datos de acceso se coordinarán según la modalidad de este plan."
+      : isGaming
+        ? "La activación depende de la plataforma, cuenta y modalidad indicadas para este plan."
+        : "La modalidad de activación y entrega corresponde a la indicada en la descripción del plan."],
+    ["03", "Compatibilidad", isStreaming
+      ? "Comprueba que tus dispositivos sean compatibles con el servicio y con la modalidad contratada."
+      : isGaming
+        ? "Comprueba la compatibilidad del dispositivo, plataforma, región y conexión antes de comprar."
+        : "Comprueba que el servicio y la modalidad contratada se adapten a tus necesidades antes de comprar."],
+    ["04", "Duración", "La vigencia corresponde al período indicado en el plan seleccionado."],
+    ["05", "Uso y cambios", "No realices cambios en la cuenta, perfil, membresía o configuración que puedan afectar el acceso contratado."],
+    ["06", "Condiciones del servicio", "Las funciones, límites, disponibilidad y restricciones dependen del servicio y de la modalidad adquirida. Si tienes dudas, consúltalas antes de solicitar tu pedido."]
   ];
 };
 

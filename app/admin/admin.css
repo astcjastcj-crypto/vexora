@@ -762,3 +762,13 @@
 .admin-catalog-base-item strong{color:#f3f4f8;font-size:13px}
 .admin-catalog-base-item small{color:#858da0;font-size:10px}
 @media(max-width:700px){.admin-catalog-base-item{align-items:flex-start;flex-wrap:wrap}.admin-catalog-base-item .admin-primary{width:100%}.admin-catalog-base-icon{width:42px;height:42px;flex-basis:42px}}
+
+/* Product-specific purchase conditions */
+.admin-conditions-section{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.75fr);gap:18px;padding:0 22px 22px}
+.admin-conditions-section .admin-benefit-card{grid-template-columns:34px minmax(0,1fr) auto}
+.admin-conditions-section .admin-benefit-copy small{display:block;margin-top:6px;color:#7f899b;font-size:11px;line-height:1.55;overflow-wrap:anywhere}
+.admin-conditions-section .admin-benefit-form{display:grid;align-content:start;gap:12px}
+.admin-conditions-section .admin-benefit-form label{display:grid;gap:6px}
+.admin-conditions-section .admin-benefit-form label>span{font-size:11px;color:#8d95a5}
+.admin-conditions-section .admin-benefit-form input:not([type=checkbox]),.admin-conditions-section .admin-benefit-form textarea{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(4,7,14,.72);color:#eef0f6;padding:11px 12px;outline:none;font:inherit}
+@media(max-width:800px){.admin-conditions-section{grid-template-columns:1fr;padding:0 12px 12px}.admin-conditions-section .admin-benefits-list,.admin-conditions-section .admin-benefit-form{padding:14px}.admin-conditions-section .admin-benefit-card{grid-template-columns:30px minmax(0,1fr)}.admin-conditions-section .admin-benefit-card .admin-plan-actions{grid-column:1/-1}.admin-conditions-section .admin-benefit-card .admin-plan-actions button{flex:1}}

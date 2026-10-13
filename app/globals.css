@@ -1800,3 +1800,53 @@ img[src="/logos/openai.svg"] {
     box-shadow: none;
   }
 }
+
+
+/* MOBILE PURCHASE TERMS: keep the dialog stable and lightweight on Android */
+@media (max-width: 600px) {
+  .purchase-overlay {
+    height: 100%;
+    height: 100svh;
+    padding: 8px;
+    overflow: hidden;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    animation: none !important;
+  }
+
+  .purchase-modal {
+    height: calc(100svh - 16px);
+    max-height: calc(100svh - 16px);
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: auto;
+    contain: layout paint;
+    transform: none;
+    filter: none;
+    animation: none !important;
+    will-change: auto;
+  }
+
+  .purchase-modal-head,
+  .purchase-info,
+  .purchase-rules > div {
+    filter: none;
+    transform: none;
+  }
+
+  .purchase-modal-logo img {
+    animation: none !important;
+  }
+
+  .purchase-rules > div {
+    animation: none !important;
+  }
+
+  .purchase-close,
+  .purchase-action {
+    transition: none !important;
+  }
+}

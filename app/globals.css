@@ -1728,15 +1728,13 @@ img[src="/logos/openai.svg"] {
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: transparent;
   }
+  /* Keep the 3D silhouette, but stop continuous rotation on touch devices. */
   .logo-depth {
-    display: none !important;
+    opacity: .72;
   }
   .logo-3d {
     animation: none !important;
-    transform-style: flat;
-  }
-  .logo-face {
-    transform: none !important;
+    transform-style: preserve-3d;
   }
   .ambient {
     filter: blur(42px);
@@ -1747,8 +1745,25 @@ img[src="/logos/openai.svg"] {
     opacity: .7;
   }
   .mobile-nav {
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .topbar,
+  .profile-top-button,
+  .search-overlay,
+  .search-modal {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .search-result {
+    animation: none !important;
+    transition-duration: .12s !important;
+  }
+  .search-overlay,
+  .search-modal,
+  .profile-overlay,
+  .profile-modal {
+    animation-duration: .16s !important;
   }
   .category-pill,
   .mini-product,
